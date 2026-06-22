@@ -1,5 +1,5 @@
-import IntroCarousel from "@/components/IntroCarousel";
+import IntroHero from "@/components/IntroHero";
 
 export default function Home() {
-  return <IntroCarousel />;
+  return <IntroHero />;
 }
