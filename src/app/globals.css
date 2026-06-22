@@ -22,3 +22,51 @@ body {
   color: var(--foreground);
   font-family: "Pretendard Variable", var(--font-geist-sans), system-ui, sans-serif;
 }
+
+/* 얇은 스크롤바 — Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+/* 얇은 스크롤바 — Chrome / Edge / Safari */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* History 연혁 — 색상은 스크롤 핸들러가 inline 으로 지정(활성=검정).
+   아래는 스크립트 로드 전 초기값 + 부드러운 전환. */
+.hist-year {
+  color: #a8a8a8;
+}
+.hist-ev {
+  color: #8f9092;
+}
+.hist-sub {
+  color: #b0b1b3;
+}
+.hist-row[data-active="true"] .hist-year {
+  color: #000;
+}
+.hist-row[data-active="true"] .hist-ev {
+  color: #111;
+}
+.hist-year,
+.hist-ev,
+.hist-sub {
+  transition: color 0.2s ease;
+}

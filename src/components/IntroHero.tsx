@@ -1,13 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import Header from "./Header";
 
 /** 인트로(메인 히어로) 슬라이드 — 배경은 풀블리드, 콘텐츠는 코드로 재현 */
 const SLIDES = [
   {
-    bg: "/intro/bg-1.jpg",
+    bg: "/intro/bg-1-v2.jpg",
     title: "Beyond the Route",
     sub: "길 위에서 사람과 지역, 자연을 잇고 지속가능한 걷기문화를 만듭니다",
     scrim: "bg-black/10",
@@ -19,7 +20,7 @@ const SLIDES = [
     scrim: "bg-black/40",
   },
   {
-    bg: "/intro/bg-3.jpg",
+    bg: "/intro/bg-3-v2.jpg",
     title: "The Path with Walk",
     sub: "길을 내는 마음보다, 길을 지키는 진심으로 길을 보듬습니다.",
     scrim: "bg-black/20",
@@ -92,12 +93,13 @@ export default function IntroHero() {
               >
                 {slide.sub}
               </p>
-              <button
-                type="button"
-                className="mt-8 rounded-tl-[20px] rounded-br-[20px] bg-[#0ac200] px-10 py-[14px] text-[14px] font-bold tracking-[-0.7px] text-black transition-transform hover:scale-[1.03]"
+              <Link
+                href="/our-way"
+                tabIndex={i === active ? 0 : -1}
+                className="mt-8 inline-block rounded-tl-[20px] rounded-br-[20px] bg-[#0ac200] px-10 py-[14px] text-[14px] font-bold tracking-[-0.7px] text-black transition-transform hover:scale-[1.03]"
               >
                 자세히 보기
-              </button>
+              </Link>
             </div>
           </div>
         ))}
@@ -112,7 +114,7 @@ export default function IntroHero() {
             aria-label={`${i + 1}번째 인트로로 이동`}
             onClick={() => setActive(i)}
             className={`h-2 rounded-full transition-all duration-500 ${
-              i === active ? "w-7 bg-white" : "w-2 bg-white/50 hover:bg-white/80"
+              i === active ? "w-7 bg-[#0ac200]" : "w-2 bg-white/50 hover:bg-white/80"
             }`}
           />
         ))}
