@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useT } from "@/i18n/useT";
 import Header from "./Header";
 import SectionNavLabel from "./SectionNavLabel";
 import OrgCardSection, { type OrgCard } from "./OrgCardSection";
@@ -25,57 +26,12 @@ const ORG3_END = 0.77;
 const ORG4_START = 0.85;
 const ORG4_END = 0.95;
 
-/** 단체 카드 4개 (피그마 순서). 버튼은 새 창 외부 링크 */
-const ORG_CARDS: OrgCard[] = [
-  {
-    logo: "/intro/wt-org-1.png",
-    logoW: 332,
-    title: "한국걷는길연합",
-    lines: [
-      "한국걷는길연합(KTA)은 한국의 도보 여행길을 운영하고 관리하는 단체들의 모임으로,",
-      "도보여행을 통해 자연의 소중함을 알리고, 지역문화를 재발견하여 지속 가능한 지역관광 활성화와",
-      "공동체 발전을 목표로 활동하는 단체입니다.",
-      "사단법인 한국의문화를 포함한 20개에 이르는 걷기 길 단체가 모여",
-      "지속가능한 걷기 문화를 만들어 나가고 있습니다.",
-    ],
-    href: "https://cafe.daum.net/koreantrails",
-  },
-  {
-    logo: "/intro/wt-org-3.png",
-    logoW: 266,
-    title: "아시아 트레일즈 네트워크(ATN)",
-    lines: [
-      "아시아 각국의 트레일을 연결하는 지역 기반 국제 네트워크로, 국가 간 교류와 공동 프로그램을 통해",
-      "아시아 트레일의 다양성과 연결성을 강화하는 다양한 사업을 진행하고 있습니다.",
-      "사단법인 한국의길과문화는 ATN과 함께 한국의 길을 아시아 맥락 속에서 해석하고,",
-      "한국의 길을 아시아와 잇는 역할을 수행하고 있습니다.",
-    ],
-    href: "https://www.facebook.com/asiatrailsnetwork",
-  },
-  {
-    logo: "/intro/wt-org-2.png",
-    logoW: 240,
-    title: "월드 트레일즈 네트워크(WTN)",
-    lines: [
-      "전 세계의 트레일과 걷기길을 연결하는 글로벌 협력 네트워크입니다.",
-      "각국의 운영 주체들이 교류하며 트레일 보전과 지속가능한 이용, 걷기 관광의 가치를 함께 만들어가고 있습니다.",
-      "한국의길과문화는 WTN과의 협력을 통해 한국의 길을 세계와 연결하고, 그 경험과 콘텐츠를 확장하고 있습니다.",
-      "길을 매개로 사람과 자연, 지역을 잇는 글로벌 흐름을 함께 만들어가고 있습니다.",
-    ],
-    href: "https://worldtrailsnetwork.org",
-  },
-  {
-    logo: "/intro/wt-org-4.png",
-    logoW: 242,
-    title: "GKO(코리아둘레길 완보자클럽)",
-    lines: [
-      "코리아둘레길(해파랑길, 남파랑길, 서해랑길, DMZ평화의길) 중 1개 이상을 완주한 사람들이 모인 코리아둘레길 완보자 클럽은",
-      "지속 가능한 걷기 여행 문화 확산을 목적으로 2024년 5월 발족한 모임입니다.",
-      "4500km 전 구간 완주자(그랜드슬램)를 포함한 회원들이 정보를 교류하며, 단순한 걷기 모임을 넘어",
-      "코리아둘레길 관련 행사 및 홍보 활동을 주도하고 있습니다.",
-    ],
-    href: "https://cafe.naver.com/greatkodullers",
-  },
+/** 단체 카드 4개 — 로고/링크 메타(웹사이트 순서: KTA·ATN·WTN·GKO). 텍스트는 사전. */
+const ORG_META = [
+  { logo: "/intro/wt-org-1.png", logoW: 332, href: "https://cafe.daum.net/koreantrails" },
+  { logo: "/intro/wt-org-3.png", logoW: 266, href: "https://www.facebook.com/asiatrailsnetwork" },
+  { logo: "/intro/wt-org-2.png", logoW: 240, href: "https://worldtrailsnetwork.org" },
+  { logo: "/intro/wt-org-4.png", logoW: 242, href: "https://cafe.naver.com/greatkodullers" },
 ];
 
 /** peel 단계에서 전경이 위로 올라가는 거리 (Figma 측정값) */
@@ -98,6 +54,14 @@ const STUB = "M751 370 V445";
 /** 테스트용: 선을 처음부터 끝까지 보이게 (튜닝 후 false) */
 const SHOW_FULL = false;
 
+/** 푸터 서브메뉴 → 섹션 스크롤 진행도(0~1) */
+const SECTION_PROGRESS: Record<string, number> = {
+  kta: 0.37,
+  atn: 0.57,
+  wtn: 0.77,
+  gko: 0.95,
+};
+
 const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);
 
 export default function WalkingTogetherHero() {
@@ -110,19 +74,28 @@ export default function WalkingTogetherHero() {
   const lineARef = useRef<SVGPathElement>(null);
   const lineBRef = useRef<SVGPathElement>(null);
   const headerLightRef = useRef(false);
+  const wt = useT().walkingTogether;
+  const hero = wt.hero;
+  const orgCards: OrgCard[] = ORG_META.map((m, i) => ({ ...m, title: wt.orgs[i].title, lines: wt.orgs[i].lines }));
   const [scale, setScale] = useState(1);
   const [headerLight, setHeaderLight] = useState(false);
 
-  // 새로고침 시 브라우저 스크롤 복원을 끄고 항상 맨 위에서 시작
+  // 진입 시: 해시(#섹션)면 해당 섹션으로, 아니면 맨 위. 같은 페이지 해시 변경도 처리
   useEffect(() => {
-    if ("scrollRestoration" in history) {
-      const prev = history.scrollRestoration;
-      history.scrollRestoration = "manual";
-      window.scrollTo(0, 0);
-      return () => {
-        history.scrollRestoration = prev;
-      };
-    }
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    const scrollToSection = () => {
+      const track = trackRef.current;
+      if (!track) return false;
+      const p = SECTION_PROGRESS[window.location.hash.slice(1)];
+      if (p == null) return false;
+      window.scrollTo(0, track.offsetTop + p * (track.offsetHeight - window.innerHeight));
+      return true;
+    };
+    requestAnimationFrame(() => {
+      if (!scrollToSection()) window.scrollTo(0, 0);
+    });
+    window.addEventListener("hashchange", scrollToSection);
+    return () => window.removeEventListener("hashchange", scrollToSection);
   }, []);
 
   // 화면 폭에 맞춰 스테이지 균일 축소 (1920 초과 시 1.0 유지 → 가운데 정렬)
@@ -186,7 +159,7 @@ export default function WalkingTogetherHero() {
 
   return (
     <>
-      <Header active="함께 걷는 사람들" fixed theme={headerLight ? "light" : "dark"} />
+      <Header active="walkingTogether" fixed theme={headerLight ? "light" : "dark"} />
 
       <div ref={trackRef} className="relative" style={{ height: `${TRACK_VH}vh` }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
@@ -246,11 +219,12 @@ export default function WalkingTogetherHero() {
               {/* 설명 */}
               <div className="absolute flex flex-col items-start gap-6 text-white" style={{ left: 795, top: 598 }}>
                 <p className="font-extrabold" style={{ fontSize: 24, lineHeight: 0.9, letterSpacing: "-1.2px" }}>
-                  함께 걷는 사람들
+                  {hero.title}
                 </p>
                 <div style={{ fontSize: 18, letterSpacing: "-0.72px", lineHeight: 1.45 }}>
-                  <p>함께 걸어서 아름다운 길,</p>
-                  <p>같이 해서 힘이 되는 길을 걷습니다</p>
+                  {hero.lines.map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
                 </div>
               </div>
 
@@ -265,8 +239,9 @@ export default function WalkingTogetherHero() {
                 className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col text-center font-bold text-white"
                 style={{ left: 960, top: 540 + PEEL_DIST, fontSize: 40, lineHeight: 1.2 }}
               >
-                <p>함께 걸어서 아름다운 길,</p>
-                <p>같이 해서 힘이 되는 길을 걷습니다.</p>
+                {wt.peel.map((line, i) => (
+                  <p key={i}>{line}</p>
+                ))}
               </div>
             </div>
           </div>
@@ -274,22 +249,22 @@ export default function WalkingTogetherHero() {
           {/* 단체 카드 흰 패널 4개 — 차례로 밑에서 올라와 덮음 (z-20~50) */}
           <div ref={org1Ref} className="absolute inset-0 z-20 bg-[#f0f0f0]" style={{ transform: "translateY(100%)", willChange: "transform" }}>
             <div className="absolute left-1/2 top-1/2" style={{ width: STAGE_W, height: STAGE_H, transform: `translate(-50%, -50%) scale(${scale})` }}>
-              <OrgCardSection {...ORG_CARDS[0]} />
+              <OrgCardSection {...orgCards[0]} />
             </div>
           </div>
           <div ref={org2Ref} className="absolute inset-0 z-30 bg-[#f0f0f0]" style={{ transform: "translateY(100%)", willChange: "transform" }}>
             <div className="absolute left-1/2 top-1/2" style={{ width: STAGE_W, height: STAGE_H, transform: `translate(-50%, -50%) scale(${scale})` }}>
-              <OrgCardSection {...ORG_CARDS[1]} />
+              <OrgCardSection {...orgCards[1]} />
             </div>
           </div>
           <div ref={org3Ref} className="absolute inset-0 z-40 bg-[#f0f0f0]" style={{ transform: "translateY(100%)", willChange: "transform" }}>
             <div className="absolute left-1/2 top-1/2" style={{ width: STAGE_W, height: STAGE_H, transform: `translate(-50%, -50%) scale(${scale})` }}>
-              <OrgCardSection {...ORG_CARDS[2]} />
+              <OrgCardSection {...orgCards[2]} />
             </div>
           </div>
           <div ref={org4Ref} className="absolute inset-0 z-50 bg-[#f0f0f0]" style={{ transform: "translateY(100%)", willChange: "transform" }}>
             <div className="absolute left-1/2 top-1/2" style={{ width: STAGE_W, height: STAGE_H, transform: `translate(-50%, -50%) scale(${scale})` }}>
-              <OrgCardSection {...ORG_CARDS[3]} />
+              <OrgCardSection {...orgCards[3]} />
             </div>
           </div>
         </div>

@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useT } from "@/i18n/useT";
 import Header from "./Header";
 import SectionNavLabel from "./SectionNavLabel";
 import WalkWithUsContent from "./WalkWithUsContent";
+import SiteFooter from "./SiteFooter";
 
 /** Figma "06. 마음잇기 main" 좌표계 (1920 기준) */
 const STAGE_W = 1920;
@@ -41,6 +43,12 @@ const LINE_B = "M752 440 V602 C752 642 720 662 680 662 H0";
 /** 테스트용: 선을 처음부터 끝까지 보이게 (튜닝 후 false) */
 const SHOW_FULL = false;
 
+/** 푸터 서브메뉴 → 콘텐츠가 덮인 위치로 스크롤 (탭 선택은 WalkWithUsContent 가 해시로 처리) */
+const SECTION_PROGRESS: Record<string, number> = {
+  donation: 0.55,
+  annual: 0.55,
+};
+
 const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);
 
 export default function WalkWithUsHero() {
@@ -51,19 +59,26 @@ export default function WalkWithUsHero() {
   const lineARef = useRef<SVGPathElement>(null);
   const lineBRef = useRef<SVGPathElement>(null);
   const headerLightRef = useRef(false);
+  const hero = useT().walkWithUs.hero;
   const [scale, setScale] = useState(1);
   const [headerLight, setHeaderLight] = useState(false);
 
-  // 새로고침 시 브라우저 스크롤 복원을 끄고 항상 맨 위에서 시작
+  // 진입 시: 해시(#donation/#annual)면 콘텐츠 위치로, 아니면 맨 위. 같은 페이지 해시 변경도 처리
   useEffect(() => {
-    if ("scrollRestoration" in history) {
-      const prev = history.scrollRestoration;
-      history.scrollRestoration = "manual";
-      window.scrollTo(0, 0);
-      return () => {
-        history.scrollRestoration = prev;
-      };
-    }
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    const scrollToSection = () => {
+      const track = trackRef.current;
+      if (!track) return false;
+      const p = SECTION_PROGRESS[window.location.hash.slice(1)];
+      if (p == null) return false;
+      window.scrollTo(0, track.offsetTop + p * (track.offsetHeight - window.innerHeight));
+      return true;
+    };
+    requestAnimationFrame(() => {
+      if (!scrollToSection()) window.scrollTo(0, 0);
+    });
+    window.addEventListener("hashchange", scrollToSection);
+    return () => window.removeEventListener("hashchange", scrollToSection);
   }, []);
 
   // 화면 폭에 맞춰 스테이지 균일 축소 (1920 초과 시 1.0 유지 → 가운데 정렬)
@@ -130,7 +145,7 @@ export default function WalkWithUsHero() {
 
   return (
     <>
-      <Header active="마음잇기" fixed theme={headerLight ? "light" : "dark"} />
+      <Header active="walkWithUs" fixed theme={headerLight ? "light" : "dark"} />
 
       <div ref={trackRef} className="relative" style={{ height: `${TRACK_VH}vh` }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
@@ -186,10 +201,10 @@ export default function WalkWithUsHero() {
                 className="absolute -translate-x-1/2 font-extrabold text-white"
                 style={{ left: 916, top: 524, fontSize: 24, lineHeight: 0.9, letterSpacing: "-1.2px" }}
               >
-                마음잇기
+                {hero.title}
               </p>
               <p className="absolute text-white" style={{ left: 793, top: 563, fontSize: 18, lineHeight: 1.45, letterSpacing: "-0.72px" }}>
-                길 위에 가치를 더하는 여정에 함께하세요.
+                {hero.desc}
               </p>
 
               {/* 좌측 라벨 (이전 섹션: 알리는 이야기) */}
@@ -218,6 +233,9 @@ export default function WalkWithUsHero() {
           </div>
         </div>
       </div>
+
+      {/* 트랙 종료 후 일반 스크롤로 등장하는 푸터 */}
+      <SiteFooter scale={scale} />
     </>
   );
 }

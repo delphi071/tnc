@@ -1,9 +1,11 @@
 "use client";
 
-/** "05. 알리는 이야기 > 문의하기" 탭 패널 — 성함 / 이메일 / 문의내용 + 보내기.
+import { useT } from "@/i18n/useT";
+
+/** "05. 알리는 이야기 > 문의하기" 탭 패널 — 성함 / 이메일 / 문의내용 + 보내기 (텍스트는 사전).
  *  NoticesSection 탭에서 활성화 시 렌더. 정적 폼(실제 전송 로직 없음). */
 
-const EMAIL_DOMAINS = ["gmail.com", "naver.com", "daum.net", "kakao.com", "직접 입력"];
+const FIXED_DOMAINS = ["gmail.com", "naver.com", "daum.net", "kakao.com"];
 
 /** 필수 표시 점 */
 function Req() {
@@ -26,29 +28,32 @@ function Field({ label, align = "center", children }: { label: string; align?: "
 const underline = "border-0 border-b border-[#9c9c9c] bg-transparent pb-2 text-[20px] text-black outline-none placeholder:text-[#c5c5c5] focus:border-[#0ac200]";
 
 export default function InquirySection() {
+  const t = useT().inquiry;
+  const emailDomains = [...FIXED_DOMAINS, t.emailDirect];
   return (
     <div className="flex flex-col px-[50px]">
       {/* 헤딩 */}
       <div className="font-bold text-black" style={{ fontSize: 24, lineHeight: 1.3, letterSpacing: "-0.624px" }}>
-        <p>궁금하신 사항을 남겨주세요.</p>
-        <p>빠른 시간 안에 답변 드리겠습니다.</p>
+        {t.heading.map((line, i) => (
+          <p key={i}>{line}</p>
+        ))}
       </div>
 
       {/* 폼 */}
       <form className="mt-[100px] flex flex-col gap-[60px]" onSubmit={(e) => e.preventDefault()}>
         {/* 성함 */}
-        <Field label="문의하시는 분 성함">
-          <input type="text" className={`${underline} w-full max-w-[490px]`} placeholder="홍길동" />
+        <Field label={t.labels.name}>
+          <input type="text" className={`${underline} w-full max-w-[490px]`} placeholder={t.namePlaceholder} />
         </Field>
 
         {/* 이메일 */}
-        <Field label="답변 받을 이메일">
+        <Field label={t.labels.email}>
           <div className="flex flex-wrap items-end gap-[14px]" style={{ fontSize: 20 }}>
-            <input type="text" className={`${underline} w-[240px]`} placeholder="이메일" />
+            <input type="text" className={`${underline} w-[240px]`} placeholder={t.emailPlaceholder} />
             <span className="pb-2 text-black" style={{ fontFamily: "var(--font-montserrat)" }}>@</span>
             <div className="relative">
               <select className={`${underline} w-[180px] cursor-pointer appearance-none pr-6`} style={{ fontFamily: "var(--font-montserrat)" }} defaultValue="gmail.com">
-                {EMAIL_DOMAINS.map((d) => (
+                {emailDomains.map((d) => (
                   <option key={d} value={d}>
                     {d}
                   </option>
@@ -62,12 +67,12 @@ export default function InquirySection() {
         </Field>
 
         {/* 문의내용 */}
-        <Field label="문의내용" align="start">
+        <Field label={t.labels.content} align="start">
           <textarea
             rows={6}
             className="w-full resize-y border border-[#464444] bg-transparent p-[14px] text-[20px] leading-[1.5] text-black outline-none placeholder:text-[#bdbdbd] focus:border-[#0ac200]"
             style={{ minHeight: 198 }}
-            placeholder="문의하시는 내용을 입력해주세요."
+            placeholder={t.contentPlaceholder}
           />
         </Field>
 
@@ -81,7 +86,7 @@ export default function InquirySection() {
             className="flex h-[50px] w-[200px] cursor-pointer items-center justify-center rounded-br-[20px] rounded-tl-[20px] bg-[#0ac200] font-bold text-black transition-opacity hover:opacity-90"
             style={{ fontSize: 16, letterSpacing: "-0.8px" }}
           >
-            보내기
+            {t.submit}
           </button>
         </div>
       </form>

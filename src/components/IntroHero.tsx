@@ -3,31 +3,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useT } from "@/i18n/useT";
 import Header from "./Header";
 
-/** 인트로(메인 히어로) 슬라이드 — 배경은 풀블리드, 콘텐츠는 코드로 재현 */
+/** 인트로(메인 히어로) 슬라이드 — 배경은 풀블리드, 콘텐츠는 코드로 재현.
+ *  자막(sub)/CTA 문구는 다국어 사전(intro)에서 슬라이드 순서대로 가져온다. */
 const SLIDES = [
-  {
-    bg: "/intro/bg-1-v2.jpg",
-    title: "Beyond the Route",
-    sub: "길 위에서 사람과 지역, 자연을 잇고 지속가능한 걷기문화를 만듭니다",
-    scrim: "bg-black/10",
-    href: "/our-way",
-  },
-  {
-    bg: "/intro/bg-2.jpg",
-    title: "Same trail New Vision",
-    sub: "걷는 길이 행복한 이야기가 되는 곳, 대한민국 걷기 문화의 중심",
-    scrim: "bg-black/40",
-    href: "/same-trail",
-  },
-  {
-    bg: "/intro/bg-3-v2.jpg",
-    title: "The Path with Walk",
-    sub: "길을 내는 마음보다, 길을 지키는 진심으로 길을 보듬습니다.",
-    scrim: "bg-black/20",
-    href: "/the-path-we-walk",
-  },
+  { bg: "/intro/bg-1-v2.jpg", title: "Beyond the Route", scrim: "bg-black/10", href: "/our-way" },
+  { bg: "/intro/bg-2.jpg", title: "Same trail New Vision", scrim: "bg-black/40", href: "/same-trail" },
+  { bg: "/intro/bg-3-v2.jpg", title: "The Path with Walk", scrim: "bg-black/20", href: "/the-path-we-walk" },
 ];
 
 /** 화면당 노출 시간(ms) */
@@ -36,6 +20,7 @@ const INTERVAL = 3000;
 const FADE = 1000;
 
 export default function IntroHero() {
+  const t = useT();
   const [active, setActive] = useState(0);
 
   useEffect(() => {
@@ -96,14 +81,14 @@ export default function IntroHero() {
                 className="mt-6 font-extrabold leading-snug text-white"
                 style={{ fontSize: "clamp(1rem, 1.25vw, 24px)" }}
               >
-                {slide.sub}
+                {t.intro.subs[i]}
               </p>
               <Link
                 href={slide.href}
                 tabIndex={i === active ? 0 : -1}
                 className="mt-8 inline-block rounded-tl-[20px] rounded-br-[20px] bg-[#0ac200] px-10 py-[14px] text-[14px] font-bold tracking-[-0.7px] text-black transition-transform hover:scale-[1.03]"
               >
-                자세히 보기
+                {t.intro.cta}
               </Link>
             </div>
           </div>

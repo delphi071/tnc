@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useT } from "@/i18n/useT";
 import Header from "./Header";
 import SectionNavLabel from "./SectionNavLabel";
 import NoticesSection from "./NoticesSection";
@@ -36,19 +37,33 @@ export default function OurStoriesHero() {
   const lineARef = useRef<SVGPathElement>(null);
   const lineBRef = useRef<SVGPathElement>(null);
   const headerLightRef = useRef(false);
+  const hero = useT().ourStories.hero;
   const [scale, setScale] = useState(1);
   const [headerLight, setHeaderLight] = useState(false);
 
-  // 새로고침 시 브라우저 스크롤 복원을 끄고 항상 맨 위에서 시작
+  // 진입 시 스크롤 위치 결정
+  //  - 공지/소식받기/문의하기 해시 또는 상세에서 "목록"·뒤로가기(세션 플래그): 공지 섹션으로 스크롤
+  //    (탭 선택은 NoticesSection 이 해시로 처리)
+  //  - 그 외(새로고침/일반 진입): 브라우저 스크롤 복원을 끄고 항상 맨 위(히어로)에서 시작
   useEffect(() => {
-    if ("scrollRestoration" in history) {
-      const prev = history.scrollRestoration;
-      history.scrollRestoration = "manual";
-      window.scrollTo(0, 0);
-      return () => {
-        history.scrollRestoration = prev;
-      };
-    }
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    const NOTICE_HASHES = ["#notices", "#subscribe", "#contact"];
+    // 레이아웃(240vh 트랙)이 자리잡은 뒤 공지 섹션으로 이동
+    const goNotices = () =>
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => document.getElementById("notices")?.scrollIntoView()),
+      );
+
+    const want = NOTICE_HASHES.includes(window.location.hash) || sessionStorage.getItem("os:notices") === "1";
+    sessionStorage.removeItem("os:notices");
+    if (want) goNotices();
+    else window.scrollTo(0, 0);
+
+    const onHash = () => {
+      if (NOTICE_HASHES.includes(window.location.hash)) goNotices();
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
   // 화면 폭에 맞춰 스테이지 균일 축소 (1920 초과 시 1.0 유지 → 가운데 정렬)
@@ -95,7 +110,7 @@ export default function OurStoriesHero() {
 
   return (
     <>
-      <Header active="알리는 이야기" fixed theme={headerLight ? "light" : "dark"} />
+      <Header active="ourStories" fixed theme={headerLight ? "light" : "dark"} />
 
       <div ref={trackRef} className="relative" style={{ height: `${TRACK_VH}vh` }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
@@ -156,9 +171,13 @@ export default function OurStoriesHero() {
             {/* 설명 (헤드라인 아래, 가운데) */}
             <div className="absolute flex -translate-x-1/2 flex-col items-center gap-6 text-center text-white" style={{ left: 960, top: 611 }}>
               <p className="font-extrabold" style={{ fontSize: 24, lineHeight: 0.9, letterSpacing: "-1.2px" }}>
-                알리는 이야기
+                {hero.title}
               </p>
-              <p style={{ fontSize: 18, lineHeight: 0.9, letterSpacing: "-0.72px" }}>알리고 나누어 길을 더 풍성하게 합니다.</p>
+              <div style={{ fontSize: 18, lineHeight: 1.45, letterSpacing: "-0.72px" }}>
+                {hero.lines.map((line, i) => (
+                  <p key={i}>{line}</p>
+                ))}
+              </div>
             </div>
 
             {/* 좌측 라벨 (이전 섹션: 함께 걷는 사람들) */}
@@ -171,7 +190,9 @@ export default function OurStoriesHero() {
       </div>
 
       {/* 히어로 다음, 일반 스크롤로 바로 등장하는 밝은 공지사항 콘텐츠 + 푸터 */}
-      <div ref={noticesRef}>
+      {/* scrollMarginTop=0: 목록 복귀 시 공지 섹션 top을 0에 맞춰, 헤더(높이 102) 전체가
+          밝은 #f0f0f0 섹션 위에 오도록 한다. (그래야 헤더가 라이트로 전환돼 메뉴가 잘 보임) */}
+      <div id="notices" ref={noticesRef} style={{ scrollMarginTop: 0 }}>
         <NoticesSection />
       </div>
       <SiteFooter scale={scale} />

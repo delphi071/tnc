@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useT } from "@/i18n/useT";
 import Header from "./Header";
 import MissionScreen from "./MissionScreen";
 import VisionScreen from "./VisionScreen";
@@ -42,6 +43,15 @@ const RIGHT_X = 901; // the 의 h (오른쪽으로 1px 보정)
 /** 테스트용: 선을 처음부터 끝까지 보이게 (튜닝 후 false) */
 const SHOW_FULL = false;
 
+/** 푸터 서브메뉴 → 섹션 스크롤 진행도(0~1). 해시(#키)로 해당 섹션 위치로 점프 */
+const SECTION_PROGRESS: Record<string, number> = {
+  mission: 0.16,
+  vision: 0.22,
+  history: 0.64,
+  people: 0.85,
+  location: 0.96,
+};
+
 export default function OurWayHero() {
   const trackRef = useRef<HTMLDivElement>(null);
   const lineLeftRef = useRef<SVGPathElement>(null);
@@ -58,21 +68,28 @@ export default function OurWayHero() {
   const mapRef = useRef<HTMLDivElement>(null);
   const headerLightRef = useRef(false);
 
+  const t = useT();
   const [scale, setScale] = useState(1);
   const [headerLight, setHeaderLight] = useState(false);
   const leftX = LEFT_X;
   const rightX = RIGHT_X;
 
-  // 새로고침 시 브라우저 스크롤 복원을 끄고 항상 맨 위(1단계)에서 시작
+  // 진입 시: 해시(#섹션)면 해당 섹션으로, 아니면 맨 위(1단계). 같은 페이지 해시 변경도 처리
   useEffect(() => {
-    if ("scrollRestoration" in history) {
-      const prev = history.scrollRestoration;
-      history.scrollRestoration = "manual";
-      window.scrollTo(0, 0);
-      return () => {
-        history.scrollRestoration = prev;
-      };
-    }
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    const scrollToSection = () => {
+      const track = trackRef.current;
+      if (!track) return false;
+      const p = SECTION_PROGRESS[window.location.hash.slice(1)];
+      if (p == null) return false;
+      window.scrollTo(0, track.offsetTop + p * (track.offsetHeight - window.innerHeight));
+      return true;
+    };
+    requestAnimationFrame(() => {
+      if (!scrollToSection()) window.scrollTo(0, 0);
+    });
+    window.addEventListener("hashchange", scrollToSection);
+    return () => window.removeEventListener("hashchange", scrollToSection);
   }, []);
 
   // 화면 폭에 맞춰 스테이지 균일 축소 (1920 초과 시 1.0 유지 → 가운데 정렬)
@@ -224,7 +241,7 @@ export default function OurWayHero() {
   return (
     <>
       {/* 페이지 전체에 고정되는 헤더 (메뉴는 항상 떠 있음, 밝은 섹션에서 테마 전환) */}
-      <Header active="우리의 길" fixed theme={headerLight ? "light" : "dark"} />
+      <Header active="ourWay" fixed theme={headerLight ? "light" : "dark"} />
 
       <div ref={trackRef} className="relative" style={{ height: `${TRACK_VH}vh` }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
@@ -295,11 +312,12 @@ export default function OurWayHero() {
           {/* 설명 */}
           <div className="absolute flex flex-col gap-6 text-white" style={{ left: 1017, top: 622 }}>
             <p className="font-extrabold" style={{ fontSize: 24, lineHeight: 0.9, letterSpacing: "-1.2px" }}>
-              길, 그 이상의 연결
+              {t.ourWay.hero.title}
             </p>
             <div style={{ fontSize: 18, letterSpacing: "-0.72px", lineHeight: 1.45 }}>
-              <p>단순한 이동을 넘어,</p>
-              <p>길 위에 숨겨진 가치를 연결하는 여정이 시작되는 지점</p>
+              {t.ourWay.hero.lines.map((line, i) => (
+                <p key={i}>{line}</p>
+              ))}
             </div>
           </div>
 

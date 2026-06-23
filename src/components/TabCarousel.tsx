@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { useLocale } from "@/i18n/LocaleProvider";
 
 /** "우리가 걷는 길" 콘텐츠 공용 — 탭 클릭형 가로 캐러셀.
  *  1920 스테이지 좌표 기준 left410 top238 에 배치 (스케일 스테이지 안에서 사용).
@@ -22,6 +23,8 @@ const GAP = 460;
 
 export default function TabCarousel({ label, title, slides }: { label: string; title: string; slides: CarouselSlide[] }) {
   const [active, setActive] = useState(0);
+  // 영문 본문은 단락 통째라 컬럼 폭에서 자동 줄바꿈, 한국어는 사전 줄나눔(nowrap) 유지
+  const en = useLocale().locale === "en";
 
   return (
     <div className="absolute flex flex-col items-start gap-[52px]" style={{ left: 410, top: 238, width: SLIDE_W }}>
@@ -77,7 +80,7 @@ export default function TabCarousel({ label, title, slides }: { label: string; t
                             {b.h}
                           </p>
                         )}
-                        <div className="whitespace-nowrap" style={{ fontSize: 15, lineHeight: 1.4, letterSpacing: "-0.45px", color: "#5a5b5d" }}>
+                        <div className={en ? "" : "whitespace-nowrap"} style={{ fontSize: 15, lineHeight: 1.4, letterSpacing: "-0.45px", color: "#5a5b5d" }}>
                           {b.lines.map((l, li) => (
                             <p key={li}>{l}</p>
                           ))}

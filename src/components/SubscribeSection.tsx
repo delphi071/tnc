@@ -2,45 +2,13 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { useT } from "@/i18n/useT";
 
-/** "05. 알리는 이야기 > 소식받기" 탭 패널 — 소식 신청 폼 + 안내 카드 3개.
+/** "05. 알리는 이야기 > 소식받기" 탭 패널 — 소식 신청 폼 + 안내 카드 3개 (텍스트는 사전).
  *  NoticesSection 탭에서 활성화 시 렌더. 정적 폼(실제 전송 로직 없음). */
 
-const INTERESTS = ["둘레길지킴이", "자원봉사", "걷기문화 프로그램"] as const;
-const EMAIL_DOMAINS = ["gmail.com", "naver.com", "daum.net", "kakao.com", "직접 입력"];
-
-/** 하단 안내 카드 (피그마 순서) */
-const CARDS = [
-  {
-    img: "/intro/os-sub-1.jpg",
-    title: "둘레길지킴이",
-    lines: [
-      "유니크 로컬 체험 ‘길문화학교’, 청소년 멘토링",
-      "걷기여행 ‘청소년여행문화학교’ 등 걷기여행을",
-      "운영하고 있습니다.",
-      "개인은 물론 단체/기업 참여가 가능합니다.",
-    ],
-  },
-  {
-    img: "/intro/os-sub-2.jpg",
-    title: "자원봉사",
-    lines: [
-      "걷기길 관리/운영 봉사활동을 하고 있습니다.",
-      "제초, 정비, 플로깅(환경보호) 등",
-      "우리의 길을 지키기 위한 다양한 활동을",
-      "비정기적 운영하고 있습니다.",
-    ],
-  },
-  {
-    img: "/intro/os-sub-3.jpg",
-    title: "걷기문화 프로그램",
-    lines: [
-      "매년 모집/선발된 둘레길 지킴이 선생님들이",
-      "편안하고 안전한 둘레길 여행을 위해",
-      "각 지역/구간을 정기적 관리하고 있습니다.",
-    ],
-  },
-];
+const FIXED_DOMAINS = ["gmail.com", "naver.com", "daum.net", "kakao.com"];
+const CARD_IMGS = ["/intro/os-sub-1.jpg", "/intro/os-sub-2.jpg", "/intro/os-sub-3.jpg"];
 
 /** 필수 표시 점 */
 function Req() {
@@ -63,6 +31,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 const underline = "border-0 border-b border-[#9c9c9c] bg-transparent pb-2 text-[20px] text-black outline-none placeholder:text-[#c5c5c5] focus:border-[#0ac200]";
 
 export default function SubscribeSection() {
+  const t = useT().subscribe;
+  const emailDomains = [...FIXED_DOMAINS, t.emailDirect];
   const [interest, setInterest] = useState<string>("");
   const [agree, setAgree] = useState(false);
 
@@ -70,8 +40,9 @@ export default function SubscribeSection() {
     <div className="flex flex-col px-[50px]">
       {/* 헤딩 */}
       <div className="font-bold text-black" style={{ fontSize: 24, lineHeight: 1.3, letterSpacing: "-0.624px" }}>
-        <p>한국과길과문화의</p>
-        <p>새로운 소식을 보내드려요.</p>
+        {t.heading.map((line, i) => (
+          <p key={i}>{line}</p>
+        ))}
       </div>
 
       {/* 폼 */}
@@ -80,12 +51,12 @@ export default function SubscribeSection() {
         onSubmit={(e) => e.preventDefault()}
       >
         {/* 성함 */}
-        <Field label="소식 받는 분 성함">
-          <input type="text" className={`${underline} w-full max-w-[320px]`} placeholder="홍길동" />
+        <Field label={t.labels.name}>
+          <input type="text" className={`${underline} w-full max-w-[320px]`} placeholder={t.namePlaceholder} />
         </Field>
 
         {/* 연락처 */}
-        <Field label="소식 받는 분 연락처">
+        <Field label={t.labels.phone}>
           <div className="flex items-end gap-[18px]" style={{ fontSize: 20 }}>
             <span className="pb-2 text-black">010</span>
             <span className="pb-2 text-black">-</span>
@@ -96,13 +67,13 @@ export default function SubscribeSection() {
         </Field>
 
         {/* 이메일 */}
-        <Field label="소식 받을 이메일">
+        <Field label={t.labels.email}>
           <div className="flex flex-wrap items-end gap-[14px]" style={{ fontSize: 20 }}>
-            <input type="text" className={`${underline} w-[240px]`} placeholder="이메일" />
+            <input type="text" className={`${underline} w-[240px]`} placeholder={t.emailPlaceholder} />
             <span className="pb-2 text-black" style={{ fontFamily: "var(--font-montserrat)" }}>@</span>
             <div className="relative">
               <select className={`${underline} w-[180px] cursor-pointer appearance-none pr-6`} style={{ fontFamily: "var(--font-montserrat)" }} defaultValue="gmail.com">
-                {EMAIL_DOMAINS.map((d) => (
+                {emailDomains.map((d) => (
                   <option key={d} value={d}>
                     {d}
                   </option>
@@ -116,9 +87,9 @@ export default function SubscribeSection() {
         </Field>
 
         {/* 관심분야 */}
-        <Field label="관심분야">
+        <Field label={t.labels.interests}>
           <div className="flex flex-wrap gap-[19px]">
-            {INTERESTS.map((v) => {
+            {t.interests.map((v) => {
               const on = interest === v;
               return (
                 <button
@@ -159,7 +130,7 @@ export default function SubscribeSection() {
               )}
             </span>
             <span className="text-black" style={{ fontSize: 16, letterSpacing: "-0.16px" }}>
-              개인정보 수집 및 활용에 동의합니다.
+              {t.consent}
             </span>
           </button>
           <button
@@ -168,23 +139,23 @@ export default function SubscribeSection() {
             className="flex h-[60px] w-[256px] cursor-pointer items-center justify-center rounded-br-[20px] rounded-tl-[20px] bg-[#0ac200] font-bold text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             style={{ fontSize: 16, letterSpacing: "-0.8px" }}
           >
-            신청
+            {t.submit}
           </button>
         </div>
       </form>
 
       {/* 안내 카드 3개 */}
       <div className="mt-[160px] grid grid-cols-1 gap-x-[80px] gap-y-[60px] md:grid-cols-2 xl:grid-cols-3">
-        {CARDS.map((c) => (
-          <div key={c.title} className="flex flex-col items-center gap-[30px]">
+        {t.cards.map((c, ci) => (
+          <div key={ci} className="flex flex-col items-center gap-[30px]">
             <div className="relative size-[320px] overflow-hidden rounded-br-[40px] rounded-tl-[40px] bg-[#d9d9d9]">
-              <Image src={c.img} alt={c.title} fill sizes="320px" className="object-cover" />
+              <Image src={CARD_IMGS[ci]} alt={c.title} fill sizes="320px" className="object-cover" />
             </div>
             <div className="flex flex-col items-center gap-4 text-center">
               <p className="font-extrabold text-black" style={{ fontSize: 20, lineHeight: 1.1, letterSpacing: "-0.2px" }}>
                 {c.title}
               </p>
-              <div style={{ fontSize: 18, lineHeight: 1.5, letterSpacing: "-0.18px", color: "#5a5b5d" }}>
+              <div style={{ fontSize: 18, lineHeight: 1.5, letterSpacing: "-0.18px", color: "#5a5b5d", maxWidth: 320 }}>
                 {c.lines.map((l, i) => (
                   <p key={i}>{l}</p>
                 ))}

@@ -1,31 +1,25 @@
+"use client";
+
+import { useT } from "@/i18n/useT";
+
 /** Figma "01. 우리의 길 contents0 > Mission" (1920×1080) */
 const STAGE_W = 1920;
 const STAGE_H = 1080;
 const CIRCLE = 275; // 245 → 약간 키움 (특히 02 텍스트 여유 확보)
 const CIRCLE_CY = 737.5; // 원 세로 중심 (디자인 기준 유지)
 
+/** 원 3개 지오메트리 (텍스트는 사전 mission.circles[i]) */
 const CIRCLES = [
-  {
-    cx: 560.5,
-    n: "01",
-    lines: ["좋은 길을 찾고", "길에 문화와 이야기를 입혀", "길에 숨을 불어 넣는다."],
-  },
-  {
-    cx: 959.5,
-    n: "02",
-    lines: ["길위에서", "사람과 지역, 자연을 연결하여", "지속가능한 사회적 가치를 창출한다."],
-  },
-  {
-    cx: 1358.5,
-    n: "03",
-    lines: ["길을 통해 치유와 배움 등을", "제공하여 창조적 걷기 여행 문화를", "만들고 길의 이용을 활성화한다."],
-  },
+  { cx: 560.5, n: "01" },
+  { cx: 959.5, n: "02" },
+  { cx: 1358.5, n: "03" },
 ];
 
 /** 원 사이 "+" 커넥터 중심 x */
 const PLUS_X = [760, 1159];
 
 export default function MissionScreen({ scale }: { scale: number }) {
+  const m = useT().ourWay.mission;
   return (
     // 배경 이미지 없이(히어로 배경이 고정으로 비침) 어두운 레이어 + 콘텐츠만 올라옴
     <div className="relative h-full w-full overflow-hidden">
@@ -43,22 +37,24 @@ export default function MissionScreen({ scale }: { scale: number }) {
           Mission
         </p>
 
-        {/* 헤드라인 */}
+        {/* 헤드라인 — 각 줄을 강제로 한 줄 유지(영문이 길어도 줄깨짐 방지) */}
         <div
-          className="absolute text-center font-bold text-white"
-          style={{ left: 460, right: 460, top: 333, fontSize: 40, lineHeight: 1.2, letterSpacing: "-0.4px" }}
+          className="absolute whitespace-nowrap text-center font-bold text-white"
+          style={{ left: 0, right: 0, top: 333, fontSize: 40, lineHeight: 1.2, letterSpacing: "-0.4px" }}
         >
-          <p>길 위에서 사람과 지역, 자연을 잇고</p>
-          <p>지속가능한 걷기문화를 만듭니다.</p>
+          {m.headline.map((line, i) => (
+            <p key={i}>{line}</p>
+          ))}
         </div>
 
-        {/* 설명 */}
+        {/* 설명 — 상단 정렬(아래로 늘어나며, 영문 다줄에도 헤드라인과 겹치지 않게) */}
         <div
-          className="absolute -translate-y-1/2 text-center text-white/90"
-          style={{ left: 0, right: 0, top: 482, fontSize: 18, lineHeight: 1.45, letterSpacing: "-0.36px" }}
+          className="absolute text-center text-white/90"
+          style={{ left: 0, right: 0, top: 456, fontSize: 18, lineHeight: 1.45, letterSpacing: "-0.36px" }}
         >
-          <p>한국의길과문화는 단순히 길을 관리하는 곳이 아니라 이야기와 문화가 숨쉬는 길을 통해 지역경제를 활성화하고,</p>
-          <p>생태계를 보전하며, 탐방객에게 치유와 배움을 제공하여 지속 가능한 탐방 문화를 일구겠다는 존재 이유로 설립되었습니다.</p>
+          {m.desc.map((line, i) => (
+            <p key={i}>{line}</p>
+          ))}
         </div>
 
         {/* 원 3개 */}
@@ -71,7 +67,7 @@ export default function MissionScreen({ scale }: { scale: number }) {
         ))}
 
         {/* 원 안 텍스트 (원 중심 정렬) */}
-        {CIRCLES.map((c) => (
+        {CIRCLES.map((c, ci) => (
           <div
             key={`t-${c.n}`}
             className="absolute flex -translate-x-1/2 flex-col items-center gap-3 text-center text-black"
@@ -81,7 +77,7 @@ export default function MissionScreen({ scale }: { scale: number }) {
               {c.n}
             </p>
             <div style={{ fontSize: 18, lineHeight: 1.5, letterSpacing: "-0.9px" }}>
-              {c.lines.map((l, i) => (
+              {m.circles[ci].map((l, i) => (
                 <p key={i}>{l}</p>
               ))}
             </div>

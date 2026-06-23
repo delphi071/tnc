@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useT } from "@/i18n/useT";
 import Header from "./Header";
 import SectionNavLabel from "./SectionNavLabel";
 import KoriaDulegilSection from "./KoriaDulegilSection";
@@ -41,6 +42,14 @@ const LINE_B = "M1111.4 565 V778 C1111.4 816.66 1142.74 848 1181.4 848 H1920";
 /** 테스트용: 선을 처음부터 끝까지 보이게 (튜닝 후 false) */
 const SHOW_FULL = false;
 
+/** 푸터 서브메뉴 → 섹션 스크롤 진행도(0~1) */
+const SECTION_PROGRESS: Record<string, number> = {
+  korea: 0.24,
+  regional: 0.46,
+  culture: 0.68,
+  goods: 0.9,
+};
+
 const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);
 
 export default function PathWeWalkHero() {
@@ -52,19 +61,26 @@ export default function PathWeWalkHero() {
   const lineARef = useRef<SVGPathElement>(null);
   const lineBRef = useRef<SVGPathElement>(null);
   const headerLightRef = useRef(false);
+  const hero = useT().thePathWeWalk.hero;
   const [scale, setScale] = useState(1);
   const [headerLight, setHeaderLight] = useState(false);
 
-  // 새로고침 시 브라우저 스크롤 복원을 끄고 항상 맨 위에서 시작
+  // 진입 시: 해시(#섹션)면 해당 섹션으로, 아니면 맨 위. 같은 페이지 해시 변경도 처리
   useEffect(() => {
-    if ("scrollRestoration" in history) {
-      const prev = history.scrollRestoration;
-      history.scrollRestoration = "manual";
-      window.scrollTo(0, 0);
-      return () => {
-        history.scrollRestoration = prev;
-      };
-    }
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    const scrollToSection = () => {
+      const track = trackRef.current;
+      if (!track) return false;
+      const p = SECTION_PROGRESS[window.location.hash.slice(1)];
+      if (p == null) return false;
+      window.scrollTo(0, track.offsetTop + p * (track.offsetHeight - window.innerHeight));
+      return true;
+    };
+    requestAnimationFrame(() => {
+      if (!scrollToSection()) window.scrollTo(0, 0);
+    });
+    window.addEventListener("hashchange", scrollToSection);
+    return () => window.removeEventListener("hashchange", scrollToSection);
   }, []);
 
   // 화면 폭에 맞춰 스테이지 균일 축소 (1920 초과 시 1.0 유지 → 가운데 정렬)
@@ -130,7 +146,7 @@ export default function PathWeWalkHero() {
 
   return (
     <>
-      <Header active="우리가 걷는 길" fixed theme={headerLight ? "light" : "dark"} />
+      <Header active="thePathWeWalk" fixed theme={headerLight ? "light" : "dark"} />
 
       <div ref={trackRef} className="relative" style={{ height: `${TRACK_VH}vh` }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
@@ -195,11 +211,12 @@ export default function PathWeWalkHero() {
             {/* 설명 (헤드라인 아래, 가운데) */}
             <div className="absolute flex flex-col items-center gap-6 whitespace-nowrap text-center text-white" style={{ left: 845, top: 678 }}>
               <p className="font-extrabold" style={{ fontSize: 24, lineHeight: 0.9, letterSpacing: "-1.2px" }}>
-                우리가 걷는 길
+                {hero.title}
               </p>
               <div style={{ fontSize: 18, letterSpacing: "-0.72px", lineHeight: 1.45 }}>
-                <p>길을 내는 마음보다,</p>
-                <p>길을 지키는 진심으로 길을 보듬습니다.</p>
+                {hero.lines.map((line, i) => (
+                  <p key={i}>{line}</p>
+                ))}
               </div>
             </div>
 

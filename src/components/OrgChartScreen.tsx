@@ -1,4 +1,7 @@
+"use client";
+
 import type { RefObject } from "react";
+import { useT } from "@/i18n/useT";
 
 /** Figma "01. 우리의 길 > People(조직도)" 전체.
  *  이사장 → 감사 / 이사진(7인) → 사무처 → 3팀. peel 로 드러난 뒤 선형 스크롤. */
@@ -30,6 +33,7 @@ export default function OrgChartScreen({
   scale: number;
   contentRef?: RefObject<HTMLDivElement | null>;
 }) {
+  const subtitle = useT().ourWay.people.subtitle;
   return (
     <section className="relative h-screen w-full overflow-hidden bg-[#f0f0f0]">
       <div ref={contentRef} className="absolute left-0 top-0 w-full" style={{ willChange: "transform" }}>
@@ -39,7 +43,7 @@ export default function OrgChartScreen({
             People
           </p>
           <p className="absolute text-center font-bold text-black" style={{ left: 0, right: 0, top: 205, fontSize: 32, lineHeight: 1.2, letterSpacing: "-0.32px" }}>
-            한국의 길과 문화를 만들어가는 사람들
+            {subtitle}
           </p>
 
           {/* 점선 연결 */}

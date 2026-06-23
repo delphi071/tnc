@@ -1,6 +1,9 @@
+"use client";
+
 /* eslint-disable @next/next/no-img-element */
 
 import type { RefObject } from "react";
+import { useT } from "@/i18n/useT";
 
 /** Figma "01. 우리의 길 > History" 전체 연혁 (밝은 배경).
  *  peel 로 드러난 뒤, 콘텐츠 전체가 위로 선형 스크롤(2024→2010). */
@@ -90,6 +93,7 @@ export default function HistoryScreen({
   scale: number;
   contentRef?: RefObject<HTMLDivElement | null>;
 }) {
+  const h = useT().ourWay.history;
   return (
     <section className="relative h-screen w-full overflow-hidden bg-[#f0f0f0]">
       {/* 스크롤되는 전체 콘텐츠 (OurWayHero 가 translateY 로 이동) */}
@@ -106,14 +110,12 @@ export default function HistoryScreen({
             History
           </p>
           <p className="absolute text-center font-bold text-black" style={{ left: 360, right: 360, top: 359, fontSize: 32, lineHeight: 1.2, letterSpacing: "-0.32px" }}>
-            우리가 걸어온 길
+            {h.subtitle}
           </p>
           <div className="absolute text-center text-[#5a5b5d]" style={{ left: 0, right: 0, top: 446, fontSize: 18, lineHeight: 1.45, letterSpacing: "-0.36px" }}>
-            <p>출범 이후 지난 십여년간 걷기여행길에 문화를 입히고 지속가능한 걷기여행길과</p>
-            <p>올바른 걷기문화를 위한 방향을 제시하며 다양한 활동을 해왔습니다.</p>
-            <p>&nbsp;</p>
-            <p>대한민국을 대표하는 코리아둘레길, 경기둘레길을 포함한 다양한 걷기 길을 지속적으로 연구∙관리·운영하는 가운데,</p>
-            <p>새로운 걷기 기반 문화 프로그램을 운영하며 걷기 문화 확산을 위한 걸음을 이어가고 있습니다.</p>
+            {h.intro.map((line, i) => (
+              <p key={i}>{line === "" ? " " : line}</p>
+            ))}
           </div>
 
           {/* 세로선 (마지막 2010 아래까지 연장) */}

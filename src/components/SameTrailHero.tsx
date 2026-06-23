@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useT } from "@/i18n/useT";
 import Header from "./Header";
 import SectionNavLabel from "./SectionNavLabel";
 import SiteFooter from "./SiteFooter";
@@ -54,6 +55,13 @@ const LINE_B = "M885 535 V682 C885 720.66 853.66 752 815 752 H0";
 /** 테스트용: 선을 처음부터 끝까지 보이게 (튜닝 후 false) */
 const SHOW_FULL = false;
 
+/** 푸터 서브메뉴 → 섹션 스크롤 진행도(0~1) */
+const SECTION_PROGRESS: Record<string, number> = {
+  plan: 0.34,
+  analysis: 0.62,
+  experience: 0.88,
+};
+
 const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);
 
 export default function SameTrailHero() {
@@ -70,19 +78,26 @@ export default function SameTrailHero() {
   const lineBRef = useRef<SVGPathElement>(null);
   const headerLightRef = useRef(false);
 
+  const st = useT().sameTrail;
   const [scale, setScale] = useState(1);
   const [headerLight, setHeaderLight] = useState(false);
 
-  // 새로고침 시 브라우저 스크롤 복원을 끄고 항상 맨 위에서 시작
+  // 진입 시: 해시(#섹션)면 해당 섹션으로, 아니면 맨 위. 같은 페이지 해시 변경도 처리
   useEffect(() => {
-    if ("scrollRestoration" in history) {
-      const prev = history.scrollRestoration;
-      history.scrollRestoration = "manual";
-      window.scrollTo(0, 0);
-      return () => {
-        history.scrollRestoration = prev;
-      };
-    }
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    const scrollToSection = () => {
+      const track = trackRef.current;
+      if (!track) return false;
+      const p = SECTION_PROGRESS[window.location.hash.slice(1)];
+      if (p == null) return false;
+      window.scrollTo(0, track.offsetTop + p * (track.offsetHeight - window.innerHeight));
+      return true;
+    };
+    requestAnimationFrame(() => {
+      if (!scrollToSection()) window.scrollTo(0, 0);
+    });
+    window.addEventListener("hashchange", scrollToSection);
+    return () => window.removeEventListener("hashchange", scrollToSection);
   }, []);
 
   // 화면 폭에 맞춰 스테이지 균일 축소 (1920 초과 시 1.0 유지 → 가운데 정렬)
@@ -173,7 +188,7 @@ export default function SameTrailHero() {
 
   return (
     <>
-      <Header active="같은 길, 다른 시선" fixed theme={headerLight ? "light" : "dark"} />
+      <Header active="sameTrail" fixed theme={headerLight ? "light" : "dark"} />
 
       <div ref={trackRef} className="relative" style={{ height: `${TRACK_VH}vh` }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
@@ -235,11 +250,12 @@ export default function SameTrailHero() {
               {/* 설명 (헤드라인 우측) */}
               <div className="absolute flex flex-col gap-6 text-white" style={{ left: 1321, top: 554 }}>
                 <p className="font-extrabold" style={{ fontSize: 24, lineHeight: 0.9, letterSpacing: "-1.2px" }}>
-                  같은 길, 다른 시선
+                  {st.hero.title}
                 </p>
                 <div style={{ fontSize: 18, letterSpacing: "-0.72px", lineHeight: 1.45 }}>
-                  <p>표준을 설계하는 전문성과</p>
-                  <p>현장의 맥락을 읽는 기획력의 결합</p>
+                  {st.hero.lines.map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
                 </div>
               </div>
 
@@ -255,12 +271,14 @@ export default function SameTrailHero() {
                 style={{ left: 360, top: 540 + PEEL_DIST, width: 1200 }}
               >
                 <div className="font-bold" style={{ fontSize: 40, lineHeight: 1.2, letterSpacing: "-0.4px" }}>
-                  <p>길과 지역을 바라보는</p>
-                  <p>우리의 시선은 조금 남다릅니다.</p>
+                  {st.peel.headline.map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
                 </div>
                 <div className="whitespace-nowrap" style={{ fontSize: 18, lineHeight: 1.5, letterSpacing: "-0.36px" }}>
-                  <p>길은 단순한 선이 아니라, 사람이 걸으며 이야기를 새기는 문화의 길 입니다.</p>
-                  <p>우리는 길을 찾고, 길을 만들며, 길 위에서 세상의 숨결을 읽습니다.</p>
+                  {st.peel.desc.map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
                 </div>
               </div>
             </div>
@@ -276,8 +294,9 @@ export default function SameTrailHero() {
               className="text-center font-bold text-black"
               style={{ transform: `scale(${scale})`, fontSize: 40, lineHeight: 1.5, letterSpacing: "-2.4px" }}
             >
-              <p>기획에서 체험까지,</p>
-              <p>길에 이야기를 입히는 걷기길 전문 법인</p>
+              {st.panel.map((line, i) => (
+                <p key={i}>{line}</p>
+              ))}
             </div>
           </div>
 
@@ -303,14 +322,14 @@ export default function SameTrailHero() {
                 <div className="absolute flex flex-col items-center gap-5 text-center" style={{ left: 360, top: 200, width: 1200 }}>
                   <div className="flex flex-col items-center gap-2">
                     <p className="font-bold text-[#0ac200]" style={{ fontSize: 24, lineHeight: 1.3, letterSpacing: "-0.624px" }}>
-                      길을 짓다
+                      {st.plan.eyebrow}
                     </p>
                     <p className="font-bold text-black" style={{ fontSize: 36, lineHeight: 1.1, letterSpacing: "-0.36px" }}>
-                      기획과 설계의 시선
+                      {st.plan.title}
                     </p>
                   </div>
                   <p className="text-[#5a5b5d]" style={{ fontSize: 18, lineHeight: 1.3, letterSpacing: "-0.18px" }}>
-                    사람·자연·지역을 잇는 걷기길의 구조와 철학을 함께 설계 합니다.
+                    {st.plan.subtitle}
                   </p>
                 </div>
 
@@ -327,9 +346,9 @@ export default function SameTrailHero() {
                   className="absolute whitespace-nowrap text-right text-[#5a5b5d]"
                   style={{ right: 1016, top: 807, fontSize: 18, lineHeight: 1.5, letterSpacing: "-0.18px" }}
                 >
-                  <p>코리아둘레길, 경기둘레길을 비롯해</p>
-                  <p>지역의 길을 조사·발굴하고, 사람과 지역을 연결하고,</p>
-                  <p>자연과 문화가 함께 숨 쉬는 길을 만들어 갑니다.</p>
+                  {st.plan.body1.map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
                 </div>
 
                 {/* 이미지 2 (숲길) */}
@@ -345,9 +364,9 @@ export default function SameTrailHero() {
                   className="absolute whitespace-nowrap text-[#5a5b5d]"
                   style={{ left: 1005, top: 1550, fontSize: 18, lineHeight: 1.5, letterSpacing: "-0.18px" }}
                 >
-                  <p>구조와 동선을 넘어,</p>
-                  <p>지역의 미래와 일상의 발걸음을</p>
-                  <p>함께 그리는 지속가능한 길의 설계자입니다.</p>
+                  {st.plan.body2.map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
                 </div>
               </div>
             </div>
@@ -375,14 +394,14 @@ export default function SameTrailHero() {
                 <div className="absolute flex -translate-x-1/2 flex-col items-center gap-5 text-center" style={{ left: 970, top: 200 }}>
                   <div className="flex flex-col items-center gap-2">
                     <p className="font-bold text-[#0ac200]" style={{ fontSize: 24, lineHeight: 1.3, letterSpacing: "-0.624px" }}>
-                      길을 보다
+                      {st.analysis.eyebrow}
                     </p>
                     <p className="font-bold text-black" style={{ fontSize: 36, lineHeight: 1.1, letterSpacing: "-0.36px" }}>
-                      관점과 해석의 시선
+                      {st.analysis.title}
                     </p>
                   </div>
                   <p className="text-[#5a5b5d]" style={{ fontSize: 18, lineHeight: 1.3, letterSpacing: "-0.18px" }}>
-                    길을 풍경이 아닌 이야기와 철학으로 읽어냅니다.
+                    {st.analysis.subtitle}
                   </p>
                 </div>
 
@@ -399,9 +418,9 @@ export default function SameTrailHero() {
                   className="absolute whitespace-nowrap text-[#5a5b5d]"
                   style={{ left: 1015, top: 881, fontSize: 18, lineHeight: 1.3, letterSpacing: "-0.18px" }}
                 >
-                  <p>묻혀있던 지역의 원석을 찾아 기록하고</p>
-                  <p>길 위에 새로운 숨결을 불어넣어</p>
-                  <p>문화라는 생명력을 더합니다.</p>
+                  {st.analysis.body1.map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
                 </div>
 
                 {/* 이미지 1 (남해대교와 노량) — 좌측 하단 */}
@@ -418,14 +437,14 @@ export default function SameTrailHero() {
                   style={{ right: 1003, top: 1540, fontSize: 18, lineHeight: 1.3, letterSpacing: "-0.18px" }}
                 >
                   <div className="text-right">
-                    <p>같은 길이라도 누구의 눈으로 보느냐에 따라</p>
-                    <p>전혀 다른 역사와 이야기가 펼쳐집니다.</p>
-                    <p>길은 단순한 경로가 아니라,</p>
-                    <p>그 위에 쌓인 시간과 이야기입니다</p>
+                    {st.analysis.body2.map((line, i) => (
+                      <p key={i}>{line}</p>
+                    ))}
                   </div>
                   <div className="text-right">
-                    <p>길 위의 자원, 지역문화, 사람의 시간을 읽어내어,</p>
-                    <p>걷기길을 하나의 인문·문화 텍스트로 해석합니다.</p>
+                    {st.analysis.body3.map((line, i) => (
+                      <p key={i}>{line}</p>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -454,14 +473,14 @@ export default function SameTrailHero() {
                 <div className="absolute flex -translate-x-1/2 flex-col items-center gap-5 text-center" style={{ left: 970, top: 200, width: 1000 }}>
                   <div className="flex w-full flex-col items-center gap-2">
                     <p className="font-bold text-[#0ac200]" style={{ fontSize: 24, lineHeight: 1.3, letterSpacing: "-0.624px" }}>
-                      길을 걷다
+                      {st.experience.eyebrow}
                     </p>
                     <p className="font-bold text-black" style={{ fontSize: 36, lineHeight: 1.1, letterSpacing: "-0.36px" }}>
-                      경험과 체험의 시선
+                      {st.experience.title}
                     </p>
                   </div>
                   <p className="text-[#5a5b5d]" style={{ fontSize: 18, lineHeight: 1.3, letterSpacing: "-0.18px" }}>
-                    걷는 사람에게 남다른 경험을 선물하는 길 위의 인문 산책
+                    {st.experience.subtitle}
                   </p>
                 </div>
 
@@ -478,8 +497,9 @@ export default function SameTrailHero() {
                   className="absolute whitespace-nowrap text-right text-[#5a5b5d]"
                   style={{ right: 1002, top: 867.5, fontSize: 18, lineHeight: 1.3, letterSpacing: "-0.18px" }}
                 >
-                  <p>우리는 지역의 색과 이야기를 담은 프로그램을 통해,</p>
-                  <p>사람들이 길 위에서 만나는 감동의 순간을 이어갑니다.</p>
+                  {st.experience.body1.map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
                 </div>
 
                 {/* 이미지 2 (남파랑길22코스 구조라성 솔숲) — 우측 하단 */}
@@ -496,13 +516,14 @@ export default function SameTrailHero() {
                   style={{ left: 1094, top: 1444, fontSize: 18, lineHeight: 1.3, letterSpacing: "-0.18px" }}
                 >
                   <div>
-                    <p>한 걸음마다 배우고, 위로받고, 연결되는</p>
-                    <p>걷기여행의 사회적 가치를 만들어갑니다.</p>
+                    {st.experience.body2.map((line, i) => (
+                      <p key={i}>{line}</p>
+                    ))}
                   </div>
                   <div>
-                    <p>청소년여행문화학교, 지역 특화 걷기프로그램,</p>
-                    <p>치유와 배움의 프로그램으로</p>
-                    <p>길 위의 시간을 특별한 경험으로 채웁니다.</p>
+                    {st.experience.body3.map((line, i) => (
+                      <p key={i}>{line}</p>
+                    ))}
                   </div>
                 </div>
               </div>

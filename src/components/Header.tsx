@@ -1,17 +1,30 @@
+"use client";
+
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
+import { useLocale } from "@/i18n/LocaleProvider";
+import { useT } from "@/i18n/useT";
 
 /** 상단 GNB — Figma "00. main" 헤더 (모든 화면 공통).
- *  active: 현재 섹션 메뉴를 초록색으로 강조
- *  theme: "light" → 밝은 배경용 (어두운 로고/아이콘, 검정 메뉴, 회색 외곽선) */
-const MENU = [
-  { label: "우리의 길", href: "/our-way" },
-  { label: "같은 길, 다른 시선", href: "/same-trail" },
-  { label: "우리가 걷는 길", href: "/the-path-we-walk" },
-  { label: "함께 걷는 사람들", href: "/walking-together" },
-  { label: "알리는 이야기", href: "/our-stories" },
-  { label: "마음잇기", href: "/walk-with-us" },
+ *  active: 현재 섹션 메뉴 키를 초록색으로 강조 (한글/영문 무관하게 키로 매칭)
+ *  theme: "light" → 밝은 배경용 (어두운 로고/아이콘, 검정 메뉴, 회색 외곽선)
+ *  우측 지구본 아이콘 = 한국어/영어 토글 */
+export type NavKey =
+  | "ourWay"
+  | "sameTrail"
+  | "thePathWeWalk"
+  | "walkingTogether"
+  | "ourStories"
+  | "walkWithUs";
+
+const MENU: { key: NavKey; href: string }[] = [
+  { key: "ourWay", href: "/our-way" },
+  { key: "sameTrail", href: "/same-trail" },
+  { key: "thePathWeWalk", href: "/the-path-we-walk" },
+  { key: "walkingTogether", href: "/walking-together" },
+  { key: "ourStories", href: "/our-stories" },
+  { key: "walkWithUs", href: "/walk-with-us" },
 ];
 
 export default function Header({
@@ -19,10 +32,12 @@ export default function Header({
   fixed,
   theme = "dark",
 }: {
-  active?: string;
+  active?: NavKey;
   fixed?: boolean;
   theme?: "dark" | "light";
 }) {
+  const t = useT();
+  const { locale, toggle } = useLocale();
   const light = theme === "light";
   const sfx = light ? "-dark" : "";
   const menuColor = light ? "text-[#231f20]" : "text-white";
@@ -38,7 +53,7 @@ export default function Header({
         {/* 로고 (왼쪽 고정) → 인트로 */}
         <Link
           href="/"
-          aria-label="한국의길과문화 홈"
+          aria-label={t.header.home}
           className={`flex h-full shrink-0 items-center px-6 lg:w-[208px] lg:justify-center lg:border-r ${border} xl:w-[260px]`}
         >
           <img src={`/intro/logo${sfx}.svg`} alt="한국의길과문화" className="h-8 w-auto xl:h-10" />
@@ -48,13 +63,15 @@ export default function Header({
         <nav className="hidden h-full flex-1 items-stretch lg:flex">
           {MENU.map((item) => (
             <Link
-              key={item.label}
+              key={item.key}
               href={item.href}
+              // 영문 메뉴는 Figma 기준 Montserrat ExtraBold (한글은 기본 Pretendard)
+              style={locale === "en" ? { fontFamily: "var(--font-montserrat)" } : undefined}
               className={`flex flex-1 items-center justify-center whitespace-nowrap border-r ${border} px-2 text-[14px] font-extrabold tracking-[-0.3px] transition-colors hover:text-[#0ac200] xl:text-[15px] ${
-                item.label === active ? "text-[#0ac200]" : menuColor
+                item.key === active ? "text-[#0ac200]" : menuColor
               }`}
             >
-              {item.label}
+              {t.header.nav[item.key]}
             </Link>
           ))}
         </nav>
@@ -80,9 +97,19 @@ export default function Header({
             <img src={`/intro/ic-store${sfx}.svg`} alt="" className="size-[26px] xl:size-[30px]" />
           </a>
           <span className={`h-[25px] w-px ${divider}`} />
-          <a href="#" aria-label="Language" className="transition-opacity hover:opacity-70">
+          {/* 언어 토글 (한국어 ↔ 영어) */}
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label={t.header.language}
+            title={locale === "ko" ? "English" : "한국어"}
+            className="flex cursor-pointer items-center gap-1.5 transition-opacity hover:opacity-70"
+          >
             <img src={`/intro/ic-language${sfx}.svg`} alt="" className="size-[26px] xl:size-[30px]" />
-          </a>
+            <span className={`text-[13px] font-extrabold ${menuColor}`} style={{ fontFamily: "var(--font-montserrat)" }}>
+              {locale === "ko" ? "KO" : "EN"}
+            </span>
+          </button>
         </div>
       </div>
     </header>
