@@ -9,9 +9,9 @@ const MENU = [
   { label: "우리의 길", href: "/our-way" },
   { label: "같은 길, 다른 시선", href: "/same-trail" },
   { label: "우리가 걷는 길", href: "/the-path-we-walk" },
-  { label: "함께 걷는 사람들", href: "#" },
-  { label: "알리는 이야기", href: "#" },
-  { label: "마음잇기", href: "#" },
+  { label: "함께 걷는 사람들", href: "/walking-together" },
+  { label: "알리는 이야기", href: "/our-stories" },
+  { label: "마음잇기", href: "/walk-with-us" },
 ];
 
 export default function Header({
@@ -61,10 +61,22 @@ export default function Header({
 
         {/* 아이콘 (오른쪽 고정) */}
         <div className="flex shrink-0 items-center gap-5 px-6 xl:gap-[30px] xl:px-[50px]">
-          <a href="#" aria-label="Instagram" className="transition-opacity hover:opacity-70">
+          <a
+            href="https://www.instagram.com/koreatnc1"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+            className="transition-opacity hover:opacity-70"
+          >
             <img src={`/intro/ic-instagram${sfx}.svg`} alt="" className="size-[26px] xl:size-[30px]" />
           </a>
-          <a href="#" aria-label="Store" className="transition-opacity hover:opacity-70">
+          <a
+            href="https://smartstore.naver.com/koreatnc"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Store"
+            className="transition-opacity hover:opacity-70"
+          >
             <img src={`/intro/ic-store${sfx}.svg`} alt="" className="size-[26px] xl:size-[30px]" />
           </a>
           <span className={`h-[25px] w-px ${divider}`} />

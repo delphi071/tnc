@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 /** Figma "01. 우리의 길 contents0 > Mission" (1920×1080) */
 const STAGE_W = 1920;
 const STAGE_H = 1080;
@@ -29,8 +27,8 @@ const PLUS_X = [760, 1159];
 
 export default function MissionScreen({ scale }: { scale: number }) {
   return (
-    <div className="relative h-full w-full overflow-hidden bg-black">
-      <Image src="/intro/bg-1-v2.jpg" alt="" fill sizes="100vw" className="object-cover" />
+    // 배경 이미지 없이(히어로 배경이 고정으로 비침) 어두운 레이어 + 콘텐츠만 올라옴
+    <div className="relative h-full w-full overflow-hidden">
       <div className="absolute inset-0 bg-black/65" />
 
       <div

@@ -46,6 +46,7 @@ export default function OurWayHero() {
   const trackRef = useRef<HTMLDivElement>(null);
   const lineLeftRef = useRef<SVGPathElement>(null);
   const lineRightRef = useRef<SVGPathElement>(null);
+  const heroFgRef = useRef<HTMLDivElement>(null);
   const missionRef = useRef<HTMLDivElement>(null);
   const visionRef = useRef<HTMLDivElement>(null);
   const coreRef = useRef<HTMLDivElement>(null);
@@ -130,6 +131,8 @@ export default function OurWayHero() {
       const offset = SHOW_FULL ? "0" : String(1 - lineP);
       if (lineLeftRef.current) lineLeftRef.current.style.strokeDashoffset = offset;
       if (lineRightRef.current) lineRightRef.current.style.strokeDashoffset = offset;
+      // 히어로 전경(선·헤드라인·설명·라벨)은 Mission 슬라이드업에 맞춰 위로 peel (배경 고정)
+      if (heroFgRef.current) heroFgRef.current.style.transform = `translateY(${-slideUpP * 100}%)`;
       if (missionRef.current) missionRef.current.style.transform = `translateY(${missionTY}%)`;
       // Vision: Mission 이 덮은 뒤(2단계 종료)부터 뒤에 존재, 4단계에 위로 걷힘
       if (visionRef.current) {
@@ -246,6 +249,7 @@ export default function OurWayHero() {
             transform: `translate(-50%, -50%) scale(${scale})`,
           }}
         >
+          <div ref={heroFgRef} className="absolute inset-0" style={{ willChange: "transform" }}>
           {/* 늘어나는 선 */}
           <svg
             viewBox={`0 0 ${STAGE_W} ${STAGE_H}`}
@@ -299,11 +303,12 @@ export default function OurWayHero() {
             </div>
           </div>
 
-          {/* 좌측 라벨 (이전 섹션 — 첫 화면이라 링크 보류) */}
-          <SectionNavLabel side="left" lines={["WALK", "WITH US"]} />
+          {/* 좌측 라벨 (마지막 섹션: 마음잇기로 순환) */}
+          <SectionNavLabel side="left" lines={["WALK", "WITH US"]} href="/walk-with-us" />
 
           {/* 우측 라벨 (다음 섹션: 같은 길, 다른 시선) */}
           <SectionNavLabel side="right" lines={["SAME TRAIL,", "NEW VISION"]} href="/same-trail" />
+          </div>
         </div>
 
         {/* 맨 뒤에 고정되는 History — 6단계에서 Core Value 가 걷히며 드러남 */}

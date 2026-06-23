@@ -1,0 +1,180 @@
+"use client";
+
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import Header from "./Header";
+import SectionNavLabel from "./SectionNavLabel";
+import NoticesSection from "./NoticesSection";
+import SiteFooter from "./SiteFooter";
+
+/** Figma "05. 알리는 이야기 main" 좌표계 (1920 기준) */
+const STAGE_W = 1920;
+const STAGE_H = 1080;
+
+/** 선이 그려지는 스크롤 길이(핀 고정). 이후 peel 섹션은 추후 확장 */
+const TRACK_VH = 240;
+
+/** 헤드라인 — "Stories"의 'i'는 초록 선(stem)+점(dot)이 대신하므로 "Our Stor es"(공백)으로 표기 */
+const HEADLINE = [{ t: "Our Stor es", left: 661, top: 450 }];
+
+/** 헤드라인 'i'(x1122) 주변에서 화면 양 끝으로 뻗는 두 선 (Figma vector SVG → 스테이지 좌표).
+ *  A: 'i' stem 아래에서 시작해 내려가 꺾여 오른쪽 화면 끝
+ *  B: 헤드라인 옆(799)에서 시작해 올라가 꺾여 왼쪽 화면 끝
+ *  STUB: 'i' 세로 획(항상 표시) */
+const LINE_A = "M1122 507 V605 C1122 643.66 1153.34 675 1192 675 H1920";
+const LINE_B = "M799 513 V284 C799 245.34 767.66 214 729 214 H0";
+const STUB = "M1122 507 V561";
+
+/** 테스트용: 선을 처음부터 끝까지 보이게 (튜닝 후 false) */
+const SHOW_FULL = false;
+
+const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);
+
+export default function OurStoriesHero() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const noticesRef = useRef<HTMLDivElement>(null);
+  const lineARef = useRef<SVGPathElement>(null);
+  const lineBRef = useRef<SVGPathElement>(null);
+  const headerLightRef = useRef(false);
+  const [scale, setScale] = useState(1);
+  const [headerLight, setHeaderLight] = useState(false);
+
+  // 새로고침 시 브라우저 스크롤 복원을 끄고 항상 맨 위에서 시작
+  useEffect(() => {
+    if ("scrollRestoration" in history) {
+      const prev = history.scrollRestoration;
+      history.scrollRestoration = "manual";
+      window.scrollTo(0, 0);
+      return () => {
+        history.scrollRestoration = prev;
+      };
+    }
+  }, []);
+
+  // 화면 폭에 맞춰 스테이지 균일 축소 (1920 초과 시 1.0 유지 → 가운데 정렬)
+  useEffect(() => {
+    const onResize = () => setScale(Math.min(1, window.innerWidth / STAGE_W));
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // 스크롤 진행도(0→1)로 두 선을 화면 끝까지 그려나감
+  useEffect(() => {
+    let raf = 0;
+    const apply = () => {
+      raf = 0;
+      const el = trackRef.current;
+      if (!el) return;
+      const total = el.offsetHeight - window.innerHeight;
+      const scrolled = Math.min(Math.max(-el.getBoundingClientRect().top, 0), Math.max(total, 1));
+      const progress = total > 0 ? scrolled / total : 0;
+      const offset = SHOW_FULL ? "0" : String(1 - clamp01(progress));
+      if (lineARef.current) lineARef.current.style.strokeDashoffset = offset;
+      if (lineBRef.current) lineBRef.current.style.strokeDashoffset = offset;
+
+      // 밝은 공지사항 섹션이 헤더 아래로 올라오면 헤더를 라이트 테마로 전환
+      const wantLight = noticesRef.current ? noticesRef.current.getBoundingClientRect().top <= 102 : false;
+      if (headerLightRef.current !== wantLight) {
+        headerLightRef.current = wantLight;
+        setHeaderLight(wantLight);
+      }
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(apply);
+    };
+    apply();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  return (
+    <>
+      <Header active="알리는 이야기" fixed theme={headerLight ? "light" : "dark"} />
+
+      <div ref={trackRef} className="relative" style={{ height: `${TRACK_VH}vh` }}>
+        <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
+          {/* 배경 (풀블리드) */}
+          <Image src="/intro/os-hero.jpg" alt="알리는 이야기" fill priority sizes="100vw" className="object-cover" />
+          {/* 오버레이: 전체 10% 검정 + 하단 그라데이션 */}
+          <div className="pointer-events-none absolute inset-0 bg-black/10" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-[38%] to-black/60 to-[97%]" />
+
+          {/* 1920 좌표 스테이지 (균일 스케일, 가운데 정렬) */}
+          <div
+            className="absolute left-1/2 top-1/2 z-10"
+            style={{ width: STAGE_W, height: STAGE_H, transform: `translate(-50%, -50%) scale(${scale})` }}
+          >
+            {/* 늘어나는 선 + 'i' 세로획 스텁 (헤드라인 뒤) */}
+            <svg
+              viewBox={`0 0 ${STAGE_W} ${STAGE_H}`}
+              className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+              fill="none"
+            >
+              <path d={STUB} stroke="#0ac200" strokeWidth={18.9} strokeLinecap="butt" />
+              <path
+                ref={lineARef}
+                d={LINE_A}
+                stroke="#0ac200"
+                strokeWidth={18.9}
+                strokeLinecap="butt"
+                strokeLinejoin="round"
+                pathLength={1}
+                style={{ strokeDasharray: 1, strokeDashoffset: SHOW_FULL ? 0 : 1 }}
+              />
+              <path
+                ref={lineBRef}
+                d={LINE_B}
+                stroke="#0ac200"
+                strokeWidth={18.9}
+                strokeLinecap="butt"
+                strokeLinejoin="round"
+                pathLength={1}
+                style={{ strokeDasharray: 1, strokeDashoffset: SHOW_FULL ? 0 : 1 }}
+              />
+            </svg>
+
+            {/* 'i' 점(dot) — 항상 표시 */}
+            <div className="absolute rounded-full bg-[#0ac200]" style={{ left: 1110, top: 477, width: 23, height: 23 }} />
+
+            {/* 헤드라인 — 선 위에 표시 */}
+            {HEADLINE.map((w) => (
+              <span
+                key={w.t}
+                className="absolute font-extrabold text-[#0ac200]"
+                style={{ left: w.left, top: w.top, fontSize: 100, lineHeight: 1.5, fontFamily: "var(--font-montserrat)", whiteSpace: "pre" }}
+              >
+                {w.t}
+              </span>
+            ))}
+
+            {/* 설명 (헤드라인 아래, 가운데) */}
+            <div className="absolute flex -translate-x-1/2 flex-col items-center gap-6 text-center text-white" style={{ left: 960, top: 611 }}>
+              <p className="font-extrabold" style={{ fontSize: 24, lineHeight: 0.9, letterSpacing: "-1.2px" }}>
+                알리는 이야기
+              </p>
+              <p style={{ fontSize: 18, lineHeight: 0.9, letterSpacing: "-0.72px" }}>알리고 나누어 길을 더 풍성하게 합니다.</p>
+            </div>
+
+            {/* 좌측 라벨 (이전 섹션: 함께 걷는 사람들) */}
+            <SectionNavLabel side="left" lines={["WALKING", "TOGETHER"]} href="/walking-together" />
+
+            {/* 우측 라벨 (다음 섹션: 마음잇기) */}
+            <SectionNavLabel side="right" lines={["WALK", "WITH US"]} href="/walk-with-us" />
+          </div>
+        </div>
+      </div>
+
+      {/* 히어로 다음, 일반 스크롤로 바로 등장하는 밝은 공지사항 콘텐츠 + 푸터 */}
+      <div ref={noticesRef}>
+        <NoticesSection />
+      </div>
+      <SiteFooter scale={scale} />
+    </>
+  );
+}

@@ -10,7 +10,8 @@ export default function SectionNavLabel({
   href,
 }: {
   side: "left" | "right";
-  lines: [string, string];
+  /** 1~2줄 */
+  lines: string[];
   href?: string;
 }) {
   const isLeft = side === "left";
@@ -24,9 +25,12 @@ export default function SectionNavLabel({
       }`}
       style={{ fontFamily: "var(--font-montserrat)", fontSize: 14, lineHeight: 1.2, letterSpacing: "0.7px" }}
     >
-      {lines[0]}
-      <br />
-      {lines[1]}
+      {lines.map((l, i) => (
+        <span key={i}>
+          {i > 0 && <br />}
+          {l}
+        </span>
+      ))}
     </span>
   );
 

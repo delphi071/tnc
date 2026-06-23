@@ -206,8 +206,8 @@ export default function PathWeWalkHero() {
             {/* 좌측 라벨 (이전 섹션: 같은 길, 다른 시선) */}
             <SectionNavLabel side="left" lines={["SAME TRAIL", "NEW VISION"]} href="/same-trail" />
 
-            {/* 우측 라벨 (다음 섹션: 함께 걷는 사람들 — 아직 미생성, 링크 보류) */}
-            <SectionNavLabel side="right" lines={["WALKING", "TOGETHER"]} />
+            {/* 우측 라벨 (다음 섹션: 함께 걷는 사람들) */}
+            <SectionNavLabel side="right" lines={["WALKING", "TOGETHER"]} href="/walking-together" />
           </div>
 
           {/* 코리아둘레길 흰 패널 — 밑에서 올라와 덮음 (탭 클릭형 가로 캐러셀, z-20) */}
