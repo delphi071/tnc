@@ -246,8 +246,8 @@ export default function SameTrailHero() {
               {/* 좌측 라벨 (이전 섹션: 우리의 길) */}
               <SectionNavLabel side="left" lines={["BEYOND", "THE ROUTE"]} href="/our-way" />
 
-              {/* 우측 라벨 (다음 섹션: 우리가 걷는 길 — 아직 미생성, 링크 보류) */}
-              <SectionNavLabel side="right" lines={["THE PATH", "WE WALK"]} />
+              {/* 우측 라벨 (다음 섹션: 우리가 걷는 길) */}
+              <SectionNavLabel side="right" lines={["THE PATH", "WE WALK"]} href="/the-path-we-walk" />
 
               {/* peel 로 화면 중앙에 올라오는 새 텍스트 */}
               <div
@@ -296,7 +296,7 @@ export default function SameTrailHero() {
           </div>
 
           {/* Plan 섹션 콘텐츠 컬럼 — Plan 워터마크 위로 세로 스크롤 (z-40, 투명 배경) */}
-          <div className="absolute inset-0 z-40">
+          <div className="pointer-events-none absolute inset-0 z-40">
             <div className="absolute left-1/2 top-1/2" style={stageStyle}>
               <div ref={content4Ref} className="absolute inset-0" style={{ transform: `translateY(${C4_START}px)`, willChange: "transform" }}>
                 {/* 타이틀 */}
@@ -368,7 +368,7 @@ export default function SameTrailHero() {
           </div>
 
           {/* Analysis 섹션 콘텐츠 컬럼 — Analysis 워터마크 위로 세로 스크롤 (z-60, 투명 배경) */}
-          <div className="absolute inset-0 z-[60]">
+          <div className="pointer-events-none absolute inset-0 z-[60]">
             <div className="absolute left-1/2 top-1/2" style={stageStyle}>
               <div ref={content7Ref} className="absolute inset-0" style={{ transform: `translateY(${C7_START}px)`, willChange: "transform" }}>
                 {/* 타이틀 */}
@@ -447,7 +447,7 @@ export default function SameTrailHero() {
           </div>
 
           {/* experience 섹션 콘텐츠 컬럼 — 워터마크 위로 세로 스크롤 (z-80, 투명 배경) */}
-          <div className="absolute inset-0 z-[80]">
+          <div className="pointer-events-none absolute inset-0 z-[80]">
             <div className="absolute left-1/2 top-1/2" style={stageStyle}>
               <div ref={content10Ref} className="absolute inset-0" style={{ transform: `translateY(${C10_START}px)`, willChange: "transform" }}>
                 {/* 타이틀 */}
