@@ -12,18 +12,21 @@ const SLIDES = [
     title: "Beyond the Route",
     sub: "길 위에서 사람과 지역, 자연을 잇고 지속가능한 걷기문화를 만듭니다",
     scrim: "bg-black/10",
+    href: "/our-way",
   },
   {
     bg: "/intro/bg-2.jpg",
     title: "Same trail New Vision",
     sub: "걷는 길이 행복한 이야기가 되는 곳, 대한민국 걷기 문화의 중심",
     scrim: "bg-black/40",
+    href: "/same-trail",
   },
   {
     bg: "/intro/bg-3-v2.jpg",
     title: "The Path with Walk",
     sub: "길을 내는 마음보다, 길을 지키는 진심으로 길을 보듬습니다.",
     scrim: "bg-black/20",
+    href: "/the-path-we-walk",
   },
 ];
 
@@ -73,7 +76,9 @@ export default function IntroHero() {
         {SLIDES.map((slide, i) => (
           <div
             key={slide.bg}
-            className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center transition-opacity ease-in-out"
+            className={`absolute inset-0 flex flex-col items-center justify-center px-6 text-center transition-opacity ease-in-out ${
+              i === active ? "" : "pointer-events-none"
+            }`}
             style={{ opacity: i === active ? 1 : 0, transitionDuration: `${FADE}ms` }}
             aria-hidden={i !== active}
           >
@@ -94,7 +99,7 @@ export default function IntroHero() {
                 {slide.sub}
               </p>
               <Link
-                href="/our-way"
+                href={slide.href}
                 tabIndex={i === active ? 0 : -1}
                 className="mt-8 inline-block rounded-tl-[20px] rounded-br-[20px] bg-[#0ac200] px-10 py-[14px] text-[14px] font-bold tracking-[-0.7px] text-black transition-transform hover:scale-[1.03]"
               >
