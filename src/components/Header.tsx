@@ -7,7 +7,7 @@ import Link from "next/link";
  *  theme: "light" → 밝은 배경용 (어두운 로고/아이콘, 검정 메뉴, 회색 외곽선) */
 const MENU = [
   { label: "우리의 길", href: "/our-way" },
-  { label: "같은 길, 다른 시선", href: "#" },
+  { label: "같은 길, 다른 시선", href: "/same-trail" },
   { label: "우리가 걷는 길", href: "#" },
   { label: "함께 걷는 사람들", href: "#" },
   { label: "알리는 이야기", href: "#" },

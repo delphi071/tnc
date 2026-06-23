@@ -42,3 +42,6 @@ next-env.d.ts
 
 # local docs / work notes (not published)
 /docs
+
+.vercel
+.env*

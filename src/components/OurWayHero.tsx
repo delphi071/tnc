@@ -10,6 +10,7 @@ import HistoryScreen, { HISTORY_H, HISTORY_ROW_Y } from "./HistoryScreen";
 import OrgChartScreen, { ORG_H } from "./OrgChartScreen";
 import MapScreen from "./MapScreen";
 import SiteFooter from "./SiteFooter";
+import SectionNavLabel from "./SectionNavLabel";
 
 /** Figma 디자인 기준 좌표계 (01. 우리의 길 main-1~3) */
 const STAGE_W = 1920;
@@ -60,6 +61,18 @@ export default function OurWayHero() {
   const [headerLight, setHeaderLight] = useState(false);
   const leftX = LEFT_X;
   const rightX = RIGHT_X;
+
+  // 새로고침 시 브라우저 스크롤 복원을 끄고 항상 맨 위(1단계)에서 시작
+  useEffect(() => {
+    if ("scrollRestoration" in history) {
+      const prev = history.scrollRestoration;
+      history.scrollRestoration = "manual";
+      window.scrollTo(0, 0);
+      return () => {
+        history.scrollRestoration = prev;
+      };
+    }
+  }, []);
 
   // 화면 폭에 맞춰 스테이지 균일 축소 (1920 초과 시 1.0 유지 → 가운데 정렬)
   useEffect(() => {
@@ -286,47 +299,23 @@ export default function OurWayHero() {
             </div>
           </div>
 
-          {/* 좌측 라벨 */}
-          <div
-            className="absolute flex items-center justify-end bg-black"
-            style={{ left: 0, top: 529, width: 150, height: 75, paddingRight: 20 }}
-          >
-            <span
-              className="text-right font-bold text-[#0ac200]"
-              style={{ fontFamily: "var(--font-montserrat)", fontSize: 14, lineHeight: 1.2, letterSpacing: "0.7px" }}
-            >
-              WALK
-              <br />
-              WITH US
-            </span>
-          </div>
+          {/* 좌측 라벨 (이전 섹션 — 첫 화면이라 링크 보류) */}
+          <SectionNavLabel side="left" lines={["WALK", "WITH US"]} />
 
-          {/* 우측 라벨 */}
-          <div
-            className="absolute flex items-center bg-black"
-            style={{ left: STAGE_W - 150, top: 529, width: 150, height: 75, paddingLeft: 20 }}
-          >
-            <span
-              className="font-bold text-[#0ac200]"
-              style={{ fontFamily: "var(--font-montserrat)", fontSize: 14, lineHeight: 1.2, letterSpacing: "0.7px" }}
-            >
-              SAME TRAIL,
-              <br />
-              NEW VISION
-            </span>
-          </div>
+          {/* 우측 라벨 (다음 섹션: 같은 길, 다른 시선) */}
+          <SectionNavLabel side="right" lines={["SAME TRAIL,", "NEW VISION"]} href="/same-trail" />
         </div>
 
         {/* 맨 뒤에 고정되는 History — 6단계에서 Core Value 가 걷히며 드러남 */}
         {/* 약도(Location) — 10단계에서 조직도가 걷히며 드러남 (hero 와 같은 z, DOM 뒤라 위에 표시) */}
-        <div ref={mapRef} className="absolute inset-0 z-[10]" style={{ opacity: 0 }}>
+        <div ref={mapRef} className="pointer-events-none absolute inset-0 z-[10]" style={{ opacity: 0 }}>
           <MapScreen />
         </div>
 
         {/* 조직도(People) — 8단계에 드러나고, 10단계엔 위로 걷힘(peel) */}
         <div
           ref={orgRef}
-          className="absolute inset-0 z-[11]"
+          className="pointer-events-none absolute inset-0 z-[11]"
           style={{ opacity: 0, transform: "translateY(0%)", willChange: "transform, opacity", boxShadow: "0 26px 50px -10px rgba(0,0,0,0.28)" }}
         >
           <OrgChartScreen scale={scale} contentRef={orgContentRef} />
@@ -334,7 +323,7 @@ export default function OurWayHero() {
 
         <div
           ref={historyRef}
-          className="absolute inset-0 z-[12]"
+          className="pointer-events-none absolute inset-0 z-[12]"
           style={{ opacity: 0, transform: "translateY(0%)", willChange: "transform, opacity", boxShadow: "0 26px 50px -10px rgba(0,0,0,0.28)" }}
         >
           <HistoryScreen scale={scale} contentRef={historyContentRef} />
@@ -343,7 +332,7 @@ export default function OurWayHero() {
         {/* Core Value(밝은 배경) — 4단계에 드러나고, 6단계엔 위로 걷힘(peel) */}
         <div
           ref={coreRef}
-          className="absolute inset-0 z-[14]"
+          className="pointer-events-none absolute inset-0 z-[14]"
           style={{ opacity: 0, transform: "translateY(0%)", willChange: "transform, opacity", boxShadow: "0 26px 50px -10px rgba(0,0,0,0.28)" }}
         >
           <CoreValueScreen scale={scale} cubeRef={cubeRef} />
@@ -352,7 +341,7 @@ export default function OurWayHero() {
         {/* Vision — 3단계에 Mission 이 걷히며 드러나고, 4단계엔 자신이 위로 걷힘 */}
         <div
           ref={visionRef}
-          className="absolute inset-0 z-[16]"
+          className="pointer-events-none absolute inset-0 z-[16]"
           style={{ opacity: 0, transform: "translateY(0%)", willChange: "transform, opacity", boxShadow: "0 26px 50px -10px rgba(0,0,0,0.28)" }}
         >
           <VisionScreen scale={scale} />
