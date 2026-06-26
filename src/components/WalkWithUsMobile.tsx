@@ -117,7 +117,7 @@ export default function WalkWithUsMobile({ onLightChange }: { onLightChange?: (l
           <div className="mt-[40px] px-[18px]">
             {/* 이미지 + 헤드라인 */}
             <div className="relative overflow-hidden rounded-br-[40px] rounded-tl-[40px]">
-              <img src="/intro/ww-donate.jpg" alt="" className="h-[480px] w-full object-cover object-bottom" />
+              <img src="/intro/ww-donate.jpg" alt="" className="h-[480px] w-full object-cover object-[35%_bottom]" />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 via-black/30 to-transparent px-6 pb-7 pt-16 text-white">
                 <p className="text-[20px] font-bold leading-[1.2] tracking-[-0.4px]">{d.headline}</p>
                 <div className="mt-3 text-[14px] leading-[1.5] tracking-[-0.28px]">
