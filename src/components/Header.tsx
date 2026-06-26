@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useT } from "@/i18n/useT";
@@ -45,11 +46,61 @@ export default function Header({
   const headerBorder = light ? "border-[#c6c6c6]" : "border-white/20";
   const divider = light ? "bg-[#bdbdbd]" : "bg-white/40";
 
+  // 모바일 메뉴 (lg 미만 전용).
+  //  animateMenu: 햄버거(열기)·X(닫기)는 슬라이드, 메뉴/로고 선택은 즉시(무애니메이션)로 닫고 이동.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [animateMenu, setAnimateMenu] = useState(true);
+  const openMenu = () => {
+    setAnimateMenu(true);
+    setMenuOpen(true);
+  }; // 햄버거 → 위에서 아래로 펼침
+  const closeMenu = () => {
+    setAnimateMenu(true);
+    setMenuOpen(false);
+  }; // X → 위로 슬라이드하며 닫힘
+  const selectMenu = () => {
+    setAnimateMenu(false);
+    setMenuOpen(false);
+  }; // 메뉴/로고 선택 → 즉시 닫고 화면 이동
+
+  // 메뉴 열린 동안 본문 스크롤 잠금
+  useEffect(() => {
+    if (!menuOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [menuOpen]);
+
   return (
+    <>
     <header
-      className={`${fixed ? "fixed" : "absolute"} inset-x-0 top-0 z-50 border-b ${headerBorder} bg-white/[0.04] backdrop-blur-[2px] transition-colors duration-300`}
+      className={`${fixed ? "fixed" : "absolute"} inset-x-0 top-0 z-50 border-b ${headerBorder} bg-white/[0.04] backdrop-blur-[9px] transition-colors duration-300 lg:backdrop-blur-[2px]`}
     >
-      <div className="mx-auto flex h-[68px] w-full max-w-[1920px] items-center lg:h-[80px] xl:h-[102px]">
+      {/* 모바일 (lg 미만): 로고 중앙 + 우측 햄버거 (Figma 모바일 헤더, 높이 64) */}
+      <div className="relative flex h-16 items-center justify-center px-6 lg:hidden">
+        <Link href="/" aria-label={t.header.home} className="flex items-center">
+          <img src={`/intro/logo${sfx}.svg`} alt="한국의길과문화" className="h-[30px] w-auto" />
+        </Link>
+        <button
+          type="button"
+          aria-label={locale === "en" ? "Menu" : "메뉴"}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-menu"
+          onClick={openMenu}
+          className={`absolute right-6 top-1/2 -translate-y-1/2 ${menuColor} transition-colors`}
+        >
+          <svg width="24" height="18" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="square" aria-hidden>
+            <line x1="0" y1="1.5" x2="24" y2="1.5" />
+            <line x1="0" y1="9" x2="24" y2="9" />
+            <line x1="0" y1="16.5" x2="24" y2="16.5" />
+          </svg>
+        </button>
+      </div>
+
+      {/* 데스크톱 (lg+): 기존 GNB (로고 + 메뉴 + 아이콘) */}
+      <div className="mx-auto hidden h-[80px] w-full max-w-[1920px] items-center lg:flex xl:h-[102px]">
         {/* 로고 (왼쪽 고정) → 인트로 */}
         <Link
           href="/"
@@ -112,6 +163,105 @@ export default function Header({
           </button>
         </div>
       </div>
+
     </header>
+
+      {/* 모바일 메뉴 (lg 미만) — header 밖(형제)에 둔다.
+          header 의 backdrop-filter 가 fixed 의 기준 박스가 되어 전체화면이 깨지므로 분리.
+          위 → 아래 슬라이드, 배경 블러. 닫기: X 버튼 / 메뉴 항목 선택 / ESC. */}
+      <div
+        id="mobile-menu"
+        aria-hidden={!menuOpen}
+        className={`fixed inset-0 z-[60] flex flex-col border-b-[0.3px] ${headerBorder} bg-white/[0.01] backdrop-blur-[18px] lg:hidden ${
+          animateMenu ? "transition-transform duration-500 ease-in-out" : ""
+        } ${menuOpen ? "translate-y-0" : "pointer-events-none -translate-y-full"}`}
+      >
+        {/* 상단 바: 로고 중앙 + 닫기 버튼 (햄버거 아이콘 유지) */}
+        <div className="relative flex h-16 shrink-0 items-center justify-center px-6">
+          <Link
+            href="/"
+            aria-label={t.header.home}
+            onClick={selectMenu}
+            className="flex items-center"
+          >
+            <img src={`/intro/logo${sfx}.svg`} alt="한국의길과문화" className="h-[30px] w-auto" />
+          </Link>
+          <button
+            type="button"
+            aria-label={locale === "en" ? "Close menu" : "메뉴 닫기"}
+            onClick={closeMenu}
+            className={`absolute right-6 top-1/2 -translate-y-1/2 ${menuColor} transition-colors`}
+          >
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="square" aria-hidden>
+              <line x1="3" y1="3" x2="19" y2="19" />
+              <line x1="19" y1="3" x2="3" y2="19" />
+            </svg>
+          </button>
+        </div>
+
+        {/* 메뉴 리스트 — 6개 항목 균등 높이(flex-1), 0.3px 구분선. 현재 페이지=초록 */}
+        <nav className="flex flex-1 flex-col bg-white/5">
+          {MENU.map((item) => (
+            <Link
+              key={item.key}
+              href={item.href}
+              onClick={selectMenu}
+              style={locale === "en" ? { fontFamily: "var(--font-montserrat)" } : undefined}
+              className={`flex flex-1 items-center border-t-[0.3px] ${headerBorder} px-6 py-4 text-[18px] font-extrabold tracking-[-0.36px] transition-colors ${
+                item.key === active ? "text-[#0ac200]" : light ? "text-[#231f20]" : "text-[#f0f0f0]"
+              }`}
+            >
+              {t.header.nav[item.key]}
+            </Link>
+          ))}
+        </nav>
+
+        {/* 아이콘 행 — 인스타 · 쇼핑몰 · 다국어 (PC 헤더와 동일) */}
+        <div className={`flex items-center justify-center gap-6 border-t-[0.3px] ${headerBorder} bg-white/5 py-7`}>
+          <a
+            href="https://www.instagram.com/koreatnc1"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+            onClick={closeMenu}
+            className="transition-opacity hover:opacity-70"
+          >
+            <img src={`/intro/ic-instagram${sfx}.svg`} alt="" className="size-[26px]" />
+          </a>
+          <a
+            href="https://smartstore.naver.com/koreatnc"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Store"
+            onClick={closeMenu}
+            className="transition-opacity hover:opacity-70"
+          >
+            <img src={`/intro/ic-store${sfx}.svg`} alt="" className="size-[26px]" />
+          </a>
+          {/* 구분선·글로브·KO/EN 모두 인스타/쇼핑 아이콘 색(#f0f0f0 dark / #9c9c9c light)에 맞춤 */}
+          <span className="h-[25px] w-px" style={{ backgroundColor: light ? "#9c9c9c" : "#f0f0f0" }} />
+          <button
+            type="button"
+            onClick={() => {
+              toggle();
+              closeMenu();
+            }}
+            aria-label={t.header.language}
+            title={locale === "ko" ? "English" : "한국어"}
+            className={`flex cursor-pointer items-center gap-1.5 transition-opacity hover:opacity-70 ${light ? "text-[#9c9c9c]" : "text-[#f0f0f0]"}`}
+          >
+            {/* 글로브 + KO/EN 모두 currentColor(=menuColor)라 테마에 같이 반응 */}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden className="size-[26px]">
+              <circle cx="12" cy="12" r="9" />
+              <ellipse cx="12" cy="12" rx="3.6" ry="9" />
+              <path d="M3 12h18" />
+            </svg>
+            <span className="text-[13px] font-extrabold" style={{ fontFamily: "var(--font-montserrat)" }}>
+              {locale === "ko" ? "KO" : "EN"}
+            </span>
+          </button>
+        </div>
+      </div>
+    </>
   );
 }

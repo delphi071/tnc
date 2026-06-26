@@ -9,18 +9,18 @@ const STAGE_W = 1920;
 export const ORG_H = 1540; // 전체 조직도 높이(디자인)
 const GREEN = "#0ac200";
 
-const ROW1 = [
+export const ROW1 = [
   { n: "권다현", r: "여행작가" },
   { n: "윤정준", r: "스튜디오 날다 대표" },
   { n: "박희진", r: "여강길 사무국장" },
   { n: "최정윤", r: "어반시냅스 대표" },
 ];
-const ROW2 = [
+export const ROW2 = [
   { n: "신정섭", r: "(사)한국생태문화연구소장" },
   { n: "강인숙", r: "(주)트래블디자인 대표이사" },
   { n: "강미희", r: "GSTC 아시아태평양소장" },
 ];
-const TEAMS = [
+export const TEAMS = [
   { name: "탐방로팀", items: ["코리아둘레길 사업", "연구사업", "컨설팅 사업"] },
   { name: "문화콘텐츠팀", items: ["콘텐츠 사업", "교육사업", "교류사업"] },
   { name: "운영지원팀", items: ["조직관리", "홍보마케팅", "협의체 관리"] },

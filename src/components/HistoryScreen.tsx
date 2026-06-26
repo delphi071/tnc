@@ -11,10 +11,10 @@ const STAGE_W = 1920;
 // 전체 콘텐츠 높이(디자인). 마지막 2011·2010 이 화면 중앙까지 올라와 활성화되도록 바닥 여백 포함.
 export const HISTORY_H = 3980;
 
-type Ev = { t: string; s?: string };
-type Row = { year: string; y: number; events: Ev[] };
+export type Ev = { t: string; s?: string };
+export type Row = { year: string; y: number; events: Ev[] };
 
-const ROWS: Row[] = [
+export const ROWS: Row[] = [
   { year: "2024", y: 717, events: [{ t: "‘DMZ평화의길’ 개통", s: "35개 코스, 510km" }, { t: "경기둘레길 노선확대조사" }] },
   { year: "2023", y: 889, events: [{ t: "강화나들길 명품화 연구" }] },
   {

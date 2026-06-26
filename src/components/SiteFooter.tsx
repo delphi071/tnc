@@ -46,7 +46,50 @@ export default function SiteFooter({ scale }: { scale: number }) {
   };
 
   return (
-    <footer className="relative w-full overflow-hidden bg-[#231f20]" style={{ height: FOOTER_H * scale }}>
+    <>
+    {/* ── 모바일 푸터 (lg 미만) — Figma "Group 92" ── */}
+    <footer className="bg-[#231f20] text-[#737373] lg:hidden">
+      {/* 로고 + 재단명 */}
+      <div className="flex flex-col items-center gap-3 px-6 pb-8 pt-[50px]">
+        <img src="/intro/footer-bt.svg" alt="Beyond the Route" className="h-[100px] w-auto" />
+        <p className="text-[14px] font-semibold text-[#c6c6c6]" style={{ fontFamily: "var(--font-montserrat)" }}>
+          {foundation}
+        </p>
+      </div>
+
+      {/* 6메뉴 2단 그리드 */}
+      <div className="grid grid-cols-2 border-t border-[#5a5b5d]">
+        {cols.map((c, ci) => (
+          <Link
+            key={ci}
+            href={COL_HREFS[ci]}
+            className="border-b border-[#5a5b5d] px-6 py-6 text-[16px] text-[#9c9c9c] transition-colors hover:text-white [&:nth-child(odd)]:border-r"
+          >
+            {c.h}
+          </Link>
+        ))}
+      </div>
+
+      {/* 로고 + 정부 배지 */}
+      <div className="flex items-center justify-between px-6 pb-5 pt-8">
+        <img src="/intro/logo.svg" alt="한국의길과문화" className="h-[40px] w-auto" />
+        <div className="flex items-center gap-4">
+          <img src="/intro/footer-badge-acrc.png" alt="국민권익위원회" className="h-[18px] w-auto" />
+          <img src="/intro/footer-badge-nts.png" alt="국세청" className="h-[19px] w-auto" />
+        </div>
+      </div>
+
+      {/* 사업자 정보 */}
+      <div className="flex flex-col gap-1 px-6 pb-10 text-[13px] leading-[1.5]">
+        <p>{info.line1.join(SEP)}</p>
+        <p>{info.line2[0]}</p>
+        <p>{[info.line2[1], info.line2[2]].filter(Boolean).join(SEP)}</p>
+        <p>{info.line3.join(SEP)}</p>
+      </div>
+    </footer>
+
+    {/* ── 데스크톱 푸터 (lg+) — 1920 스케일 스테이지 ── */}
+    <footer className="relative hidden w-full overflow-hidden bg-[#231f20] lg:block" style={{ height: FOOTER_H * scale }}>
       <div className="absolute left-1/2 top-0" style={{ width: STAGE_W, height: FOOTER_H, transform: `translateX(-50%) scale(${scale})`, transformOrigin: "top center" }}>
         {/* 상단: 로고 + 링크 6컬럼 */}
         <div className="absolute left-0 top-0 flex w-full items-stretch" style={{ height: 293 }}>
@@ -99,5 +142,6 @@ export default function SiteFooter({ scale }: { scale: number }) {
         </div>
       </div>
     </footer>
+    </>
   );
 }

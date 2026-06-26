@@ -12,6 +12,7 @@ import OrgChartScreen, { ORG_H } from "./OrgChartScreen";
 import MapScreen from "./MapScreen";
 import SiteFooter from "./SiteFooter";
 import SectionNavLabel from "./SectionNavLabel";
+import OurWayMobile from "./OurWayMobile";
 
 /** Figma 디자인 기준 좌표계 (01. 우리의 길 main-1~3) */
 const STAGE_W = 1920;
@@ -71,6 +72,7 @@ export default function OurWayHero() {
   const t = useT();
   const [scale, setScale] = useState(1);
   const [headerLight, setHeaderLight] = useState(false);
+  const [mobileHeaderLight, setMobileHeaderLight] = useState(false); // 모바일 카드 스택의 밝은 섹션 여부
   const leftX = LEFT_X;
   const rightX = RIGHT_X;
 
@@ -241,9 +243,13 @@ export default function OurWayHero() {
   return (
     <>
       {/* 페이지 전체에 고정되는 헤더 (메뉴는 항상 떠 있음, 밝은 섹션에서 테마 전환) */}
-      <Header active="ourWay" fixed theme={headerLight ? "light" : "dark"} />
+      <Header active="ourWay" fixed theme={headerLight || mobileHeaderLight ? "light" : "dark"} />
 
-      <div ref={trackRef} className="relative" style={{ height: `${TRACK_VH}vh` }}>
+      {/* 모바일(lg 미만) 전용 본문 — peel 스크롤(Hero → Mission → …) */}
+      <OurWayMobile onLightChange={setMobileHeaderLight} />
+
+      {/* 데스크톱 스크롤 트랙 (lg+) — 모바일에서는 숨김 */}
+      <div ref={trackRef} className="relative hidden lg:block" style={{ height: `${TRACK_VH}vh` }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
         {/* 배경 (풀블리드) */}
         <Image
@@ -321,13 +327,14 @@ export default function OurWayHero() {
             </div>
           </div>
 
-          {/* 좌측 라벨 (마지막 섹션: 마음잇기로 순환) */}
-          <SectionNavLabel side="left" lines={["WALK", "WITH US"]} href="/walk-with-us" />
-
-          {/* 우측 라벨 (다음 섹션: 같은 길, 다른 시선) */}
-          <SectionNavLabel side="right" lines={["SAME TRAIL,", "NEW VISION"]} href="/same-trail" />
           </div>
         </div>
+
+        {/* 좌우 섹션 네비 (스테이지 밖, 고정 크기) — reveal 화면(z 10~16)보다 낮은 z=9 로 깔아 콘텐츠에 가려지게 */}
+        {/* 좌측 라벨 (마지막 섹션: 마음잇기로 순환) */}
+        <SectionNavLabel side="left" lines={["WALK", "WITH US"]} href="/walk-with-us" z={9} />
+        {/* 우측 라벨 (다음 섹션: 같은 길, 다른 시선) */}
+        <SectionNavLabel side="right" lines={["SAME TRAIL,", "NEW VISION"]} href="/same-trail" z={9} />
 
         {/* 맨 뒤에 고정되는 History — 6단계에서 Core Value 가 걷히며 드러남 */}
         {/* 약도(Location) — 10단계에서 조직도가 걷히며 드러남 (hero 와 같은 z, DOM 뒤라 위에 표시) */}

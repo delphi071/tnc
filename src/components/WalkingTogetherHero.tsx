@@ -7,6 +7,7 @@ import Header from "./Header";
 import SectionNavLabel from "./SectionNavLabel";
 import OrgCardSection, { type OrgCard } from "./OrgCardSection";
 import SiteFooter from "./SiteFooter";
+import WalkingTogetherMobile from "./WalkingTogetherMobile";
 
 /** Figma "04. 함께 걷는 사람들 main" 좌표계 (1920 기준) */
 const STAGE_W = 1920;
@@ -79,6 +80,7 @@ export default function WalkingTogetherHero() {
   const orgCards: OrgCard[] = ORG_META.map((m, i) => ({ ...m, title: wt.orgs[i].title, lines: wt.orgs[i].lines }));
   const [scale, setScale] = useState(1);
   const [headerLight, setHeaderLight] = useState(false);
+  const [mobileHeaderLight, setMobileHeaderLight] = useState(false); // 모바일 카드(밝은 배경) 여부
 
   // 진입 시: 해시(#섹션)면 해당 섹션으로, 아니면 맨 위. 같은 페이지 해시 변경도 처리
   useEffect(() => {
@@ -159,9 +161,13 @@ export default function WalkingTogetherHero() {
 
   return (
     <>
-      <Header active="walkingTogether" fixed theme={headerLight ? "light" : "dark"} />
+      <Header active="walkingTogether" fixed theme={headerLight || mobileHeaderLight ? "light" : "dark"} />
 
-      <div ref={trackRef} className="relative" style={{ height: `${TRACK_VH}vh` }}>
+      {/* 모바일(lg 미만) 전용 — Hero + 단체 카드 peel */}
+      <WalkingTogetherMobile onLightChange={setMobileHeaderLight} />
+
+      {/* 데스크톱 스크롤 트랙 (lg+) — 모바일에서는 숨김 */}
+      <div ref={trackRef} className="relative hidden lg:block" style={{ height: `${TRACK_VH}vh` }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
           {/* 배경 (풀블리드, 고정) */}
           <Image src="/intro/wt-hero.jpg" alt="함께 걷는 사람들" fill priority sizes="100vw" className="object-cover" />
@@ -228,12 +234,6 @@ export default function WalkingTogetherHero() {
                 </div>
               </div>
 
-              {/* 좌측 라벨 (이전 섹션: 우리가 걷는 길) */}
-              <SectionNavLabel side="left" lines={["THE ROUTES", "WE BUILD"]} href="/the-path-we-walk" />
-
-              {/* 우측 라벨 (다음 섹션: 알리는 이야기) */}
-              <SectionNavLabel side="right" lines={["OUR STORIES"]} href="/our-stories" />
-
               {/* peel 로 화면 중앙에 올라오는 새 텍스트 (중앙=540 기준 PEEL_DIST 아래에서 시작) */}
               <div
                 className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col text-center font-bold text-white"
@@ -245,6 +245,12 @@ export default function WalkingTogetherHero() {
               </div>
             </div>
           </div>
+
+          {/* 좌우 섹션 네비 (스테이지 밖, 고정 크기) — 덮는 카드 패널(z≥20) 아래에 깔림 */}
+          {/* 좌측 라벨 (이전 섹션: 우리가 걷는 길) */}
+          <SectionNavLabel side="left" lines={["THE ROUTES", "WE BUILD"]} href="/the-path-we-walk" />
+          {/* 우측 라벨 (다음 섹션: 알리는 이야기) */}
+          <SectionNavLabel side="right" lines={["OUR STORIES"]} href="/our-stories" />
 
           {/* 단체 카드 흰 패널 4개 — 차례로 밑에서 올라와 덮음 (z-20~50) */}
           <div ref={org1Ref} className="absolute inset-0 z-20 bg-[#f0f0f0]" style={{ transform: "translateY(100%)", willChange: "transform" }}>

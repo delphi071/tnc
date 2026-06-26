@@ -6,6 +6,7 @@ import { useT } from "@/i18n/useT";
 import Header from "./Header";
 import SectionNavLabel from "./SectionNavLabel";
 import SiteFooter from "./SiteFooter";
+import SameTrailMobile from "./SameTrailMobile";
 
 /** Figma "02. 같은길 다른시선" 좌표계 (1920 기준) */
 const STAGE_W = 1920;
@@ -81,6 +82,7 @@ export default function SameTrailHero() {
   const st = useT().sameTrail;
   const [scale, setScale] = useState(1);
   const [headerLight, setHeaderLight] = useState(false);
+  const [mobileHeaderLight, setMobileHeaderLight] = useState(false); // 모바일 카드 스택의 밝은 섹션 여부
 
   // 진입 시: 해시(#섹션)면 해당 섹션으로, 아니면 맨 위. 같은 페이지 해시 변경도 처리
   useEffect(() => {
@@ -188,9 +190,13 @@ export default function SameTrailHero() {
 
   return (
     <>
-      <Header active="sameTrail" fixed theme={headerLight ? "light" : "dark"} />
+      <Header active="sameTrail" fixed theme={headerLight || mobileHeaderLight ? "light" : "dark"} />
 
-      <div ref={trackRef} className="relative" style={{ height: `${TRACK_VH}vh` }}>
+      {/* 모바일(lg 미만) 전용 — 카드 스택 peel (Hero → 인트로 → Plan/Analysis/Experience) */}
+      <SameTrailMobile onLightChange={setMobileHeaderLight} />
+
+      {/* 데스크톱 스크롤 트랙 (lg+) — 모바일에서는 숨김 */}
+      <div ref={trackRef} className="relative hidden lg:block" style={{ height: `${TRACK_VH}vh` }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
           {/* 배경 (풀블리드, 고정) */}
           <Image
@@ -259,12 +265,6 @@ export default function SameTrailHero() {
                 </div>
               </div>
 
-              {/* 좌측 라벨 (이전 섹션: 우리의 길) */}
-              <SectionNavLabel side="left" lines={["BEYOND", "THE ROUTE"]} href="/our-way" />
-
-              {/* 우측 라벨 (다음 섹션: 우리가 걷는 길) */}
-              <SectionNavLabel side="right" lines={["THE PATH", "WE WALK"]} href="/the-path-we-walk" />
-
               {/* peel 로 화면 중앙에 올라오는 새 텍스트 */}
               <div
                 className="absolute flex -translate-y-1/2 flex-col items-center gap-8 text-center text-white"
@@ -283,6 +283,12 @@ export default function SameTrailHero() {
               </div>
             </div>
           </div>
+
+          {/* 좌우 섹션 네비 (스테이지 밖, 고정 크기) — 덮는 패널(z≥20) 아래에 깔림 */}
+          {/* 좌측 라벨 (이전 섹션: 우리의 길) */}
+          <SectionNavLabel side="left" lines={["BEYOND", "THE ROUTE"]} href="/our-way" />
+          {/* 우측 라벨 (다음 섹션: 우리가 걷는 길) */}
+          <SectionNavLabel side="right" lines={["THE PATH", "WE WALK"]} href="/the-path-we-walk" />
 
           {/* 밝은 패널 (기획에서 체험까지) — 밑에서 올라와 덮음 (z-20) */}
           <div

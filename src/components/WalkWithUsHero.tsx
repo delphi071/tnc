@@ -7,6 +7,7 @@ import Header from "./Header";
 import SectionNavLabel from "./SectionNavLabel";
 import WalkWithUsContent from "./WalkWithUsContent";
 import SiteFooter from "./SiteFooter";
+import WalkWithUsMobile from "./WalkWithUsMobile";
 
 /** Figma "06. 마음잇기 main" 좌표계 (1920 기준) */
 const STAGE_W = 1920;
@@ -62,6 +63,7 @@ export default function WalkWithUsHero() {
   const hero = useT().walkWithUs.hero;
   const [scale, setScale] = useState(1);
   const [headerLight, setHeaderLight] = useState(false);
+  const [mobileHeaderLight, setMobileHeaderLight] = useState(false); // 모바일 밝은 콘텐츠 여부
 
   // 진입 시: 해시(#donation/#annual)면 콘텐츠 위치로, 아니면 맨 위. 같은 페이지 해시 변경도 처리
   useEffect(() => {
@@ -145,9 +147,13 @@ export default function WalkWithUsHero() {
 
   return (
     <>
-      <Header active="walkWithUs" fixed theme={headerLight ? "light" : "dark"} />
+      <Header active="walkWithUs" fixed theme={headerLight || mobileHeaderLight ? "light" : "dark"} />
 
-      <div ref={trackRef} className="relative" style={{ height: `${TRACK_VH}vh` }}>
+      {/* 모바일(lg 미만) 전용 — Hero + 탭(후원하기/연간기금) */}
+      <WalkWithUsMobile onLightChange={setMobileHeaderLight} />
+
+      {/* 데스크톱 peel 트랙 (lg+) — 모바일 숨김 */}
+      <div ref={trackRef} className="relative hidden lg:block" style={{ height: `${TRACK_VH}vh` }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
           {/* 배경 (풀블리드, 고정) */}
           <Image src="/intro/ww-hero.jpg" alt="마음잇기" fill priority sizes="100vw" className="object-cover" />
@@ -207,13 +213,14 @@ export default function WalkWithUsHero() {
                 {hero.desc}
               </p>
 
-              {/* 좌측 라벨 (이전 섹션: 알리는 이야기) */}
-              <SectionNavLabel side="left" lines={["OUR STORIES"]} href="/our-stories" />
-
-              {/* 우측 라벨 (재단 슬로건 → 우리의 길로 순환) */}
-              <SectionNavLabel side="right" lines={["BEYOND", "THE ROUTE"]} href="/our-way" />
             </div>
           </div>
+
+          {/* 좌우 섹션 네비 (스테이지 밖, 고정 크기) — 덮는 패널(z≥20) 아래에 깔림 */}
+          {/* 좌측 라벨 (이전 섹션: 알리는 이야기) */}
+          <SectionNavLabel side="left" lines={["OUR STORIES"]} href="/our-stories" />
+          {/* 우측 라벨 (재단 슬로건 → 우리의 길로 순환) */}
+          <SectionNavLabel side="right" lines={["BEYOND", "THE ROUTE"]} href="/our-way" />
 
           {/* 밝은 패널 — 밑에서 올라와 덮음 (콘텐츠의 고정 배경, z-20) */}
           <div

@@ -7,6 +7,7 @@ import Header from "./Header";
 import SectionNavLabel from "./SectionNavLabel";
 import NoticesSection from "./NoticesSection";
 import SiteFooter from "./SiteFooter";
+import OurStoriesMobile from "./OurStoriesMobile";
 
 /** Figma "05. 알리는 이야기 main" 좌표계 (1920 기준) */
 const STAGE_W = 1920;
@@ -40,6 +41,7 @@ export default function OurStoriesHero() {
   const hero = useT().ourStories.hero;
   const [scale, setScale] = useState(1);
   const [headerLight, setHeaderLight] = useState(false);
+  const [mobileHeaderLight, setMobileHeaderLight] = useState(false); // 모바일 밝은 콘텐츠 여부
 
   // 진입 시 스크롤 위치 결정
   //  - 공지/소식받기/문의하기 해시 또는 상세에서 "목록"·뒤로가기(세션 플래그): 공지 섹션으로 스크롤
@@ -88,8 +90,10 @@ export default function OurStoriesHero() {
       if (lineARef.current) lineARef.current.style.strokeDashoffset = offset;
       if (lineBRef.current) lineBRef.current.style.strokeDashoffset = offset;
 
-      // 밝은 공지사항 섹션이 헤더 아래로 올라오면 헤더를 라이트 테마로 전환
-      const wantLight = noticesRef.current ? noticesRef.current.getBoundingClientRect().top <= 102 : false;
+      // 밝은 공지사항 섹션이 헤더 아래로 올라오면 헤더를 라이트 테마로 전환.
+      //  단, 데스크톱 트랙이 숨겨진(모바일) 경우엔 건너뜀 — 모바일은 OurStoriesMobile 이 테마 제어.
+      //  (숨겨진 noticesRef 의 top=0 이 라이트로 잘못 고정되는 버그 방지)
+      const wantLight = el.offsetHeight > 0 && !!noticesRef.current && noticesRef.current.getBoundingClientRect().top <= 102;
       if (headerLightRef.current !== wantLight) {
         headerLightRef.current = wantLight;
         setHeaderLight(wantLight);
@@ -110,9 +114,13 @@ export default function OurStoriesHero() {
 
   return (
     <>
-      <Header active="ourStories" fixed theme={headerLight ? "light" : "dark"} />
+      <Header active="ourStories" fixed theme={headerLight || mobileHeaderLight ? "light" : "dark"} />
 
-      <div ref={trackRef} className="relative" style={{ height: `${TRACK_VH}vh` }}>
+      {/* 모바일(lg 미만) 전용 — Hero + 탭(공지/소식받기/문의) */}
+      <OurStoriesMobile onLightChange={setMobileHeaderLight} />
+
+      {/* 데스크톱 히어로 트랙 (lg+) — 모바일 숨김 */}
+      <div ref={trackRef} className="relative hidden lg:block" style={{ height: `${TRACK_VH}vh` }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
           {/* 배경 (풀블리드) */}
           <Image src="/intro/os-hero.jpg" alt="알리는 이야기" fill priority sizes="100vw" className="object-cover" />
@@ -180,19 +188,20 @@ export default function OurStoriesHero() {
               </div>
             </div>
 
-            {/* 좌측 라벨 (이전 섹션: 함께 걷는 사람들) */}
-            <SectionNavLabel side="left" lines={["WALKING", "TOGETHER"]} href="/walking-together" />
-
-            {/* 우측 라벨 (다음 섹션: 마음잇기) */}
-            <SectionNavLabel side="right" lines={["WALK", "WITH US"]} href="/walk-with-us" />
           </div>
+
+          {/* 좌우 섹션 네비 (스테이지 밖, 고정 크기) — 히어로 위에 표시, 이후 공지 섹션이 스크롤로 덮음 */}
+          {/* 좌측 라벨 (이전 섹션: 함께 걷는 사람들) */}
+          <SectionNavLabel side="left" lines={["WALKING", "TOGETHER"]} href="/walking-together" />
+          {/* 우측 라벨 (다음 섹션: 마음잇기) */}
+          <SectionNavLabel side="right" lines={["WALK", "WITH US"]} href="/walk-with-us" />
         </div>
       </div>
 
       {/* 히어로 다음, 일반 스크롤로 바로 등장하는 밝은 공지사항 콘텐츠 + 푸터 */}
       {/* scrollMarginTop=0: 목록 복귀 시 공지 섹션 top을 0에 맞춰, 헤더(높이 102) 전체가
           밝은 #f0f0f0 섹션 위에 오도록 한다. (그래야 헤더가 라이트로 전환돼 메뉴가 잘 보임) */}
-      <div id="notices" ref={noticesRef} style={{ scrollMarginTop: 0 }}>
+      <div id="notices" ref={noticesRef} className="hidden lg:block" style={{ scrollMarginTop: 0 }}>
         <NoticesSection />
       </div>
       <SiteFooter scale={scale} />

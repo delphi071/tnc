@@ -10,6 +10,7 @@ import RegionalRoadSection from "./RegionalRoadSection";
 import CultureProgramSection from "./CultureProgramSection";
 import GoodsSection from "./GoodsSection";
 import SiteFooter from "./SiteFooter";
+import PathWeWalkMobile from "./PathWeWalkMobile";
 
 /** Figma "03. 우리가 걷는 길 main" 좌표계 (1920 기준) */
 const STAGE_W = 1920;
@@ -64,6 +65,7 @@ export default function PathWeWalkHero() {
   const hero = useT().thePathWeWalk.hero;
   const [scale, setScale] = useState(1);
   const [headerLight, setHeaderLight] = useState(false);
+  const [mobileHeaderLight, setMobileHeaderLight] = useState(false); // 모바일 아코디언(밝은 배경) 여부
 
   // 진입 시: 해시(#섹션)면 해당 섹션으로, 아니면 맨 위. 같은 페이지 해시 변경도 처리
   useEffect(() => {
@@ -146,9 +148,13 @@ export default function PathWeWalkHero() {
 
   return (
     <>
-      <Header active="thePathWeWalk" fixed theme={headerLight ? "light" : "dark"} />
+      <Header active="thePathWeWalk" fixed theme={headerLight || mobileHeaderLight ? "light" : "dark"} />
 
-      <div ref={trackRef} className="relative" style={{ height: `${TRACK_VH}vh` }}>
+      {/* 모바일(lg 미만) 전용 — Hero + 본문 아코디언 */}
+      <PathWeWalkMobile onLightChange={setMobileHeaderLight} />
+
+      {/* 데스크톱 스크롤 트랙 (lg+) — 모바일에서는 숨김 */}
+      <div ref={trackRef} className="relative hidden lg:block" style={{ height: `${TRACK_VH}vh` }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
           {/* 배경 (풀블리드) */}
           <Image
@@ -220,12 +226,13 @@ export default function PathWeWalkHero() {
               </div>
             </div>
 
-            {/* 좌측 라벨 (이전 섹션: 같은 길, 다른 시선) */}
-            <SectionNavLabel side="left" lines={["SAME TRAIL", "NEW VISION"]} href="/same-trail" />
-
-            {/* 우측 라벨 (다음 섹션: 함께 걷는 사람들) */}
-            <SectionNavLabel side="right" lines={["WALKING", "TOGETHER"]} href="/walking-together" />
           </div>
+
+          {/* 좌우 섹션 네비 (스테이지 밖, 고정 크기) — 덮는 패널(z≥20) 아래에 깔림 */}
+          {/* 좌측 라벨 (이전 섹션: 같은 길, 다른 시선) */}
+          <SectionNavLabel side="left" lines={["SAME TRAIL", "NEW VISION"]} href="/same-trail" />
+          {/* 우측 라벨 (다음 섹션: 함께 걷는 사람들) */}
+          <SectionNavLabel side="right" lines={["WALKING", "TOGETHER"]} href="/walking-together" />
 
           {/* 코리아둘레길 흰 패널 — 밑에서 올라와 덮음 (탭 클릭형 가로 캐러셀, z-20) */}
           <div
