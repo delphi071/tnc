@@ -60,10 +60,10 @@ export default function NoticeDetail() {
                 {d.body}
               </p>
               <Image
-                src="/intro/os-notice-poster.png"
+                src="/intro/os-notice-poster.jpg"
                 alt={d.posterAlt}
-                width={2480}
-                height={3508}
+                width={1200}
+                height={1697}
                 sizes="(max-width: 1200px) 100vw, 1140px"
                 className="h-auto w-full"
               />

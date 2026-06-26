@@ -23,6 +23,11 @@ const HIST_IMG_AFTER: Record<string, string> = {
   "2016": "hist-0824",
   "2012": "hist-1529",
 };
+/** 특정 이미지 보정 클래스. hist-namhae 는 왼쪽 가장자리에 검은 띠가 박혀 있고
+ *  가로를 꽉 채워(object-position 무효) → 오른쪽 기준으로 살짝 확대해 왼쪽으로 밀어 검은 띠를 잘라냄. */
+const HIST_IMG_POS: Record<string, string> = {
+  "2020": "origin-right scale-[1.1]",
+};
 
 /** 우리의 길 — 모바일(lg 미만) 전용. PC 의 "벗겨지는(peel)" 스크롤을 모바일 레이아웃으로 재현.
  *  [현재 단계] Hero(base) → Mission.
@@ -32,7 +37,7 @@ const HIST_IMG_AFTER: Record<string, string> = {
  *  문구는 PC 와 동일한 사전(ourWay.*)을 그대로 사용. */
 
 /** 스크롤 트랙 길이(vh) — 핀 고정 구간 = TRACK_VH − 100. 카드(섹션)가 늘면 같이 키운다. */
-const TRACK_VH = 1100;
+const TRACK_VH = 1700;
 /** 진행도 분기(0→1): [0~M_COVER] 카드 스택이 hero 를 덮음 / [M_COVER~1] 카드 peel + 큐브 + 내부 스크롤 */
 const M_COVER = 0.05;
 /** 내부 세로 스크롤(타임라인/조직도)이 차지하는 가중치(peel 1단계 = 가중치 1 기준) */
@@ -397,7 +402,7 @@ export default function OurWayMobile({ onLightChange }: { onLightChange?: (light
                           <img
                             src={`/intro/${HIST_IMG_AFTER[row.year]}.jpg`}
                             alt=""
-                            className="h-[200px] w-full object-cover"
+                            className={`h-[200px] w-full object-cover ${HIST_IMG_POS[row.year] ?? "object-center"}`}
                           />
                         </div>
                       )}
