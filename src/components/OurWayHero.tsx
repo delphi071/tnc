@@ -173,15 +173,16 @@ export default function OurWayHero() {
       if (cubeRef.current) {
         cubeRef.current.style.transform = `translateZ(-${CV_DEPTH}px) rotateX(${cubeStep * 90}deg)`;
       }
-      // History: Core Value 가 큐브를 마친 뒤(5단계 종료)부터 뒤에 존재, 8단계엔 위로 걷힘(peel)
+      // History: 8단계에 "걷히지 않는다". 마지막 2010·텍스트가 위로 스크롤되어 사라지지 않도록
+      // History 는 제자리(0%)에 두고, 조직도가 아래에서 올라와 그 위를 덮는다(cover). 완전히 덮인 뒤 숨김.
       if (historyRef.current) {
-        historyRef.current.style.opacity = cubeP >= 1 ? "1" : "0";
-        historyRef.current.style.transform = `translateY(${-historyPeelP * 100}%)`;
+        historyRef.current.style.opacity = cubeP >= 1 ? (historyPeelP >= 1 ? "0" : "1") : "0";
+        historyRef.current.style.transform = "translateY(0%)";
       }
-      // 조직도: History 스크롤이 끝난 뒤(7단계 종료)부터 뒤에 존재 → 8단계 peel, 10단계엔 위로 걷힘
+      // 조직도: 8단계에 아래에서 위로 올라와 History 를 덮고(100%→0), 10단계엔 위로 걷혀(0→-100%) 약도 노출
       if (orgRef.current) {
         orgRef.current.style.opacity = historyScrollP >= 1 ? "1" : "0";
-        orgRef.current.style.transform = `translateY(${-orgPeelP * 100}%)`;
+        orgRef.current.style.transform = `translateY(${(1 - historyPeelP) * 100 - orgPeelP * 100}%)`;
       }
       // 9단계: 조직도 콘텐츠 선형 스크롤 (사무처·3팀까지)
       if (orgContentRef.current) {
@@ -194,32 +195,53 @@ export default function OurWayHero() {
       // 7단계: History 콘텐츠 선형 스크롤 (2024 → 2010)
       if (historyContentRef.current) {
         const sc = Math.min(1, window.innerWidth / STAGE_W);
-        const maxScroll = Math.max(HISTORY_H * sc - window.innerHeight, 0);
+        // 마지막 연도(2010, y=3333)가 고정선(359)에 "정확히" 닿는 지점까지만 스크롤한다.
+        // innerHeight 기준으로 하면 브라우저 크롬 때문에 뷰포트가 낮을 때 2010 을 지나쳐(over-scroll)
+        // 연도만 점에 고정된 채 이벤트·사진이 가림막 뒤로 사라진다. → 뷰포트 높이와 무관하게 멈춘다.
+        const lastRowY = HISTORY_ROW_Y[HISTORY_ROW_Y.length - 1];
+        const maxScroll = Math.max((lastRowY - 359) * sc, 0);
         const ty = -historyScrollP * maxScroll;
         historyContentRef.current.style.transform = `translateY(${ty}px)`;
 
-        // 화면 세로 중앙에 가장 가까운 연도 = 활성
-        const center = window.innerHeight / 2;
+        // 초록 점: 처음엔 2024 라벨 옆에 있다가, 2024 가 '우리가 걸어온 길'(content y=359) 자리까지
+        // 올라오면 그 화면 위치에 고정되고, 이후 연도·사진이 점을 지나 위로 스크롤되며 사라진다.
+        const SUBTITLE_Y = 359; // '우리가 걸어온 길' 위치(점이 고정되는 선)
+        const fixLine = Math.max(SUBTITLE_Y * sc, ty + HISTORY_ROW_Y[0] * sc); // 활성 라벨 화면 Y
+        // 활성 연도 = 라벨이 점(fixLine)을 가장 최근에 지난(또는 도달한) 연도 → 점이 그 연도 구간 안에 위치.
+        // (연도 순서가 위→아래라 화면 Y 가 증가하므로, fixLine 이하인 마지막 연도가 활성)
         let activeI = 0;
-        let best = Infinity;
         for (let i = 0; i < HISTORY_ROW_Y.length; i++) {
           const sy = ty + HISTORY_ROW_Y[i] * sc;
-          const d = Math.abs(sy - center);
-          if (d < best) {
-            best = d;
-            activeI = i;
-          }
+          if (sy <= fixLine + 1) activeI = i;
+          else break;
         }
+        // 활성 연도 라벨은 고정선(stickY)에 달라붙어 점 옆에 머문다(연도가 위로 사라져도 라벨은 고정).
+        const stickY = (fixLine - ty) / sc;
         const rows = historyContentRef.current.querySelectorAll<HTMLElement>("[data-hist-row]");
         rows.forEach((row, i) => {
           const on = i === activeI;
           const y = row.querySelector<HTMLElement>(".hist-year");
-          if (y) y.style.color = on ? "#000000" : "#a8a8a8";
+          if (y) {
+            y.style.color = on ? "#000000" : "#a8a8a8";
+            y.style.transform = on ? `translateY(${Math.max(0, stickY - HISTORY_ROW_Y[i])}px)` : "";
+          }
           row.querySelectorAll<HTMLElement>(".hist-ev").forEach((e) => (e.style.color = on ? "#111111" : "#8f9092"));
           row.querySelectorAll<HTMLElement>(".hist-sub").forEach((e) => (e.style.color = on ? "#5a5b5d" : "#b0b1b3"));
         });
+        // 점을 fixLine 화면 위치(라벨 기준 +9 보정)에 유지
         const dot = historyContentRef.current.querySelector<HTMLElement>("[data-history-dot]");
-        if (dot) dot.style.top = `${HISTORY_ROW_Y[activeI] + 9}px`;
+        if (dot) dot.style.top = `${stickY + 9}px`;
+
+        // 엇박: 각 사진은 점(fixLine)에 닿기 전부터 "거의 투명 → 또렷"하게 아주 천천히 나타난다(블러 없음).
+        const FADE_START = 950; // 점 아래로 이만큼부터 나타나기 시작(거의 투명)
+        const FADE_END = 100; // 점 아래 이 지점에서 완전히 또렷(1)
+        historyContentRef.current.querySelectorAll<HTMLElement>("[data-hist-img]").forEach((im) => {
+          const top = ty + im.offsetTop * sc; // 사진 상단 화면 Y
+          const below = top - fixLine; // 점 아래로 떨어진 거리
+          const t = clamp01((FADE_START - below) / (FADE_START - FADE_END));
+          im.style.opacity = String(t * t); // ease-in: 거의 투명한 상태를 더 오래 유지하다가 또렷해짐
+          im.style.transform = `translateY(${(1 - t) * 40}px)`; // 나타날 때 살짝 상승
+        });
       }
 
       // 헤더 테마: Vision 이 거의 다 걷혀 밝은 Core Value 가 상단을 채우면 밝은 테마로
@@ -348,11 +370,12 @@ export default function OurWayHero() {
           <MapScreen />
         </div>
 
-        {/* 조직도(People) — 8단계에 드러나고, 10단계엔 위로 걷힘(peel) */}
+        {/* 조직도(People) — 8단계에 아래에서 올라와 History 를 덮고(cover), 10단계엔 위로 걷힘(peel).
+            History(z-12) 위를 덮어야 하므로 z-13. */}
         <div
           ref={orgRef}
-          className="pointer-events-none absolute inset-0 z-[11]"
-          style={{ opacity: 0, transform: "translateY(0%)", willChange: "transform, opacity", boxShadow: "0 26px 50px -10px rgba(0,0,0,0.28)" }}
+          className="pointer-events-none absolute inset-0 z-[13]"
+          style={{ opacity: 0, transform: "translateY(100%)", willChange: "transform, opacity", boxShadow: "0 26px 50px -10px rgba(0,0,0,0.28)" }}
         >
           <OrgChartScreen scale={scale} contentRef={orgContentRef} />
         </div>

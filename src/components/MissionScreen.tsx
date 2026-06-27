@@ -57,12 +57,28 @@ export default function MissionScreen({ scale }: { scale: number }) {
           ))}
         </div>
 
-        {/* 원 3개 */}
+        {/* 원 뒤 반투명 링 (Figma Ellipse: #0AC200 stroke, opacity 0.3, width 15 — 원 둘레로 살짝 번짐) */}
+        {CIRCLES.map((c) => (
+          <div
+            key={`ring-${c.n}`}
+            className="absolute rounded-full"
+            style={{
+              left: c.cx - (CIRCLE + 30) / 2,
+              top: CIRCLE_CY - (CIRCLE + 30) / 2,
+              width: CIRCLE + 30,
+              height: CIRCLE + 30,
+              border: "15px solid rgba(10, 194, 0, 0.3)",
+              boxSizing: "border-box",
+            }}
+          />
+        ))}
+
+        {/* 원 3개 (솔리드 초록) */}
         {CIRCLES.map((c) => (
           <div
             key={c.n}
             className="absolute rounded-full bg-[#0ac200]"
-            style={{ left: c.cx - CIRCLE / 2, top: CIRCLE_CY - CIRCLE / 2, width: CIRCLE, height: CIRCLE, boxShadow: "0 0 60px rgba(10,194,0,0.35)" }}
+            style={{ left: c.cx - CIRCLE / 2, top: CIRCLE_CY - CIRCLE / 2, width: CIRCLE, height: CIRCLE }}
           />
         ))}
 

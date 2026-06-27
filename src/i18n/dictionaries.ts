@@ -37,10 +37,10 @@ const ko = {
       headline: ["걷는 길이 행복한 이야기가 되는 곳,", "대한민국 걷기 문화의 중심"],
     },
     coreValue: [
-      { eyebrow: "Discovery", title: "발견", sub: "모든 길에는 이야기가 흐른다", desc: "길 위의 숨은 역사와 문화를 찾아 매력적인 콘텐츠로 만듭니다." },
-      { eyebrow: "Connection", title: "연결", sub: "길은 사람과 지역을 잇는 다리다", desc: "지역과 사람, 자연과 여행자를 따뜻한 유대감으로 잇습니다." },
-      { eyebrow: "Sustainability", title: "지속", sub: "오늘의 길이 내일에도 이어지도록", desc: "자연 생태계를 보전하고 지역 경제를 살려 내일의 길을 지켜나갑니다." },
-      { eyebrow: "Trust", title: "신뢰", sub: "안심하고 걷는 길, 믿음으로 쌓는 문화", desc: "누구나 믿고 걸을 수 있도록 체계적인 관리와 운영의 전문성을 갖춥니다." },
+      { eyebrow: "Discovery", title: "발견", sub: "모든 길에는 이야기가 흐른다", desc: "길 위의 숨은 역사와 문화를 찾아\n매력적인 콘텐츠로 만듭니다." },
+      { eyebrow: "Connection", title: "연결", sub: "길은 사람과 지역을 잇는 다리다", desc: "지역과 사람, 자연과 여행자를\n따뜻한 유대감으로 잇습니다." },
+      { eyebrow: "Sustainability", title: "지속", sub: "오늘의 길이 내일에도 이어지도록", desc: "자연 생태계를 보전하고 지역 경제를 살려\n내일의 길을 지켜나갑니다." },
+      { eyebrow: "Trust", title: "신뢰", sub: "안심하고 걷는 길, 믿음으로 쌓는 문화", desc: "누구나 믿고 걸을 수 있도록 체계적인 관리와\n운영의 전문성을 갖춥니다." },
     ],
     history: {
       subtitle: "우리가 걸어온 길",

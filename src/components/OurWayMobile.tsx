@@ -6,8 +6,8 @@ import Image from "next/image";
 import { Fragment, useEffect, useRef } from "react";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useT } from "@/i18n/useT";
-import { ROWS } from "./HistoryScreen";
-import { ROW1, ROW2, TEAMS } from "./OrgChartScreen";
+import { ROWS, ROWS_EN } from "./HistoryScreen";
+import { ROW1, ROW2, TEAMS, ROW1_EN, ROW2_EN, TEAMS_EN, ORG_LABELS } from "./OrgChartScreen";
 
 /** People 이사진(7인) — 모바일은 세로로 나열 */
 const BOARD = [...ROW1, ...ROW2];
@@ -49,10 +49,10 @@ const CARD_HOLD = 0.45;
 const CUBE_ROTS = 3;
 const CUBE_HOLD = 0.5;
 /** 큐브 면 높이/깊이 (모바일 세로 면: 아이콘 + 텍스트) */
-const CUBE_FACE_H = 380;
-const CUBE_DEPTH = 190;
-/** 값 아이콘 (텍스트는 사전 coreValue[k]) — PC SVG 재사용 */
-const CV_ICONS = ["cv-discovery", "cv-connection", "cv-sustainability", "cv-trust"];
+const CUBE_FACE_H = 460;
+const CUBE_DEPTH = 230;
+/** 값 아이콘(애니메이션 GIF) — /public/our-way/*.gif (PC와 동일 에셋) */
+const CV_ICONS = ["discovery", "connection", "sustainability", "trust"];
 
 const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);
 const smoothstep = (x: number) => x * x * (3 - 2 * x);
@@ -74,6 +74,11 @@ export default function OurWayMobile({ onLightChange }: { onLightChange?: (light
   const ow = useT().ourWay;
   const { locale } = useLocale();
   const visionLines = locale === "ko" ? VISION_LINES_KO : ow.vision.headline;
+  // 조직도 한/영 분기 (텍스트는 OrgChartScreen 과 공유)
+  const enOrg = locale === "en";
+  const board = enOrg ? [...ROW1_EN, ...ROW2_EN] : BOARD;
+  const orgTeams = enOrg ? TEAMS_EN : TEAMS;
+  const orgL = enOrg ? ORG_LABELS.en : ORG_LABELS.ko;
   const trackRef = useRef<HTMLDivElement>(null);
   const heroFgRef = useRef<HTMLDivElement>(null);
   const missionRef = useRef<HTMLDivElement>(null);
@@ -305,7 +310,7 @@ export default function OurWayMobile({ onLightChange }: { onLightChange?: (light
                 <div className="absolute inset-0 flex items-center justify-center px-6">
                   <div
                     className="flex h-[270px] w-[270px] items-center justify-center rounded-full bg-[#0ac200] text-center text-black"
-                    style={{ boxShadow: "0 0 60px rgba(10,194,0,0.35)" }}
+                    style={{ boxShadow: "0 0 0 15px rgba(10, 194, 0, 0.3)" }}
                   >
                     <div className="flex flex-col items-center gap-3">
                       <p className="text-[24px] font-bold leading-none" style={{ fontFamily: "var(--font-montserrat)" }}>
@@ -366,10 +371,10 @@ export default function OurWayMobile({ onLightChange }: { onLightChange?: (light
                     {ow.coreValue.map((v, k) => (
                       <div
                         key={k}
-                        className="absolute inset-0 flex flex-col items-center justify-center gap-10 text-center"
+                        className="absolute inset-0 flex flex-col items-center justify-center gap-14 text-center"
                         style={{ transform: `rotateX(${-90 * k}deg) translateZ(${CUBE_DEPTH}px)`, backfaceVisibility: "hidden" }}
                       >
-                        <img src={`/intro/${CV_ICONS[k]}.svg`} alt="" width={180} height={180} />
+                        <img src={`/our-way/${CV_ICONS[k]}.gif`} alt="" width={270} height={270} />
                         <div className="flex flex-col items-center gap-3">
                           <div className="flex flex-col items-center gap-1.5">
                             <p className="text-[14px] font-bold leading-none text-[#0ac200]" style={{ fontFamily: "var(--font-montserrat)" }}>
@@ -378,7 +383,7 @@ export default function OurWayMobile({ onLightChange }: { onLightChange?: (light
                             <p className="text-[24px] font-bold leading-[1.2] tracking-[-0.24px] text-black">{v.title}</p>
                             <p className="text-[14px] leading-[1.3] tracking-[-0.14px] text-[#5a5b5d]">{v.sub}</p>
                           </div>
-                          <p className="text-[18px] leading-[1.3] tracking-[-0.18px] text-black">{v.desc}</p>
+                          <p className="whitespace-pre-line text-[18px] leading-[1.3] tracking-[-0.18px] text-black">{v.desc}</p>
                         </div>
                       </div>
                     ))}
@@ -407,22 +412,25 @@ export default function OurWayMobile({ onLightChange }: { onLightChange?: (light
 
                 {/* 타임라인 — 좌측 정렬: 연도(42px) + 이벤트들, 특정 연도 뒤 이미지 */}
                 <div className="flex flex-col gap-[34px] pb-[120px] pt-[60px]">
-                  {ROWS.map((row) => (
+                  {(locale === "en" ? ROWS_EN : ROWS).map((row) => (
                     <Fragment key={row.year}>
                       <div className="flex flex-col gap-2">
                         <p
-                          className="text-[42px] font-extrabold leading-[1.1] tracking-[-0.42px] text-black"
+                          className="text-[42px] font-bold leading-[1.1] tracking-[-0.42px] text-black"
                           style={{ fontFamily: "var(--font-montserrat)" }}
                         >
                           {row.year}
                         </p>
                         <div className="flex flex-col gap-1.5">
-                          {row.events.map((e, j) => (
-                            <p key={j} className="leading-[1.3]">
-                              <span className="text-[15px] font-extrabold tracking-[-0.15px] text-black">{e.t}</span>
-                              {e.s && <span className="ml-2 text-[14px] tracking-[-0.14px] text-[#5a5b5d]">{e.s}</span>}
-                            </p>
-                          ))}
+                          {row.events.map((e, j) => {
+                            const enFont = locale === "en" ? { fontFamily: "var(--font-montserrat)" } : undefined;
+                            return (
+                              <p key={j} className="leading-[1.3]">
+                                <span className="text-[15px] font-bold tracking-[-0.15px] text-black" style={enFont}>{e.t}</span>
+                                {e.s && <span className="ml-2 text-[14px] tracking-[-0.14px] text-[#5a5b5d]" style={enFont}>{e.s}</span>}
+                              </p>
+                            );
+                          })}
                         </div>
                       </div>
                       {HIST_IMG_AFTER[row.year] && (
@@ -456,49 +464,44 @@ export default function OurWayMobile({ onLightChange }: { onLightChange?: (light
                   {/* 이사장 → 감사 / 이사진 (점선 커넥터) */}
                   <div className="relative w-full" style={{ height: 150 }}>
                     {/* 세로 점선 (이사장 → 이사진) */}
-                    <div className="absolute left-1/2 top-[44px] border-l border-dashed border-[#9a9a9a]" style={{ height: 106 }} />
+                    <div className="absolute left-1/2 top-[44px] border-l border-dashed border-[#0ac200]" style={{ height: 106 }} />
                     {/* 가로 점선 (→ 감사) */}
-                    <div className="absolute left-1/2 top-[88px] border-t border-dashed border-[#9a9a9a]" style={{ width: 40 }} />
-                    {/* 분기 점 */}
-                    <div className="absolute left-1/2 top-[44px] size-[6px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#9a9a9a]" />
-                    <div className="absolute left-1/2 top-[88px] size-[6px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#9a9a9a]" />
+                    <div className="absolute left-1/2 top-[88px] border-t border-dashed border-[#0ac200]" style={{ width: 40 }} />
                     {/* 이사장 (상단 중앙) */}
                     <div className="absolute left-1/2 top-0 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#0ac200] px-9 py-3 text-[14px] text-white">
-                      <span className="font-extrabold">이사장</span>
-                      <span className="ml-2">홍성운</span>
+                      <span className="font-extrabold">{orgL.chair}</span>
+                      <span className="ml-2">{orgL.chairName}</span>
                     </div>
-                    {/* 감사 (오른쪽) */}
-                    <div className="absolute right-0 top-[66px] whitespace-nowrap rounded-full bg-[#0ac200] px-4 py-3 text-[14px] text-white">
-                      <span className="font-extrabold">감사</span>
-                      <span className="ml-1.5">전영길 회계사</span>
+                    {/* 감사 (오른쪽) — KO 는 원래대로(딱 맞음), EN 만 이름이 길어 점선을 덮으므로 폭 축소 */}
+                    <div className={`absolute right-0 whitespace-nowrap rounded-full bg-[#0ac200] text-white ${enOrg ? "top-[71px] px-2.5 py-2 text-[12px]" : "top-[66px] px-4 py-3 text-[14px]"}`}>
+                      <span className="font-extrabold">{orgL.auditor}</span>
+                      <span className={enOrg ? "ml-1" : "ml-1.5"}>{orgL.auditorName}</span>
                     </div>
                   </div>
 
                   {/* 이사진 + 7인 + 안내 */}
                   <div className="w-full">
-                    <div className="rounded-full bg-[#0ac200] py-3 text-center text-[14px] font-extrabold text-white">이사진</div>
+                    <div className="rounded-full bg-[#0ac200] py-3 text-center text-[14px] font-extrabold text-white">{orgL.board}</div>
                     <div className="mt-3 flex flex-col gap-2">
-                      {BOARD.map((m) => (
+                      {board.map((m) => (
                         <div key={m.n} className="rounded-full border border-[#0ac200] py-3 text-center text-[14px] text-[#0ac200]">
                           {m.n} {m.r}
                         </div>
                       ))}
                     </div>
                     <p className="mt-5 text-center text-[14px] leading-[1.5] text-black">
-                      이사회는 (사)한국의길과문화
-                      <br />
-                      사업과 운영에 관한 사항을 심의, 의결합니다.
+                      {orgL.note}
                     </p>
                   </div>
 
                   {/* 사무처 */}
-                  <div className="mt-[30px] w-full rounded-full bg-[#0ac200] py-3 text-center text-[14px] font-extrabold text-white">사무처</div>
+                  <div className="mt-[30px] w-full rounded-full bg-[#0ac200] py-3 text-center text-[14px] font-extrabold text-white">{orgL.secretariat}</div>
                   {/* 세로 점선 (사무처 → 3팀) */}
-                  <div className="h-[22px] w-0 border-l border-dashed border-[#9a9a9a]" />
+                  <div className="h-[22px] w-0 border-l border-dashed border-[#0ac200]" />
 
                   {/* 3팀 (세로 스택) */}
                   <div className="flex w-full flex-col gap-[14px]">
-                    {TEAMS.map((t) => (
+                    {orgTeams.map((t) => (
                       <div key={t.name} className="w-full">
                         <div className="rounded-t-[20px] border border-b-0 border-[#0ac200] py-2.5 text-center text-[14px] font-bold text-[#0ac200]">
                           {t.name}
@@ -522,7 +525,7 @@ export default function OurWayMobile({ onLightChange }: { onLightChange?: (light
                   Location
                 </p>
                 <p className="mt-5 text-[24px] font-bold leading-[1.2] tracking-[-0.24px] text-black">{ow.location.subtitle}</p>
-                <img src="/intro/map.png" alt="오시는 길 약도" className="mt-8 w-full max-w-[330px] object-contain" />
+                <img src={enOrg ? "/intro/map-en.png" : "/intro/map-ko.png"} alt="오시는 길 약도" className="mt-8 w-full max-w-[330px] object-contain" />
                 <div className="mt-8 flex w-full max-w-[330px] flex-col items-start gap-4">
                   {ow.location.info.map((t) => (
                     <div key={t} className="flex items-start gap-3">

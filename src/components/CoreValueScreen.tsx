@@ -12,12 +12,12 @@ const STAGE_W = 1920;
 const STAGE_H = 1080;
 
 /** 큐브 깊이 = 면 높이/2 (OurWayHero 의 회전 transform 과 공유) */
-export const CV_DEPTH = 110;
-const FACE_W = 730;
-const FACE_H = 220;
+export const CV_DEPTH = 140;
+const FACE_W = 800;
+const FACE_H = 280;
 
-/** 아이콘 순서 (텍스트는 사전 coreValue[i]) */
-const ICONS = ["cv-discovery", "cv-connection", "cv-sustainability", "cv-trust"];
+/** 아이콘(애니메이션 GIF) 순서 (텍스트는 사전 coreValue[i]) — /public/our-way/*.gif */
+const ICONS = ["discovery", "connection", "sustainability", "trust"];
 
 export default function CoreValueScreen({
   scale,
@@ -66,7 +66,7 @@ export default function CoreValueScreen({
                   className="absolute inset-0 flex items-center gap-[100px]"
                   style={{ transform: `rotateX(${-90 * k}deg) translateZ(${CV_DEPTH}px)`, backfaceVisibility: "hidden" }}
                 >
-                  <img src={`/intro/${icon}.svg`} alt="" className="shrink-0" style={{ width: 200, height: 200 }} />
+                  <img src={`/our-way/${icon}.gif`} alt="" className="shrink-0" style={{ width: 260, height: 260 }} />
                   {/* 영문은 eyebrow 없이 영문 제목 + 인라인 sub(한 줄), 설명은 2줄로 줄바꿈 (Figma 기준) */}
                   <div className="flex flex-col gap-6" style={{ width: en ? 660 : 430, whiteSpace: en ? "normal" : "nowrap" }}>
                     <div className="flex flex-col gap-3">

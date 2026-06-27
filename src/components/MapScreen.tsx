@@ -2,13 +2,16 @@
 
 /* eslint-disable @next/next/no-img-element */
 
+import { useLocale } from "@/i18n/LocaleProvider";
 import { useT } from "@/i18n/useT";
 
 /** Figma "01. 우리의 길 > Location(약도)". peel 로 드러남.
- *  고정 헤더(약 102px)를 비워두고, 남은 공간에 약도가 모두 보이도록 반응형 배치. */
+ *  고정 헤더(약 102px)를 비워두고, 남은 공간에 약도가 모두 보이도록 반응형 배치.
+ *  약도 라벨은 한/영 다르므로 locale 별 이미지(map-ko/map-en) 사용. */
 
 export default function MapScreen() {
   const loc = useT().ourWay.location;
+  const mapSrc = useLocale().locale === "en" ? "/intro/map-en.png" : "/intro/map-ko.png";
   return (
     <section
       className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-[#f0f0f0] px-10 pb-12"
@@ -23,7 +26,7 @@ export default function MapScreen() {
 
       <div className="mt-12 flex w-full max-w-[1160px] items-center justify-between gap-12">
         <img
-          src="/intro/map.png"
+          src={mapSrc}
           alt="오시는 길 약도"
           className="h-auto w-auto shrink"
           style={{ maxHeight: "50vh", maxWidth: "58%" }}

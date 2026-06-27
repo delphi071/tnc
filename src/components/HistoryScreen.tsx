@@ -3,13 +3,15 @@
 /* eslint-disable @next/next/no-img-element */
 
 import type { RefObject } from "react";
+import { useLocale } from "@/i18n/LocaleProvider";
 import { useT } from "@/i18n/useT";
 
 /** Figma "01. 우리의 길 > History" 전체 연혁 (밝은 배경).
  *  peel 로 드러난 뒤, 콘텐츠 전체가 위로 선형 스크롤(2024→2010). */
 const STAGE_W = 1920;
-// 전체 콘텐츠 높이(디자인). 마지막 2011·2010 이 화면 중앙까지 올라와 활성화되도록 바닥 여백 포함.
-export const HISTORY_H = 3980;
+// 전체 콘텐츠 높이. 마지막 2010(y=3333)이 고정점(≈359)에 닿는 순간 스크롤이 끝나도록(over-scroll 없음)
+// → 2010 연도·텍스트가 가림막 아래로 사라지지 않고, 이후 peel 단계에서 함께 위로 올라간다.
+export const HISTORY_H = 4054;
 
 export type Ev = { t: string; s?: string };
 export type Row = { year: string; y: number; events: Ev[] };
@@ -74,6 +76,67 @@ export const ROWS: Row[] = [
   { year: "2010", y: 3333, events: [{ t: "문화생태탐방로 사업 ‘해파랑길’ 노선조사 참여" }, { t: "‘걷기 길, 이대로 괜찮은가?’ 심포지엄 개최" }] },
 ];
 
+/** 영문 연혁 — 연도·y 좌표는 ROWS 와 동일, 이벤트 텍스트만 영문 (Figma EN) */
+export const ROWS_EN: Row[] = [
+  { year: "2024", y: 717, events: [{ t: "Opened ‘DMZ Peace Trail’", s: "35 courses, 510km" }, { t: "Gyeonggi Dullegil Route Expansion Survey" }] },
+  { year: "2023", y: 889, events: [{ t: "Ganghwa Nadeulgil Optimization research" }] },
+  {
+    year: "2022",
+    y: 1015,
+    events: [
+      { t: "Opened ‘Seohaeranggil’", s: "109 courses, 1,800km" },
+      { t: "Integrated Management of Gyeonggi Dullegil", s: "2022 ~" },
+      { t: "Plan for Ulsan Bangudae Historical Trail" },
+      { t: "Strategy for Yeongwol Untangodo Info Center" },
+      { t: "Capacity Training for Korea Dullegil Tour Guides" },
+    ],
+  },
+  {
+    year: "2020",
+    y: 1325,
+    events: [
+      { t: "Opened ‘Namparanggil’", s: "50 courses, 750km" },
+      { t: "Managed Korea Dullegil Monitoring & Info Office", s: "2020~" },
+      { t: "Developed CHA World Heritage Trails" },
+      { t: "Gyeonggi Dullegil Resource Survey & Pilot Sections" },
+      { t: "Plan for Icheon Trails (Jeonggaesan/Wonjeoksan)" },
+      { t: "Plan for Gangneung Walking Trails" },
+      { t: "Operated KTO-KOICA Namparanggil Safety Monitoring Team" },
+    ],
+  },
+  {
+    year: "2019",
+    y: 1727,
+    events: [
+      { t: "Concept research for Jinju Historical Trail" },
+      { t: "Guidelines for Goryeong Daegaya Walking Trail" },
+      { t: "Namhae Baraegil Monitoring" },
+      { t: "Haeparanggil & Namhae Dullegil Guide Training" },
+      { t: "On-site Training for Seoul Walking Tour Guides" },
+    ],
+  },
+  { year: "2018", y: 2037, events: [{ t: "Surveyed & Developed New Gyeonggi Old Trails" }, { t: "Monitored Hwaseong March 1st Movement Trail" }] },
+  {
+    year: "2017",
+    y: 2209,
+    events: [
+      { t: "Development Study for Hwaseong Independence Trail" },
+      { t: "Management Study for Yanggu DMZ Punchbowl Trail" },
+      { t: "Performance Evaluation of National Eco-Trails (MOE)" },
+    ],
+  },
+  { year: "2016", y: 2427, events: [{ t: "Opened ‘Haeparanggil’", s: "50 courses, 750km" }, { t: "Korea Dullegil Route Survey" }, { t: "Hosted Korea Dullegil Conference" }] },
+  { year: "2015", y: 2645, events: [{ t: "Master Plan for Korea Dullegil" }, { t: "Consulting for Gyeonggi Old Trails (Yeongnam & Uiju)" }] },
+  { year: "2013", y: 2817, events: [{ t: "National Walking Trail & Content Survey" }, { t: "Haeparanggil On-site Academy" }] },
+  {
+    year: "2012",
+    y: 2989,
+    events: [{ t: "Soft Launch of Haeparanggil & Website Open", s: "770km, 50 courses" }, { t: "Published Report on Trail Legislation" }, { t: "Hosted Sustainable Walking Tourism Workshop" }],
+  },
+  { year: "2011", y: 3207, events: [{ t: "Published Trail Development Manual" }] },
+  { year: "2010", y: 3333, events: [{ t: "Joined Haeparanggil Route Survey Project" }, { t: "Hosted Symposium: ‘Walking Trails, Are They on the Right Track?’" }] },
+];
+
 const IMAGES = [
   { src: "hist-2024", x: 320, y: 728, w: 408, h: 260 },
   { src: "hist-namhae", x: 457, y: 1204, w: 271, h: 379 },
@@ -94,6 +157,9 @@ export default function HistoryScreen({
   contentRef?: RefObject<HTMLDivElement | null>;
 }) {
   const h = useT().ourWay.history;
+  const en = useLocale().locale === "en";
+  const rows = en ? ROWS_EN : ROWS;
+  const evFont = en ? "var(--font-montserrat)" : undefined; // EN 이벤트는 Montserrat, KO는 기본(Pretendard)
   return (
     <section className="relative h-screen w-full overflow-hidden bg-[#f0f0f0]">
       {/* 스크롤되는 전체 콘텐츠 (OurWayHero 가 translateY 로 이동) */}
@@ -102,13 +168,6 @@ export default function HistoryScreen({
           className="absolute left-1/2 top-0"
           style={{ width: STAGE_W, height: HISTORY_H, transform: `translateX(-50%) scale(${scale})`, transformOrigin: "top center" }}
         >
-          {/* 섹션 제목 */}
-          <p
-            className="absolute text-center font-bold text-[#0ac200]"
-            style={{ left: 0, right: 0, top: 200, fontSize: 24, lineHeight: 1.2, fontFamily: "var(--font-montserrat)" }}
-          >
-            History
-          </p>
           <p className="absolute text-center font-bold text-black" style={{ left: 360, right: 360, top: 359, fontSize: 32, lineHeight: 1.2, letterSpacing: "-0.32px" }}>
             {h.subtitle}
           </p>
@@ -120,10 +179,10 @@ export default function HistoryScreen({
 
           {/* 세로선 (마지막 2010 아래까지 연장) */}
           <div className="absolute bg-[#d9d9d9]" style={{ left: 961, top: 737, width: 2, height: 2760 }} />
-          {/* 활성 연도 녹색 점 (스크롤에 따라 이동) */}
+          {/* 상단 고정 녹색 점 (OurWayHero 가 매 프레임 top 을 보정해 화면 고정 위치 유지) */}
           <span
             data-history-dot
-            className="absolute rounded-full bg-[#0ac200] transition-[top] duration-200"
+            className="absolute rounded-full bg-[#0ac200]"
             style={{ left: 951, top: 726, width: 22, height: 22 }}
           />
 
@@ -131,15 +190,16 @@ export default function HistoryScreen({
           {IMAGES.map((im) => (
             <div
               key={im.src}
+              data-hist-img
               className="absolute overflow-hidden"
-              style={{ left: im.x, top: im.y, width: im.w, height: im.h, borderTopLeftRadius: 50, borderBottomRightRadius: 50 }}
+              style={{ left: im.x, top: im.y, width: im.w, height: im.h, borderTopLeftRadius: 50, borderBottomRightRadius: 50, willChange: "transform" }}
             >
               <img src={`/intro/${im.src}.jpg`} alt="" className="h-full w-full object-cover" />
             </div>
           ))}
 
           {/* 연도 + 이벤트 (활성 연도는 data-active 로 토글) */}
-          {ROWS.map((row) => (
+          {rows.map((row) => (
             <div
               key={row.year}
               data-hist-row
@@ -156,14 +216,29 @@ export default function HistoryScreen({
               <div className="absolute" style={{ left: 1015, width: 700 }}>
                 {row.events.map((e, j) => (
                   <div key={j} className="flex items-baseline gap-3 whitespace-nowrap" style={{ height: 46 }}>
-                    <span className="hist-ev" style={{ fontSize: 16, fontWeight: 700 }}>{e.t}</span>
-                    {e.s && <span className="hist-sub" style={{ fontSize: 14 }}>{e.s}</span>}
+                    <span className="hist-ev" style={{ fontSize: 16, fontWeight: 700, fontFamily: evFont }}>{e.t}</span>
+                    {e.s && <span className="hist-sub" style={{ fontSize: 14, fontFamily: evFont }}>{e.s}</span>}
                   </div>
                 ))}
               </div>
             </div>
           ))}
         </div>
+      </div>
+
+      {/* 고정: 상단 'History' 제목 + 배경 가림막(고정선까지). 스크롤 콘텐츠는 이 아래로 지나가며 사라진다. */}
+      <div
+        className="pointer-events-none absolute left-1/2 top-0 z-10"
+        style={{ width: STAGE_W, height: HISTORY_H, transform: `translateX(-50%) scale(${scale})`, transformOrigin: "top center" }}
+      >
+        {/* 가림막: 상단~고정선(약 350). 그 위로 올라간 연혁/텍스트가 사라진다. */}
+        <div className="absolute inset-x-0 top-0 bg-[#f0f0f0]" style={{ height: 350 }} />
+        <p
+          className="absolute text-center font-bold text-[#0ac200]"
+          style={{ left: 0, right: 0, top: 200, fontSize: 24, lineHeight: 1.2, fontFamily: "var(--font-montserrat)" }}
+        >
+          History
+        </p>
       </div>
     </section>
   );
