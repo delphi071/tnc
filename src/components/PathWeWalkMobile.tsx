@@ -12,10 +12,30 @@ import { useT } from "@/i18n/useT";
 
 const MONT = { fontFamily: "var(--font-montserrat)" } as const;
 
+/** 푸터·햄버거 메뉴 서브링크(#해시) → 섹션 key 매핑 (섹션 id=해시) */
+const HASH_TO_KEY: Record<string, string> = { korea: "kdl", regional: "rr", culture: "cf", goods: "gd" };
+
 export default function PathWeWalkMobile({ onLightChange }: { onLightChange?: (light: boolean) => void }) {
   const t = useT().thePathWeWalk;
   const [open, setOpen] = useState<string | null>(null);
   const lightRef = useRef(false);
+
+  // 푸터·햄버거 메뉴 섹션(#해시) 링크 → 해당 아코디언 섹션으로 스크롤 + 첫 탭 펼침.
+  // 진입 1회 + 같은 페이지 hashchange.
+  useEffect(() => {
+    const fromHash = () => {
+      const h = window.location.hash.slice(1);
+      const key = HASH_TO_KEY[h];
+      if (!key) return;
+      setOpen(`${key}-0`); // 해당 섹션 첫 탭 펼침
+      const target = () => document.getElementById(h)?.scrollIntoView();
+      requestAnimationFrame(target);
+      setTimeout(target, 360); // 아코디언 펼침(300ms)·이미지 로드 후 위치 보정
+    };
+    fromHash();
+    window.addEventListener("hashchange", fromHash);
+    return () => window.removeEventListener("hashchange", fromHash);
+  }, []);
 
   // 히어로(어두움)를 지나 아코디언(밝음)이 헤더 아래로 오면 헤더를 라이트 테마로
   useEffect(() => {
@@ -38,15 +58,16 @@ export default function PathWeWalkMobile({ onLightChange }: { onLightChange?: (l
   // 4개 대섹션 (탭별 이미지 prefix + 특수 옵션)
   const SECTIONS: {
     key: string;
+    hash: string;
     title: string;
     tabs: { name: string; blocks: { h?: string; lines: string[] }[] }[];
     imgPos?: Record<number, string>;
     video?: Record<number, boolean>;
   }[] = [
-    { key: "kdl", title: t.koriaDulegil.title, tabs: t.koriaDulegil.tabs },
-    { key: "rr", title: t.regional.title, tabs: t.regional.tabs, imgPos: { 1: "object-bottom" } },
-    { key: "cf", title: t.culture.title, tabs: t.culture.tabs, imgPos: { 3: "object-bottom" }, video: { 0: true } },
-    { key: "gd", title: t.goods.title, tabs: t.goods.tabs },
+    { key: "kdl", hash: "korea", title: t.koriaDulegil.title, tabs: t.koriaDulegil.tabs },
+    { key: "rr", hash: "regional", title: t.regional.title, tabs: t.regional.tabs, imgPos: { 1: "object-bottom" } },
+    { key: "cf", hash: "culture", title: t.culture.title, tabs: t.culture.tabs, imgPos: { 3: "object-bottom" }, video: { 0: true } },
+    { key: "gd", hash: "goods", title: t.goods.title, tabs: t.goods.tabs },
   ];
 
   return (
@@ -74,7 +95,7 @@ export default function PathWeWalkMobile({ onLightChange }: { onLightChange?: (l
       {/* ── 본문 (아코디언) ── */}
       <div className="bg-white">
         {SECTIONS.map((sec, si) => (
-          <section key={sec.key}>
+          <section key={sec.key} id={sec.hash} className="scroll-mt-16">
             {/* 섹션 헤더 */}
             <div className="flex flex-col gap-[30px] px-[18px] pb-[40px] pt-[70px]">
               {si === 0 && <p className="text-[16px] font-bold leading-[1.1] tracking-[-0.16px] text-black">{t.sectionLabel}</p>}

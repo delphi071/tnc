@@ -18,6 +18,15 @@ const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);
 const smoothstep = (x: number) => x * x * (3 - 2 * x);
 const MONT = { fontFamily: "var(--font-montserrat)" } as const;
 
+/** 푸터·햄버거 메뉴 서브링크(#해시) → 카드스택 스크롤 진행도(0~1).
+ *  모바일 카드 표시 순서(KTA→WTN→ATN→GKO)에 맞춰 각 카드가 드러나는 지점. */
+const SECTION_PROGRESS: Record<string, number> = {
+  kta: 0.14,
+  wtn: 0.42,
+  atn: 0.71,
+  gko: 0.99,
+};
+
 export default function WalkingTogetherMobile({ onLightChange }: { onLightChange?: (light: boolean) => void }) {
   const wt = useT().walkingTogether;
   const trackRef = useRef<HTMLDivElement>(null);
@@ -82,6 +91,24 @@ export default function WalkingTogetherMobile({ onLightChange }: { onLightChange
       if (raf) cancelAnimationFrame(raf);
     };
   }, [onLightChange]);
+
+  // 푸터·햄버거 메뉴 섹션(#해시) 링크 → 해당 단체 카드 위치로 스크롤.
+  // 진입 1회 + 같은 페이지 hashchange. (데스크톱에선 트랙이 숨겨져 no-op)
+  useEffect(() => {
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    const scrollToHash = () => {
+      const el = trackRef.current;
+      if (!el) return;
+      const total = el.offsetHeight - window.innerHeight;
+      if (total <= 0) return; // 트랙 숨김(데스크톱 lg+) → WalkingTogetherHero가 처리
+      const p = SECTION_PROGRESS[window.location.hash.slice(1)];
+      if (p == null) return;
+      window.scrollTo(0, el.offsetTop + p * total);
+    };
+    requestAnimationFrame(scrollToHash);
+    window.addEventListener("hashchange", scrollToHash);
+    return () => window.removeEventListener("hashchange", scrollToHash);
+  }, []);
 
   return (
     <div className="lg:hidden">

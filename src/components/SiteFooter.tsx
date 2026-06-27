@@ -6,20 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useT } from "@/i18n/useT";
-
-/** 대메뉴(컬럼 제목) 링크 — cols 순서와 동일 (헤더 메뉴와 동일 경로) */
-const COL_HREFS = ["/our-way", "/same-trail", "/the-path-we-walk", "/walking-together", "/our-stories", "/walk-with-us"];
-
-/** 서브메뉴 링크 — [컬럼index][링크index]. 각 항목을 해당 페이지의 섹션(#해시)으로 연결.
- *  핀-스크롤 페이지는 해시로 섹션 위치까지 스크롤, 탭 페이지는 해시로 탭 활성화. */
-const COL_SUB_HREFS: Record<number, string[]> = {
-  0: ["/our-way#mission", "/our-way#vision", "/our-way#history", "/our-way#people", "/our-way#location"],
-  1: ["/same-trail#plan", "/same-trail#analysis", "/same-trail#experience"],
-  2: ["/the-path-we-walk#korea", "/the-path-we-walk#regional", "/the-path-we-walk#culture", "/the-path-we-walk#goods"],
-  3: ["/walking-together#kta", "/walking-together#atn", "/walking-together#wtn", "/walking-together#gko"],
-  4: ["/our-stories#notices", "/our-stories#subscribe", "/our-stories#contact"],
-  5: ["/walk-with-us#donation", "/walk-with-us#annual"],
-};
+import { COL_HREFS, COL_SUB_HREFS } from "@/i18n/navLinks";
 
 /** Figma footer (1920×519, #231f20). 약도 다음 일반 스크롤로 등장. */
 const STAGE_W = 1920;
@@ -30,7 +17,7 @@ const SEP = "  |  ";
 export default function SiteFooter({ scale }: { scale: number }) {
   const t = useT();
   const { toggle, locale } = useLocale();
-  const { cols, info, foundation } = t.footer;
+  const { cols, info, foundation, mobileInfo } = t.footer;
   const pathname = usePathname();
 
   // 같은 페이지의 섹션 링크는 Next 라우팅(pushState)이 hashchange 를 발생시키지 않으므로
@@ -74,17 +61,20 @@ export default function SiteFooter({ scale }: { scale: number }) {
       <div className="flex items-center justify-between px-6 pb-5 pt-8">
         <img src="/intro/logo.svg" alt="한국의길과문화" className="h-[40px] w-auto" />
         <div className="flex items-center gap-4">
-          <img src="/intro/footer-badge-acrc.png" alt="국민권익위원회" className="h-[18px] w-auto" />
-          <img src="/intro/footer-badge-nts.png" alt="국세청" className="h-[19px] w-auto" />
+          <a href="https://www.acrc.go.kr/" target="_blank" rel="noopener noreferrer" aria-label="국민권익위원회">
+            <img src="/intro/footer-badge-acrc.png" alt="국민권익위원회" className="h-[18px] w-auto" />
+          </a>
+          <a href="https://www.nts.go.kr" target="_blank" rel="noopener noreferrer" aria-label="국세청">
+            <img src="/intro/footer-badge-nts.png" alt="국세청" className="h-[19px] w-auto" />
+          </a>
         </div>
       </div>
 
-      {/* 사업자 정보 */}
-      <div className="flex flex-col gap-1 px-6 pb-10 text-[13px] leading-[1.5]">
-        <p>{info.line1.join(SEP)}</p>
-        <p>{info.line2[0]}</p>
-        <p>{[info.line2[1], info.line2[2]].filter(Boolean).join(SEP)}</p>
-        <p>{info.line3.join(SEP)}</p>
+      {/* 사업자 정보 — 모바일 줄 구성(mobileInfo). EN은 줄간격 12px(gap-3), KO는 기존 4px(gap-1) */}
+      <div className={`flex flex-col ${locale === "en" ? "gap-3" : "gap-1"} px-6 pb-10 text-[13px] leading-[1.5]`}>
+        {mobileInfo.map((line, i) => (
+          <p key={i}>{line}</p>
+        ))}
       </div>
     </footer>
 
@@ -126,17 +116,28 @@ export default function SiteFooter({ scale }: { scale: number }) {
               <p>{info.line2.join(SEP)}</p>
               <p>{info.line3.join(SEP)}</p>
             </div>
-            <div className="flex shrink-0 items-center gap-[30px]">
-              <a href="https://www.instagram.com/koreatnc1" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="transition-opacity hover:opacity-70">
-                <img src="/intro/ic-instagram.svg" alt="" style={{ width: 24, height: 24 }} />
-              </a>
-              <a href="https://smartstore.naver.com/koreatnc" target="_blank" rel="noopener noreferrer" aria-label="Store" className="transition-opacity hover:opacity-70">
-                <img src="/intro/ic-store.svg" alt="" style={{ width: 24, height: 24 }} />
-              </a>
-              <span style={{ width: 1, height: 20, backgroundColor: "#9c9c9c" }} />
-              <button type="button" onClick={toggle} aria-label={t.header.language} title={locale === "ko" ? "English" : "한국어"} className="cursor-pointer transition-opacity hover:opacity-70">
-                <img src="/intro/ic-language.svg" alt="" style={{ width: 24, height: 24 }} />
-              </button>
+            {/* 정부 배지 + 소셜 — Figma footer 504px 컨테이너(배지 좌 / 소셜 우, justify-between) */}
+            <div className="flex shrink-0 items-center justify-between" style={{ width: 504 }}>
+              <div className="flex items-center gap-[17.5px]">
+                <a href="https://www.acrc.go.kr/" target="_blank" rel="noopener noreferrer" aria-label="국민권익위원회" className="transition-opacity hover:opacity-70">
+                  <img src="/intro/footer-badge-acrc.png" alt="국민권익위원회" style={{ height: 28, width: "auto" }} />
+                </a>
+                <a href="https://www.nts.go.kr" target="_blank" rel="noopener noreferrer" aria-label="국세청" className="transition-opacity hover:opacity-70">
+                  <img src="/intro/footer-badge-nts.png" alt="국세청" style={{ height: 28, width: "auto" }} />
+                </a>
+              </div>
+              <div className="flex shrink-0 items-center gap-[30px]">
+                <a href="https://www.instagram.com/koreatnc1" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="transition-opacity hover:opacity-70">
+                  <img src="/intro/ic-instagram.svg" alt="" style={{ width: 24, height: 24 }} />
+                </a>
+                <a href="https://smartstore.naver.com/koreatnc" target="_blank" rel="noopener noreferrer" aria-label="Store" className="transition-opacity hover:opacity-70">
+                  <img src="/intro/ic-store.svg" alt="" style={{ width: 24, height: 24 }} />
+                </a>
+                <span style={{ width: 1, height: 20, backgroundColor: "#9c9c9c" }} />
+                <button type="button" onClick={toggle} aria-label={t.header.language} title={locale === "ko" ? "English" : "한국어"} className="cursor-pointer transition-opacity hover:opacity-70">
+                  <img src="/intro/ic-language.svg" alt="" style={{ width: 24, height: 24 }} />
+                </button>
+              </div>
             </div>
           </div>
         </div>

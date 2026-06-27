@@ -78,6 +78,7 @@ export default function OurStoriesMobile({ onLightChange }: { onLightChange?: (l
   const [interest, setInterest] = useState("");
   const [agree, setAgree] = useState(false);
   const lightRef = useRef(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // 히어로(어두움)를 지나 밝은 콘텐츠가 헤더 아래로 오면 라이트 테마
   useEffect(() => {
@@ -97,11 +98,13 @@ export default function OurStoriesMobile({ onLightChange }: { onLightChange?: (l
     };
   }, [onLightChange]);
 
-  // 푸터 서브메뉴 해시(#notices/#subscribe/#contact)로 탭 활성화
+  // 푸터·햄버거 메뉴 해시(#notices/#subscribe/#contact)로 탭 활성화 + 콘텐츠로 스크롤
   useEffect(() => {
     const fromHash = () => {
       const h = window.location.hash.slice(1);
-      if ((TABS as readonly string[]).includes(h)) setTab(h as Tab);
+      if (!(TABS as readonly string[]).includes(h)) return;
+      setTab(h as Tab);
+      requestAnimationFrame(() => contentRef.current?.scrollIntoView());
     };
     fromHash();
     window.addEventListener("hashchange", fromHash);
@@ -138,7 +141,7 @@ export default function OurStoriesMobile({ onLightChange }: { onLightChange?: (l
       </section>
 
       {/* ── 본문 (탭) ── */}
-      <div className="bg-[#f0f0f0] pb-[120px] pt-[70px]">
+      <div ref={contentRef} className="bg-[#f0f0f0] pb-[120px] pt-[70px]">
         {/* 탭 바 */}
         <div className="flex justify-center gap-[14px]">
           {TABS.map((key) => {

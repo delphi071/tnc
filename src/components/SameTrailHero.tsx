@@ -56,8 +56,10 @@ const LINE_B = "M885 535 V682 C885 720.66 853.66 752 815 752 H0";
 /** 테스트용: 선을 처음부터 끝까지 보이게 (튜닝 후 false) */
 const SHOW_FULL = false;
 
-/** 푸터 서브메뉴 → 섹션 스크롤 진행도(0~1) */
+/** 푸터·메뉴 서브메뉴 → 섹션 스크롤 진행도(0~1)
+ *  expertise = "기획에서 체험까지 …전문 법인" 인트로 패널이 완전히 올라온 지점(PANEL2_END). */
 const SECTION_PROGRESS: Record<string, number> = {
+  expertise: 0.18,
   plan: 0.34,
   analysis: 0.62,
   experience: 0.88,
@@ -90,13 +92,18 @@ export default function SameTrailHero() {
     const scrollToSection = () => {
       const track = trackRef.current;
       if (!track) return false;
+      const total = track.offsetHeight - window.innerHeight;
+      if (total <= 0) return false; // 트랙이 숨겨짐(모바일 lg 미만) → 모바일 카드스택이 처리
       const p = SECTION_PROGRESS[window.location.hash.slice(1)];
       if (p == null) return false;
-      window.scrollTo(0, track.offsetTop + p * (track.offsetHeight - window.innerHeight));
+      window.scrollTo(0, track.offsetTop + p * total);
       return true;
     };
     requestAnimationFrame(() => {
-      if (!scrollToSection()) window.scrollTo(0, 0);
+      // 데스크톱 트랙이 실제로 보일 때만 top 리셋 (모바일에선 카드스택 효과를 건드리지 않음)
+      const track = trackRef.current;
+      const visible = track ? track.offsetHeight - window.innerHeight > 0 : false;
+      if (!scrollToSection() && visible) window.scrollTo(0, 0);
     });
     window.addEventListener("hashchange", scrollToSection);
     return () => window.removeEventListener("hashchange", scrollToSection);

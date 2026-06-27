@@ -45,12 +45,14 @@ const RIGHT_X = 901; // the 의 h (오른쪽으로 1px 보정)
 const SHOW_FULL = false;
 
 /** 푸터 서브메뉴 → 섹션 스크롤 진행도(0~1). 해시(#키)로 해당 섹션 위치로 점프 */
+// 각 섹션이 "정착"하는 위상 경계(translateY 0, 컨텐츠가 설계 위치)에 맞춘다.
+// mission=P2, vision=P3, history=P6(연혁 시작), people=P8(조직도 시작), location=P9.
 const SECTION_PROGRESS: Record<string, number> = {
-  mission: 0.16,
-  vision: 0.22,
-  history: 0.64,
-  people: 0.85,
-  location: 0.96,
+  mission: 0.18,
+  vision: 0.27,
+  history: 0.54,
+  people: 0.81,
+  location: 1, // phase10 끝(조직도 완전히 걷힘) — 이전 섹션 잔상 없이 약도만
 };
 
 export default function OurWayHero() {
@@ -82,13 +84,17 @@ export default function OurWayHero() {
     const scrollToSection = () => {
       const track = trackRef.current;
       if (!track) return false;
+      const total = track.offsetHeight - window.innerHeight;
+      if (total <= 0) return false; // 트랙이 숨겨짐(모바일 lg 미만) → 모바일 카드스택이 처리
       const p = SECTION_PROGRESS[window.location.hash.slice(1)];
       if (p == null) return false;
-      window.scrollTo(0, track.offsetTop + p * (track.offsetHeight - window.innerHeight));
+      window.scrollTo(0, track.offsetTop + p * total);
       return true;
     };
     requestAnimationFrame(() => {
-      if (!scrollToSection()) window.scrollTo(0, 0);
+      const track = trackRef.current;
+      const visible = track ? track.offsetHeight - window.innerHeight > 0 : false;
+      if (!scrollToSection() && visible) window.scrollTo(0, 0);
     });
     window.addEventListener("hashchange", scrollToSection);
     return () => window.removeEventListener("hashchange", scrollToSection);

@@ -20,6 +20,7 @@ export default function WalkWithUsMobile({ onLightChange }: { onLightChange?: (l
   const [copied, setCopied] = useState(false);
   const lightRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // 히어로(어두움) 지나 밝은 콘텐츠가 헤더 아래로 오면 라이트 테마
   useEffect(() => {
@@ -39,11 +40,13 @@ export default function WalkWithUsMobile({ onLightChange }: { onLightChange?: (l
     };
   }, [onLightChange]);
 
-  // 푸터 서브메뉴 해시(#donation/#annual)로 탭 활성화
+  // 푸터·햄버거 메뉴 해시(#donation/#annual)로 탭 활성화 + 콘텐츠로 스크롤
   useEffect(() => {
     const fromHash = () => {
       const h = window.location.hash.slice(1);
-      if (h === "donation" || h === "annual") setTab(h);
+      if (h !== "donation" && h !== "annual") return;
+      setTab(h);
+      requestAnimationFrame(() => contentRef.current?.scrollIntoView());
     };
     fromHash();
     window.addEventListener("hashchange", fromHash);
@@ -96,7 +99,7 @@ export default function WalkWithUsMobile({ onLightChange }: { onLightChange?: (l
       </section>
 
       {/* ── 본문 (탭) ── */}
-      <div className="bg-[#f0f0f0] pb-[120px] pt-[70px]">
+      <div ref={contentRef} className="bg-[#f0f0f0] pb-[120px] pt-[70px]">
         {/* 탭 바 */}
         <div className="flex justify-center gap-[14px]">
           {TABS.map((key) => {

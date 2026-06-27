@@ -21,6 +21,15 @@ const TRACK_VH = 1080;
 const A_END = 0.1;
 const COVER_END = 0.16;
 const CARD_HOLD = 0.45;
+
+/** 푸터·햄버거 메뉴 서브링크(#해시) → 카드스택 스크롤 진행도(0~1).
+ *  expertise = "기획에서 체험까지" 패널이 완전히 덮은 직후(peel 전) 지점. */
+const SECTION_PROGRESS: Record<string, number> = {
+  expertise: 0.17,
+  plan: 0.3,
+  analysis: 0.55,
+  experience: 0.8,
+};
 /** 섹션(Plan/Analysis/Experience) 내부 스크롤 가중치 */
 const SEC_W = 5;
 
@@ -190,6 +199,24 @@ export default function SameTrailMobile({ onLightChange }: { onLightChange?: (li
       if (raf) cancelAnimationFrame(raf);
     };
   }, [onLightChange]);
+
+  // 푸터·햄버거 메뉴의 섹션(#해시) 링크 → 해당 카드 위치로 스크롤.
+  // 진입 시 1회 + 같은 페이지 hashchange 모두 처리. (데스크톱에선 트랙이 숨겨져 no-op)
+  useEffect(() => {
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    const scrollToHash = () => {
+      const el = trackRef.current;
+      if (!el) return;
+      const total = el.offsetHeight - window.innerHeight;
+      if (total <= 0) return; // 트랙 숨김(데스크톱 lg+) → SameTrailHero가 처리
+      const p = SECTION_PROGRESS[window.location.hash.slice(1)];
+      if (p == null) return;
+      window.scrollTo(0, el.offsetTop + p * total);
+    };
+    requestAnimationFrame(scrollToHash);
+    window.addEventListener("hashchange", scrollToHash);
+    return () => window.removeEventListener("hashchange", scrollToHash);
+  }, []);
 
   return (
     <div className="lg:hidden">

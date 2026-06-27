@@ -60,6 +60,16 @@ const smoothstep = (x: number) => x * x * (3 - 2 * x);
 /** 헤더를 라이트 테마로 바꿔야 하는(=밝은 배경) 섹션 종류 */
 const LIGHT_KINDS = new Set(["core", "history", "people", "location"]);
 
+/** 푸터·햄버거 메뉴 서브링크(#해시) → 카드스택 스크롤 진행도(0~1).
+ *  카드 peel 타임라인 기준(intro→circle×3→vision→core→history→people→location)으로 각 카드가 드러나는 지점. */
+const SECTION_PROGRESS: Record<string, number> = {
+  mission: 0.05,
+  vision: 0.24,
+  history: 0.4775, // 직전 카드(core)가 막 벗겨지고 History 콘텐츠가 자연 위치(내부스크롤 0)에 오는 지점
+  people: 0.76,
+  location: 0.99,
+};
+
 export default function OurWayMobile({ onLightChange }: { onLightChange?: (light: boolean) => void }) {
   const ow = useT().ourWay;
   const { locale } = useLocale();
@@ -183,6 +193,24 @@ export default function OurWayMobile({ onLightChange }: { onLightChange?: (light
       window.removeEventListener("resize", onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
+  }, [onLightChange]);
+
+  // 푸터·햄버거 메뉴 섹션(#해시) 링크 → 해당 카드 위치로 스크롤.
+  // 진입 1회 + 같은 페이지 hashchange. (데스크톱에선 트랙이 숨겨져 no-op)
+  useEffect(() => {
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    const scrollToHash = () => {
+      const el = trackRef.current;
+      if (!el) return;
+      const total = el.offsetHeight - window.innerHeight;
+      if (total <= 0) return; // 트랙 숨김(데스크톱 lg+) → OurWayHero가 처리
+      const p = SECTION_PROGRESS[window.location.hash.slice(1)];
+      if (p == null) return;
+      window.scrollTo(0, el.offsetTop + p * total);
+    };
+    requestAnimationFrame(scrollToHash);
+    window.addEventListener("hashchange", scrollToHash);
+    return () => window.removeEventListener("hashchange", scrollToHash);
   }, []);
 
   return (

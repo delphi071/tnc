@@ -73,13 +73,17 @@ export default function PathWeWalkHero() {
     const scrollToSection = () => {
       const track = trackRef.current;
       if (!track) return false;
+      const total = track.offsetHeight - window.innerHeight;
+      if (total <= 0) return false; // 트랙이 숨겨짐(모바일 lg 미만) → 모바일 아코디언이 처리
       const p = SECTION_PROGRESS[window.location.hash.slice(1)];
       if (p == null) return false;
-      window.scrollTo(0, track.offsetTop + p * (track.offsetHeight - window.innerHeight));
+      window.scrollTo(0, track.offsetTop + p * total);
       return true;
     };
     requestAnimationFrame(() => {
-      if (!scrollToSection()) window.scrollTo(0, 0);
+      const track = trackRef.current;
+      const visible = track ? track.offsetHeight - window.innerHeight > 0 : false;
+      if (!scrollToSection() && visible) window.scrollTo(0, 0);
     });
     window.addEventListener("hashchange", scrollToSection);
     return () => window.removeEventListener("hashchange", scrollToSection);

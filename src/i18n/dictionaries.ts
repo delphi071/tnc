@@ -329,7 +329,7 @@ const ko = {
     foundation: "Korean Trails and Culture Foundation",
     cols: [
       { h: "우리의 길", links: ["설립목적", "비전 및 핵심가치", "주요 연혁", "사람들", "오시는 길"] },
-      { h: "같은 길, 다른 시선", links: ["Plan", "Analysis", "Experience"] },
+      { h: "같은 길, 다른 시선", links: ["전문역량"] },
       { h: "우리가 걷는 길", links: ["코리아둘레길", "지역길 조사 및 계획", "걷기 문화 프로그램", "굿즈 개발 및 판매"] },
       { h: "함께 걷는 사람들", links: ["한국걷는길연합", "ATN", "WTN", "코리아둘레길 완보자 클럽"] },
       { h: "알리는 이야기", links: ["공지사항", "소식받기", "문의하기"] },
@@ -344,6 +344,13 @@ const ko = {
       ],
       line3: ["개인정보보호책임자 : 최해선"],
     },
+    // 모바일 푸터 전용 줄 구성 (KO는 데스크톱과 동일 내용을 모바일 줄바꿈으로 재현)
+    mobileInfo: [
+      "대표 : 홍성운  |  사업자등록번호 : 123-82-14123",
+      "주소 : 서울특별시 용산구 한강대로52길 25-8, DB Tower 402호",
+      "대표전화 : 02-6013-6610  |  이메일 : ktnc@tnc.or.kr",
+      "개인정보보호책임자 : 최해선",
+    ],
   },
   notices: {
     tabs: {
@@ -746,7 +753,7 @@ const en: typeof ko = {
     foundation: "Korean Trails and Culture Foundation",
     cols: [
       { h: "Our Path", links: ["Mission", "Vision & Core Values", "History", "People", "Directions"] },
-      { h: "Same trail, New Vision", links: ["Plan", "Analysis", "Experience"] },
+      { h: "Same trail, New Vision", links: ["Expertise"] },
       { h: "The Path we Walk", links: ["Korea Dulle-gil", "Regional Trail Research & Planning", "Walking Culture Programs", "Goods Development & Sales"] },
       { h: "Walking Together", links: ["Korea Trails Alliance", "ATN", "WTN", "Korea Dulle-gil Finishers Club"] },
       { h: "Our Stories", links: ["Notices", "Subscribe", "Contact"] },
@@ -761,6 +768,14 @@ const en: typeof ko = {
       ],
       line3: ["Privacy Officer: Choi Hae-seon"],
     },
+    // 모바일 푸터 전용 영문 줄 구성 (사용자 지정 — 5줄, 줄간격 12px)
+    mobileInfo: [
+      "CEO : Seongwoon Hong",
+      "Business Registration No. : 123-82-14123",
+      "Address : #402, DB Tower, 25-8 Hangang-daero 52-gil, Yongsan-gu, Seoul, Korea",
+      "Tel : +82-2-6013-6610  Email : ktnc@tnc.or.kr",
+      "Privacy Officer : Haeseon Choi",
+    ],
   },
   notices: {
     tabs: {
