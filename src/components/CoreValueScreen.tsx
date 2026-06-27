@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import type { RefObject } from "react";
+import { type RefObject, useEffect, useRef } from "react";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useT } from "@/i18n/useT";
 
@@ -22,13 +22,31 @@ const ICONS = ["discovery", "connection", "sustainability", "trust"];
 export default function CoreValueScreen({
   scale,
   cubeRef,
+  activeFace = -1,
 }: {
   scale: number;
   cubeRef?: RefObject<HTMLDivElement | null>;
+  /** 정면으로 완전히 정착한 면(0~3). 바뀔 때 그 아이콘 GIF 를 처음부터 재생한다. -1=재생 트리거 없음 */
+  activeFace?: number;
 }) {
   const values = useT().ourWay.coreValue;
   const { locale } = useLocale();
   const en = locale === "en";
+
+  // GIF 는 기본적으로 끊임없이 루프하므로, 면이 정면 정착했을 때 src 를 잠깐 비웠다 복원해
+  // 애니메이션을 "처음부터" 재생시킨다 (회전 중 절반만 보일 때 모션이 도는 문제 방지).
+  const imgRefs = useRef<(HTMLImageElement | null)[]>([]);
+  useEffect(() => {
+    if (activeFace < 0) return;
+    const img = imgRefs.current[activeFace];
+    if (!img) return;
+    const real = `/our-way/${ICONS[activeFace]}.gif`;
+    img.src = "";
+    const id = requestAnimationFrame(() => {
+      img.src = real;
+    });
+    return () => cancelAnimationFrame(id);
+  }, [activeFace]);
   return (
     <section className="relative h-screen w-full overflow-hidden bg-[#f0f0f0]">
       <div
@@ -66,7 +84,15 @@ export default function CoreValueScreen({
                   className="absolute inset-0 flex items-center gap-[100px]"
                   style={{ transform: `rotateX(${-90 * k}deg) translateZ(${CV_DEPTH}px)`, backfaceVisibility: "hidden" }}
                 >
-                  <img src={`/our-way/${icon}.gif`} alt="" className="shrink-0" style={{ width: 260, height: 260 }} />
+                  <img
+                    ref={(el) => {
+                      imgRefs.current[k] = el;
+                    }}
+                    src={`/our-way/${icon}.gif`}
+                    alt=""
+                    className="shrink-0"
+                    style={{ width: 260, height: 260 }}
+                  />
                   {/* 영문은 eyebrow 없이 영문 제목 + 인라인 sub(한 줄), 설명은 2줄로 줄바꿈 (Figma 기준) */}
                   <div className="flex flex-col gap-6" style={{ width: en ? 660 : 430, whiteSpace: en ? "normal" : "nowrap" }}>
                     <div className="flex flex-col gap-3">

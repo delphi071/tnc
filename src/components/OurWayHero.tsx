@@ -19,23 +19,24 @@ const STAGE_W = 1920;
 const STAGE_H = 1084;
 
 /** 스크롤 길이: 10단계 (핀 고정) + 이후 footer 일반 스크롤 */
-const TRACK_VH = 1700;
+const TRACK_VH = 1904;
 /** 진행도 분기 (0→1):
  *  [0~P1] 선 / [P1~P2] Mission 덮음 / [P2~P3] Mission 걷혀 Vision
  *  [P3~P4] Vision 걷혀 Core Value / [P4~P5] 큐브 / [P5~P6] Core Value 걷혀 History
  *  [P6~P7] 연혁 스크롤 / [P7~P8] History 걷혀 조직도 / [P8~P9] 조직도 스크롤(사무처·3팀)
  *  [P9~1] 조직도 걷혀(peel) 약도 드러남. (이후 트랙 종료 → footer 일반 스크롤) */
-const P1 = 0.09;
-const P2 = 0.18;
-const P3 = 0.27;
-const P4 = 0.35;
-const P5 = 0.47;
-const P6 = 0.54;
-const P7 = 0.74;
-const P8 = 0.81;
-const P9 = 0.92;
-/** 큐브 단계당 머무는(dwell) 비율 — 값이 잠시 멈춘 뒤 다음으로 회전 */
-const CUBE_HOLD = 0.5;
+const P1 = 0.0803;
+const P2 = 0.1607;
+const P3 = 0.2411;
+const P4 = 0.3125;
+const P5 = 0.5268; // 큐브 구간(P4~P5)을 기존 대비 약 2배로 늘려 각 값의 dwell ≈ 1초 체감
+const P6 = 0.5893;
+const P7 = 0.7679;
+const P8 = 0.8303;
+const P9 = 0.9286;
+/** 큐브 단계당 머무는(dwell) 비율 — 값이 잠시 멈춘 뒤 다음으로 회전.
+ *  0.72 = 각 값에서 구간의 72% 동안 멈춰 있다가 나머지 28%에 빠르게 회전 → 후다닥 넘어가지 않고 하나씩 머묾 */
+const CUBE_HOLD = 0.72;
 
 /** 선의 세로 획 x좌표 (디자인 스테이지 좌표 기준, Figma 측정값) */
 const LEFT_X = 966; // Beyond 의 d
@@ -70,10 +71,12 @@ export default function OurWayHero() {
   const orgContentRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const headerLightRef = useRef(false);
+  const frontFaceRef = useRef(-1); // 현재 정면으로 완전히 정착한 Core Value 면(-1=회전 중/없음)
 
   const t = useT();
   const [scale, setScale] = useState(1);
   const [headerLight, setHeaderLight] = useState(false);
+  const [activeFace, setActiveFace] = useState(-1); // 정면 정착 면 → 해당 아이콘 GIF 를 처음부터 재생
   const [mobileHeaderLight, setMobileHeaderLight] = useState(false); // 모바일 카드 스택의 밝은 섹션 여부
   const leftX = LEFT_X;
   const rightX = RIGHT_X;
@@ -137,6 +140,19 @@ export default function OurWayHero() {
       const cubeStep = ci + ct * ct * (3 - 2 * ct); // smoothstep
       // 6단계: Core Value 가 위로 걷히며(peel) History 노출
       const peelP = clamp01((progress - P5) / (P6 - P5));
+
+      // Core Value 아이콘 GIF 재생 시점: 큐브가 한 면을 "정면으로 완전히 정착"했을 때만 그 면을 활성화.
+      //  - 회전 중(ct>0)에는 -1 → GIF 재생 트리거 안 함 (도형이 다 보이기 전에 모션 시작하는 문제 방지)
+      //  - Core Value 가 완전히 드러난 뒤(revealVP≥1) ~ peel 시작 전까지만
+      let front = -1;
+      if (revealVP >= 1 && peelP <= 0) {
+        if (cubeP >= 1) front = 3; // 마지막 면(정착 직후 peel 로 이어짐)
+        else if (ct === 0) front = ci; // 각 면의 dwell(정면 정착) 구간
+      }
+      if (frontFaceRef.current !== front) {
+        frontFaceRef.current = front;
+        setActiveFace(front);
+      }
       // 7단계: History 전체 연혁 선형 스크롤
       const historyScrollP = clamp01((progress - P6) / (P7 - P6));
       // 8단계: History 가 위로 걷혀(peel) 조직도 노출
@@ -394,7 +410,7 @@ export default function OurWayHero() {
           className="pointer-events-none absolute inset-0 z-[14]"
           style={{ opacity: 0, transform: "translateY(0%)", willChange: "transform, opacity", boxShadow: "0 26px 50px -10px rgba(0,0,0,0.28)" }}
         >
-          <CoreValueScreen scale={scale} cubeRef={cubeRef} />
+          <CoreValueScreen scale={scale} cubeRef={cubeRef} activeFace={activeFace} />
         </div>
 
         {/* Vision — 3단계에 Mission 이 걷히며 드러나고, 4단계엔 자신이 위로 걷힘 */}

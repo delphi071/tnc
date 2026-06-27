@@ -5,6 +5,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useT } from "@/i18n/useT";
+import RevealUp from "./RevealUp";
 
 /** 마음잇기 — 모바일(lg 미만) 전용. Hero + 탭(후원하기 · 연간기금 및 활동실적).
  *  PC WalkWithUsContent 의 데이터를 모바일 레이아웃으로 재구성. */
@@ -131,8 +132,8 @@ export default function WalkWithUsMobile({ onLightChange }: { onLightChange?: (l
               </div>
             </div>
 
-            {/* 계좌 카드 */}
-            <div className="mt-6 rounded-br-[32px] rounded-tl-[32px] bg-white px-6 py-7">
+            {/* 계좌 카드 — 스크롤 진입 시 아래에서 위로 떠오르며 붙음 */}
+            <RevealUp className="mt-6 rounded-br-[32px] rounded-tl-[32px] bg-white px-6 py-7" distance={60} duration={500}>
               <div className="flex items-center gap-3">
                 <span className="w-[60px] shrink-0 text-[16px] leading-[1.2] tracking-[-0.42px] text-black">{d.account}</span>
                 <span className="text-[18px] font-bold leading-[1.2] tracking-[-0.47px] text-black">{d.accountNo}</span>
@@ -168,7 +169,7 @@ export default function WalkWithUsMobile({ onLightChange }: { onLightChange?: (l
                   <li key={i}>{it}</li>
                 ))}
               </ul>
-            </div>
+            </RevealUp>
           </div>
         )}
 

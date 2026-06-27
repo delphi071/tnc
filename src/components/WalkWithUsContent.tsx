@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useT } from "@/i18n/useT";
+import RevealUp from "./RevealUp";
 
 /** 복사할 계좌번호 */
 const ACCOUNT_NO = "301-0061-8049-01";
@@ -105,8 +106,8 @@ function DonationBody({ copied, onCopy }: { copied: boolean; onCopy: () => void 
           </div>
         </div>
 
-        {/* 계좌 카드 */}
-        <div className="relative w-full rounded-br-[60px] rounded-tl-[60px] bg-white" style={{ height: 243 }}>
+        {/* 계좌 카드 — 스크롤 진입 시 아래에서 위로 떠오르며 붙음 */}
+        <RevealUp className="relative w-full rounded-br-[60px] rounded-tl-[60px] bg-white" style={{ height: 243 }} duration={1000}>
           <p className="absolute font-normal text-black" style={{ left: 60, top: 86, fontSize: 20, lineHeight: 1.2, letterSpacing: "-0.52px" }}>
             {d.account}
           </p>
@@ -162,7 +163,7 @@ function DonationBody({ copied, onCopy }: { copied: boolean; onCopy: () => void 
               <li key={i} className="whitespace-nowrap">{it}</li>
             ))}
           </ul>
-        </div>
+        </RevealUp>
       </div>
     </>
   );

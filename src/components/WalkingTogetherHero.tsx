@@ -35,8 +35,11 @@ const ORG_META = [
   { logo: "/intro/wt-org-4.png", logoW: 242, href: "https://cafe.naver.com/greatkodullers" },
 ];
 
-/** peel 단계에서 전경이 위로 올라가는 거리 (Figma 측정값) */
-const PEEL_DIST = 578;
+/** peel 단계에서 전경이 위로 올라가는 거리.
+ *  peel 텍스트 대기 위치(top: 540 + PEEL_DIST)와 올라오는 거리가 둘 다 이 값에 묶여 있어,
+ *  키우면 대기 위치만 스테이지 클립 경계(1080) 아래로 더 내려가고 도착점은 화면 중앙(540)으로 유지된다.
+ *  → 풀스크린(작업표시줄 없는 세로 긴 화면)에서도 스크롤 전 텍스트가 보이지 않도록 660 으로 설정. */
+const PEEL_DIST = 660;
 
 /** 헤드라인 — "Walking"의 'l'은 초록 선이 대신하므로 "Wa king"(공백)으로 표기 */
 const HEADLINE = [

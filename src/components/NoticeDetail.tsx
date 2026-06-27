@@ -29,8 +29,8 @@ export default function NoticeDetail() {
       <Header active="ourStories" fixed theme="light" />
 
       <main className="min-h-screen w-full bg-[#f0f0f0] pt-[68px] lg:pt-[80px] xl:pt-[102px]">
-        <section className="px-6 pb-[200px] pt-[56px]">
-          <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6">
+        <section className="px-6 pb-[100px] pt-[56px]">
+          <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 lg:px-[50px]">
             {/* 목록으로 */}
             <Link
               href="/our-stories#notices"
@@ -55,7 +55,7 @@ export default function NoticeDetail() {
             </div>
 
             {/* 본문 + 포스터 */}
-            <div className="flex flex-col gap-[57px] border-b border-[#c6c6c6] px-0 pb-[50px] pt-[30px] sm:px-[30px]">
+            <div className="flex flex-col gap-[57px] border-b border-[#c6c6c6] px-0 pb-[50px] pt-[30px] sm:px-[30px] lg:px-0">
               <p className="whitespace-pre-line text-black" style={{ fontSize: 18, lineHeight: 1.5, letterSpacing: "-0.18px" }}>
                 {d.body}
               </p>
@@ -64,7 +64,7 @@ export default function NoticeDetail() {
                 alt={d.posterAlt}
                 width={1200}
                 height={1697}
-                sizes="(max-width: 1440px) 100vw, 1380px"
+                sizes="(max-width: 1200px) 100vw, 1100px"
                 className="h-auto w-full"
               />
             </div>

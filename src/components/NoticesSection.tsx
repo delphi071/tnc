@@ -47,7 +47,7 @@ export default function NoticesSection() {
 
   return (
     <section className="w-full bg-[#f0f0f0] px-6 pb-[200px] pt-[120px]">
-      <div className="mx-auto w-full max-w-[1440px]">
+      <div className="mx-auto w-full max-w-[1200px]">
         {/* 탭 */}
         <div className="flex items-end gap-[60px] pl-[50px]">
           {TAB_KEYS.map((key) => {
