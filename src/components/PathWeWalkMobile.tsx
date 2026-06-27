@@ -66,10 +66,12 @@ export default function PathWeWalkMobile({ onLightChange }: { onLightChange?: (l
     imgPos?: Record<number, string>;
     video?: Record<number, boolean>;
     videoUrl?: Record<number, string>;
+    /** 탭 인덱스별 이미지 경로 오버라이드 (기본 규칙 /intro/{key}-{n}.jpg 와 다를 때) */
+    imgSrc?: Record<number, string>;
   }[] = [
     { key: "kdl", hash: "korea", title: t.koriaDulegil.title, tabs: t.koriaDulegil.tabs },
     { key: "rr", hash: "regional", title: t.regional.title, tabs: t.regional.tabs, imgPos: { 1: "object-bottom" } },
-    { key: "cf", hash: "culture", title: t.culture.title, tabs: t.culture.tabs, imgPos: { 3: "object-bottom" }, video: { 0: true }, videoUrl: { 0: "https://drive.google.com/file/d/1F1bNgltTOQ7GNzB3-6Zntk7vMxJW_z3o/preview" } },
+    { key: "cf", hash: "culture", title: t.culture.title, tabs: t.culture.tabs, imgPos: { 3: "object-bottom" }, video: { 0: true }, videoUrl: { 0: "https://drive.google.com/file/d/1F1bNgltTOQ7GNzB3-6Zntk7vMxJW_z3o/preview" }, imgSrc: { 4: "/intro/cf-5-v2.jpg" } },
     { key: "gd", hash: "goods", title: t.goods.title, tabs: t.goods.tabs },
   ];
 
@@ -148,7 +150,7 @@ export default function PathWeWalkMobile({ onLightChange }: { onLightChange?: (l
                       <div className="px-[18px] pb-8">
                         <div className="relative overflow-hidden rounded-br-[40px] rounded-tl-[40px]">
                           <img
-                            src={`/intro/${sec.key}-${i + 1}.jpg`}
+                            src={sec.imgSrc?.[i] ?? `/intro/${sec.key}-${i + 1}.jpg`}
                             alt=""
                             loading="lazy"
                             className={`h-[200px] w-full object-cover ${sec.imgPos?.[i] ?? "object-center"}`}
