@@ -5,6 +5,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useT } from "@/i18n/useT";
+import VideoModal from "./VideoModal";
 
 /** 우리가 걷는 길 — 모바일(lg 미만) 전용.
  *  Hero + 본문(아코디언). PC 의 가로 탭 캐러셀을 모바일에선 아코디언으로 — 한 번에 하나만 펼쳐짐.
@@ -18,6 +19,7 @@ const HASH_TO_KEY: Record<string, string> = { korea: "kdl", regional: "rr", cult
 export default function PathWeWalkMobile({ onLightChange }: { onLightChange?: (light: boolean) => void }) {
   const t = useT().thePathWeWalk;
   const [open, setOpen] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const lightRef = useRef(false);
 
   // 푸터·햄버거 메뉴 섹션(#해시) 링크 → 해당 아코디언 섹션으로 스크롤 + 첫 탭 펼침.
@@ -63,10 +65,11 @@ export default function PathWeWalkMobile({ onLightChange }: { onLightChange?: (l
     tabs: { name: string; blocks: { h?: string; lines: string[] }[] }[];
     imgPos?: Record<number, string>;
     video?: Record<number, boolean>;
+    videoUrl?: Record<number, string>;
   }[] = [
     { key: "kdl", hash: "korea", title: t.koriaDulegil.title, tabs: t.koriaDulegil.tabs },
     { key: "rr", hash: "regional", title: t.regional.title, tabs: t.regional.tabs, imgPos: { 1: "object-bottom" } },
-    { key: "cf", hash: "culture", title: t.culture.title, tabs: t.culture.tabs, imgPos: { 3: "object-bottom" }, video: { 0: true } },
+    { key: "cf", hash: "culture", title: t.culture.title, tabs: t.culture.tabs, imgPos: { 3: "object-bottom" }, video: { 0: true }, videoUrl: { 0: "https://drive.google.com/file/d/1F1bNgltTOQ7GNzB3-6Zntk7vMxJW_z3o/preview" } },
     { key: "gd", hash: "goods", title: t.goods.title, tabs: t.goods.tabs },
   ];
 
@@ -151,19 +154,20 @@ export default function PathWeWalkMobile({ onLightChange }: { onLightChange?: (l
                             className={`h-[200px] w-full object-cover ${sec.imgPos?.[i] ?? "object-center"}`}
                           />
                           {sec.video?.[i] && (
-                            <>
-                              <div className="absolute inset-0 bg-black/30" />
-                              <svg
-                                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-                                width="48"
-                                height="48"
-                                viewBox="0 0 24 24"
-                                fill="#ffffff"
-                                aria-hidden
-                              >
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const url = sec.videoUrl?.[i];
+                                if (url) setVideoUrl(url);
+                              }}
+                              className={`absolute inset-0 flex items-center justify-center bg-black/30 ${sec.videoUrl?.[i] ? "cursor-pointer" : "cursor-default"}`}
+                              aria-label="영상 재생"
+                              disabled={!sec.videoUrl?.[i]}
+                            >
+                              <svg width="48" height="48" viewBox="0 0 24 24" fill="#ffffff" aria-hidden>
                                 <path d="M8 5v14l11-7z" />
                               </svg>
-                            </>
+                            </button>
                           )}
                         </div>
                         <div className="mt-6 flex flex-col gap-5">
@@ -187,6 +191,8 @@ export default function PathWeWalkMobile({ onLightChange }: { onLightChange?: (l
           </section>
         ))}
       </div>
+
+      {videoUrl && <VideoModal url={videoUrl} onClose={() => setVideoUrl(null)} />}
     </div>
   );
 }

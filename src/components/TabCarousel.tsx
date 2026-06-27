@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useLocale } from "@/i18n/LocaleProvider";
+import VideoModal from "./VideoModal";
 
 /** "우리가 걷는 길" 콘텐츠 공용 — 탭 클릭형 가로 캐러셀.
  *  1920 스테이지 좌표 기준 left410 top238 에 배치 (스케일 스테이지 안에서 사용).
@@ -14,6 +15,8 @@ export type CarouselSlide = {
   imgPos?: string;
   /** 영상 썸네일(어두운 오버레이 + 재생 버튼) 여부 */
   video?: boolean;
+  /** 재생 시 임베드할 영상 URL (구글드라이브 .../preview 등). 없으면 클릭해도 동작 안 함 */
+  videoUrl?: string;
   /** 블록: 소제목(h)은 선택 */
   blocks: { h?: string; lines: string[] }[];
 };
@@ -23,6 +26,7 @@ const GAP = 460;
 
 export default function TabCarousel({ label, title, slides }: { label: string; title: string; slides: CarouselSlide[] }) {
   const [active, setActive] = useState(0);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
   // 영문 본문은 단락 통째라 컬럼 폭에서 자동 줄바꿈, 한국어는 사전 줄나눔(nowrap) 유지
   const en = useLocale().locale === "en";
 
@@ -94,19 +98,17 @@ export default function TabCarousel({ label, title, slides }: { label: string; t
                 <div className="relative shrink-0 overflow-hidden rounded-br-[60px] rounded-tl-[60px]" style={{ width: 680, height: 380 }}>
                   <Image src={s.img} alt="" fill sizes="680px" className={`object-cover ${s.imgPos ?? "object-center"}`} />
                   {s.video && (
-                    <>
-                      <div className="absolute inset-0 bg-black/30" />
-                      <svg
-                        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-                        width="70"
-                        height="70"
-                        viewBox="0 0 24 24"
-                        fill="#ffffff"
-                        aria-hidden
-                      >
+                    <button
+                      type="button"
+                      onClick={() => s.videoUrl && setVideoUrl(s.videoUrl)}
+                      className={`absolute inset-0 flex items-center justify-center bg-black/30 ${s.videoUrl ? "cursor-pointer" : "cursor-default"}`}
+                      aria-label="영상 재생"
+                      disabled={!s.videoUrl}
+                    >
+                      <svg width="70" height="70" viewBox="0 0 24 24" fill="#ffffff" aria-hidden>
                         <path d="M8 5v14l11-7z" />
                       </svg>
-                    </>
+                    </button>
                   )}
                 </div>
               </div>
@@ -114,6 +116,8 @@ export default function TabCarousel({ label, title, slides }: { label: string; t
           </div>
         </div>
       </div>
+
+      {videoUrl && <VideoModal url={videoUrl} onClose={() => setVideoUrl(null)} />}
     </div>
   );
 }

@@ -4,8 +4,8 @@ import { useT } from "@/i18n/useT";
 import TabCarousel, { type CarouselSlide } from "./TabCarousel";
 
 /** "03. 우리가 걷는 길 contents-3. 걷기기반 문화 프로그램" — 탭 5개 가로 캐러셀 (텍스트는 사전) */
-const IMGS = [
-  { src: "/intro/cf-1.jpg", video: true },
+const IMGS: { src: string; video?: boolean; videoUrl?: string; imgPos?: string }[] = [
+  { src: "/intro/cf-1.jpg", video: true, videoUrl: "https://drive.google.com/file/d/1F1bNgltTOQ7GNzB3-6Zntk7vMxJW_z3o/preview" },
   { src: "/intro/cf-2.jpg" },
   { src: "/intro/cf-3.jpg" },
   { src: "/intro/cf-4.jpg", imgPos: "object-bottom" },
@@ -19,6 +19,7 @@ export default function CultureProgramSection() {
     img: IMGS[i].src,
     imgPos: IMGS[i].imgPos,
     video: IMGS[i].video,
+    videoUrl: IMGS[i].videoUrl,
     blocks: tab.blocks,
   }));
   return <TabCarousel label={t.sectionLabel} title={t.culture.title} slides={slides} />;

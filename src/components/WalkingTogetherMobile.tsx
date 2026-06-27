@@ -144,14 +144,14 @@ export default function WalkingTogetherMobile({ onLightChange }: { onLightChange
                 className="absolute inset-0 bg-[#f0f0f0]"
                 style={{ zIndex: 100 - i * 10, willChange: "transform" }}
               >
-                <div className="flex h-full flex-col items-center px-[18px] pb-[40px] pt-[88px]">
+                <div className="flex h-full flex-col items-center px-[18px] pb-[40px] pt-[120px]">
                   {/* 로고 */}
                   <div className="flex h-[180px] items-center justify-center">
                     <img src={c.logo} alt={c.title} className="max-h-[180px] w-auto object-contain" />
                   </div>
                   {/* 제목 + 설명 + 버튼 */}
-                  <div className="mt-10 flex w-full max-w-[354px] flex-col gap-8">
-                    <div className="flex flex-col gap-6">
+                  <div className="mt-10 flex w-full max-w-[354px] flex-col gap-20">
+                    <div className="flex flex-col gap-8">
                       <p className="text-[30px] font-bold leading-[1.2] tracking-[-0.78px] text-black">{c.title}</p>
                       <p className="text-[16px] leading-[1.5] tracking-[-0.16px] text-[#5a5b5d]">{c.lines.join(" ")}</p>
                     </div>

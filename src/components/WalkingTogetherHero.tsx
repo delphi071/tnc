@@ -179,9 +179,12 @@ export default function WalkingTogetherHero() {
           <div className="pointer-events-none absolute inset-0 bg-black/10" />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-[38%] to-black/60 to-[97%]" />
 
-          {/* 1920 좌표 스테이지 (균일 스케일, 가운데 정렬) */}
+          {/* 1920 좌표 스테이지 (균일 스케일, 가운데 정렬).
+              overflow-hidden: peel 텍스트는 1080 아래(top 1118)에 대기시켜 두는데,
+              세로로 긴 뷰포트에서 스테이지 하단 여백이 화면에 들어오면 미리 삐져나와 보이므로
+              스테이지 프레임 밖(1080 아래/0 위)을 잘라 항상 숨긴다. */}
           <div
-            className="absolute left-1/2 top-1/2 z-10"
+            className="absolute left-1/2 top-1/2 z-10 overflow-hidden"
             style={{ width: STAGE_W, height: STAGE_H, transform: `translate(-50%, -50%) scale(${scale})` }}
           >
             {/* peel 으로 위로 올라가는 전경 묶음 */}
