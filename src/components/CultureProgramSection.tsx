@@ -9,7 +9,7 @@ const IMGS: { src: string; video?: boolean; videoUrl?: string; imgPos?: string }
   { src: "/intro/cf-2.jpg" },
   { src: "/intro/cf-3.jpg" },
   { src: "/intro/cf-4.jpg", imgPos: "object-bottom" },
-  { src: "/intro/cf-5.jpg", imgPos: "scale-[1.15] -translate-y-[26px]" },
+  { src: "/intro/cf-5.jpg?v=2", imgPos: "scale-[1.15] -translate-y-[26px]" },
 ];
 
 export default function CultureProgramSection() {
