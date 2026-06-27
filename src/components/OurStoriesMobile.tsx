@@ -189,9 +189,9 @@ export default function OurStoriesMobile({ onLightChange }: { onLightChange?: (l
                 </Link>
               ))}
             </div>
-            {/* 페이지네이션 */}
+            {/* 페이지네이션 — Figma: 이전=연회색 박스 / 다음=초록 박스 (좌상단·우하단 라운드) */}
             <div className="mt-8 flex items-center justify-center gap-5">
-              <button type="button" aria-label="이전" className="flex size-9 items-center justify-center rounded-full border border-[#c6c6c6] text-[#9c9c9c]">
+              <button type="button" aria-label="이전" className="flex size-9 items-center justify-center rounded-br-[8px] rounded-tl-[8px] bg-[#d9d9d9] text-[#231f20]">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
                   <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -203,7 +203,7 @@ export default function OurStoriesMobile({ onLightChange }: { onLightChange?: (l
                   </span>
                 ))}
               </div>
-              <button type="button" aria-label="다음" className="flex size-9 items-center justify-center rounded-full border border-[#c6c6c6] text-[#231f20]">
+              <button type="button" aria-label="다음" className="flex size-9 items-center justify-center rounded-br-[8px] rounded-tl-[8px] bg-[#0ac200] text-[#231f20]">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
                   <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>

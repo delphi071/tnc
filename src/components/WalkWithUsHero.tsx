@@ -245,6 +245,9 @@ export default function WalkWithUsHero() {
         </div>
       </div>
 
+      {/* 콘텐츠(밝은 패널)와 푸터 사이 여백 밴드 — 마지막 프레임 하단(#f0f0f0)을 이어 자연스럽게 넓힘 (PC 전용) */}
+      <div className="hidden bg-[#f0f0f0] lg:block" style={{ height: 280 }} />
+
       {/* 트랙 종료 후 일반 스크롤로 등장하는 푸터 */}
       <SiteFooter scale={scale} />
     </>

@@ -29,8 +29,8 @@ export default function NoticeDetail() {
       <Header active="ourStories" fixed theme="light" />
 
       <main className="min-h-screen w-full bg-[#f0f0f0] pt-[68px] lg:pt-[80px] xl:pt-[102px]">
-        <section className="px-6 pb-[200px] pt-[140px] xl:px-[120px]">
-          <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6">
+        <section className="px-6 pb-[200px] pt-[56px]">
+          <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6">
             {/* 목록으로 */}
             <Link
               href="/our-stories#notices"
@@ -64,17 +64,17 @@ export default function NoticeDetail() {
                 alt={d.posterAlt}
                 width={1200}
                 height={1697}
-                sizes="(max-width: 1200px) 100vw, 1140px"
+                sizes="(max-width: 1440px) 100vw, 1380px"
                 className="h-auto w-full"
               />
             </div>
 
-            {/* 이전 / 다음 글 (더미) */}
+            {/* 이전 / 다음 글 (더미) — Figma: 이전=연회색 박스 / 다음=초록 박스 (좌상단·우하단 라운드) */}
             <div className="flex items-center justify-end gap-3">
               <button
                 type="button"
                 aria-label={d.prev}
-                className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-[#c6c6c6] text-[#9c9c9c] transition-colors hover:border-[#231f20] hover:text-[#231f20]"
+                className="flex size-10 cursor-pointer items-center justify-center rounded-br-[10px] rounded-tl-[10px] bg-[#d9d9d9] text-[#231f20] transition-opacity hover:opacity-90"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -83,7 +83,7 @@ export default function NoticeDetail() {
               <button
                 type="button"
                 aria-label={d.next}
-                className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-[#c6c6c6] text-[#231f20] transition-colors hover:border-[#231f20]"
+                className="flex size-10 cursor-pointer items-center justify-center rounded-br-[10px] rounded-tl-[10px] bg-[#0ac200] text-[#231f20] transition-opacity hover:opacity-90"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />

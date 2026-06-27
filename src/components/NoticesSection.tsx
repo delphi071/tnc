@@ -46,8 +46,8 @@ export default function NoticesSection() {
   }));
 
   return (
-    <section className="w-full bg-[#f0f0f0] px-6 pb-[200px] pt-[120px] xl:px-[360px]">
-      <div className="mx-auto w-full max-w-[1100px]">
+    <section className="w-full bg-[#f0f0f0] px-6 pb-[200px] pt-[120px]">
+      <div className="mx-auto w-full max-w-[1440px]">
         {/* 탭 */}
         <div className="flex items-end gap-[60px] pl-[50px]">
           {TAB_KEYS.map((key) => {
@@ -145,9 +145,9 @@ function BoardPanel({ heading, items, hrefBase, search }: { heading: string[]; i
         })}
       </div>
 
-      {/* 페이지네이션 */}
-      <div className="mt-[50px] flex items-center justify-center gap-[40px]">
-        <button type="button" aria-label="이전" className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-[#c6c6c6] text-[#9c9c9c]">
+      {/* 페이지네이션 — Figma: 이전=연회색 박스 / 다음=초록 박스 (좌상단·우하단 라운드) */}
+      <div className="mt-[50px] flex items-center justify-center gap-[51px]">
+        <button type="button" aria-label="이전" className="flex size-10 cursor-pointer items-center justify-center rounded-br-[10px] rounded-tl-[10px] bg-[#d9d9d9] text-[#231f20] transition-opacity hover:opacity-90">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -163,7 +163,7 @@ function BoardPanel({ heading, items, hrefBase, search }: { heading: string[]; i
             </span>
           ))}
         </div>
-        <button type="button" aria-label="다음" className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-[#c6c6c6] text-[#231f20]">
+        <button type="button" aria-label="다음" className="flex size-10 cursor-pointer items-center justify-center rounded-br-[10px] rounded-tl-[10px] bg-[#0ac200] text-[#231f20] transition-opacity hover:opacity-90">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>

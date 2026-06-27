@@ -99,7 +99,7 @@ export default function WalkWithUsMobile({ onLightChange }: { onLightChange?: (l
       </section>
 
       {/* ── 본문 (탭) ── */}
-      <div ref={contentRef} className="bg-[#f0f0f0] pb-[120px] pt-[70px]">
+      <div ref={contentRef} className="bg-[#f0f0f0] pb-[180px] pt-[70px]">
         {/* 탭 바 */}
         <div className="flex justify-center gap-[14px]">
           {TABS.map((key) => {
