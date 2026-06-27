@@ -16,30 +16,32 @@ const STAGE_H = 1080;
  *  [0~LINE_END]              선 그리기
  *  [LINE_END~PEEL1_END]      전경 peel(헤드라인·텍스트 위로 스크롤)
  *  [PEEL1_END~PANEL2_END]    밝은 패널(기획에서 체험까지)이 올라와 덮음
- *  [PANEL2_END~PANEL3_END]   밝은 패널(Plan 워터마크)이 올라와 덮음
- *  [PANEL3_END~CONTENT4_END] Plan 섹션 콘텐츠가 워터마크 위로 세로 스크롤 (배경 고정)
- *  [CONTENT4_END~ANALYSIS_END] 밝은 패널(Analysis 워터마크)이 배경째 올라와 덮음 */
+ *  [PANEL2_END~PANEL3_END]   인트로 패널 유지(#expertise 착지·읽기)
+ *  [PANEL3_END]              Plan(워터마크+콘텐츠)이 슬라이드 없이 즉시 대치(컷)
+ *  [PANEL3_END~CONTENT4_END] Plan 콘텐츠 세로 스크롤
+ *  [CONTENT4_END]            Analysis(워터마크+콘텐츠)가 슬라이드 없이 즉시 대치(컷)
+ *  [CONTENT4_END~CONTENT7_END] Analysis 콘텐츠 세로 스크롤
+ *  [CONTENT7_END]            experience(워터마크+콘텐츠)가 즉시 대치(컷)
+ *  [CONTENT7_END~CONTENT10_END] experience 콘텐츠 세로 스크롤 */
 const TRACK_VH = 1550;
 const LINE_END = 0.06;
 const PEEL1_END = 0.12;
 const PANEL2_END = 0.18;
 const PANEL3_END = 0.24;
-const CONTENT4_END = 0.45;
-const ANALYSIS_END = 0.52;
-const CONTENT7_END = 0.72;
-const EXPERIENCE_END = 0.79;
+const CONTENT4_END = 0.45; // Plan 콘텐츠 끝 → Analysis 즉시 대치
+const CONTENT7_END = 0.72; // Analysis 콘텐츠 끝 → experience 즉시 대치
 const CONTENT10_END = 0.98;
 
 /** peel 단계에서 전경이 위로 올라가는 거리 (Figma 측정값) */
 const PEEL_DIST = 612;
 
 /** contents 콘텐츠 컬럼의 세로 스크롤 범위(스테이지 px): 아래에서 진입 → 위로 통과 */
-const C4_START = 880;
-const C4_END = -720;
-const C7_START = 880;
-const C7_END = -720;
-const C10_START = 880;
-const C10_END = -720;
+const C4_START = 0; // Plan/Analysis/experience 모두: 대치(컷)와 동시에 콘텐츠가 보이고 위로 통과
+const C4_END = -1400;
+const C7_START = 0;
+const C7_END = -1400;
+const C10_START = 0;
+const C10_END = -1400;
 
 /** 계단식 헤드라인 (Same / Trail / New / Vision) */
 const HEADLINE = [
@@ -60,9 +62,9 @@ const SHOW_FULL = false;
  *  expertise = "기획에서 체험까지 …전문 법인" 인트로 패널이 완전히 올라온 지점(PANEL2_END). */
 const SECTION_PROGRESS: Record<string, number> = {
   expertise: 0.18,
-  plan: 0.34,
-  analysis: 0.62,
-  experience: 0.88,
+  plan: 0.25, // Plan 대치 직후(제목 보임)
+  analysis: 0.46, // Analysis 대치 직후(제목 보임)
+  experience: 0.73, // experience 대치 직후(제목 보임)
 };
 
 const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);
@@ -142,32 +144,38 @@ export default function SameTrailHero() {
       const panelP = clamp01((progress - PEEL1_END) / (PANEL2_END - PEEL1_END));
       if (panelRef.current) panelRef.current.style.transform = `translateY(${(1 - panelP) * 100}%)`;
 
-      // 4단계: 밝은 패널(Plan)이 다시 올라와 덮음
-      const panel2P = clamp01((progress - PANEL2_END) / (PANEL3_END - PANEL2_END));
-      if (panel2Ref.current) panel2Ref.current.style.transform = `translateY(${(1 - panel2P) * 100}%)`;
+      // 4단계: Plan(워터마크+콘텐츠)를 슬라이드 없이 즉시 대치(컷) — 인트로 패널을 한 번에 덮음
+      if (panel2Ref.current) panel2Ref.current.style.transform = progress >= PANEL3_END ? "translateY(0%)" : "translateY(100%)";
 
-      // 5단계: Plan 섹션 콘텐츠 컬럼이 워터마크 위로 세로 스크롤 (배경·워터마크 고정)
+      // 5단계: Plan 콘텐츠 컬럼 — 컷과 동시에 보이고 위로 세로 스크롤 (대치 전엔 숨김)
       const content4P = clamp01((progress - PANEL3_END) / (CONTENT4_END - PANEL3_END));
       const c4Y = C4_START + (C4_END - C4_START) * content4P;
-      if (content4Ref.current) content4Ref.current.style.transform = `translateY(${c4Y}px)`;
+      if (content4Ref.current) {
+        content4Ref.current.style.transform = `translateY(${c4Y}px)`;
+        content4Ref.current.style.opacity = progress >= PANEL3_END ? "1" : "0";
+      }
 
-      // 6단계: 밝은 패널(Analysis)이 배경째 밑에서 올라와 덮음
-      const analysisP = clamp01((progress - CONTENT4_END) / (ANALYSIS_END - CONTENT4_END));
-      if (panel3Ref.current) panel3Ref.current.style.transform = `translateY(${(1 - analysisP) * 100}%)`;
+      // 6단계: Analysis(워터마크+콘텐츠)를 슬라이드 없이 즉시 대치(컷)
+      if (panel3Ref.current) panel3Ref.current.style.transform = progress >= CONTENT4_END ? "translateY(0%)" : "translateY(100%)";
 
-      // 7단계: Analysis 섹션 콘텐츠 컬럼이 워터마크 위로 세로 스크롤 (배경·워터마크 고정)
-      const content7P = clamp01((progress - ANALYSIS_END) / (CONTENT7_END - ANALYSIS_END));
+      // 7단계: Analysis 콘텐츠 컬럼 — 컷과 동시에 보이고 위로 세로 스크롤 (대치 전엔 숨김)
+      const content7P = clamp01((progress - CONTENT4_END) / (CONTENT7_END - CONTENT4_END));
       const c7Y = C7_START + (C7_END - C7_START) * content7P;
-      if (content7Ref.current) content7Ref.current.style.transform = `translateY(${c7Y}px)`;
+      if (content7Ref.current) {
+        content7Ref.current.style.transform = `translateY(${c7Y}px)`;
+        content7Ref.current.style.opacity = progress >= CONTENT4_END ? "1" : "0";
+      }
 
-      // 8단계: 밝은 패널(experience)이 배경째 밑에서 올라와 덮음
-      const experienceP = clamp01((progress - CONTENT7_END) / (EXPERIENCE_END - CONTENT7_END));
-      if (panel4Ref.current) panel4Ref.current.style.transform = `translateY(${(1 - experienceP) * 100}%)`;
+      // 8단계: experience(워터마크+콘텐츠)를 슬라이드 없이 즉시 대치(컷)
+      if (panel4Ref.current) panel4Ref.current.style.transform = progress >= CONTENT7_END ? "translateY(0%)" : "translateY(100%)";
 
-      // 9단계: experience 섹션 콘텐츠 컬럼이 워터마크 위로 세로 스크롤
-      const content10P = clamp01((progress - EXPERIENCE_END) / (CONTENT10_END - EXPERIENCE_END));
+      // 9단계: experience 콘텐츠 컬럼 — 컷과 동시에 보이고 위로 세로 스크롤 (대치 전엔 숨김)
+      const content10P = clamp01((progress - CONTENT7_END) / (CONTENT10_END - CONTENT7_END));
       const c10Y = C10_START + (C10_END - C10_START) * content10P;
-      if (content10Ref.current) content10Ref.current.style.transform = `translateY(${c10Y}px)`;
+      if (content10Ref.current) {
+        content10Ref.current.style.transform = `translateY(${c10Y}px)`;
+        content10Ref.current.style.opacity = progress >= CONTENT7_END ? "1" : "0";
+      }
 
       // 밝은 패널이 상단(헤더)까지 덮으면 헤더를 라이트 테마로 전환 (이후 계속 유지)
       const wantLight = panelP >= 0.9;
@@ -330,7 +338,7 @@ export default function SameTrailHero() {
           {/* Plan 섹션 콘텐츠 컬럼 — Plan 워터마크 위로 세로 스크롤 (z-40, 투명 배경) */}
           <div className="pointer-events-none absolute inset-0 z-40">
             <div className="absolute left-1/2 top-1/2" style={stageStyle}>
-              <div ref={content4Ref} className="absolute inset-0" style={{ transform: `translateY(${C4_START}px)`, willChange: "transform" }}>
+              <div ref={content4Ref} className="absolute inset-0" style={{ transform: `translateY(${C4_START}px)`, opacity: 0, willChange: "transform, opacity" }}>
                 {/* 타이틀 */}
                 <div className="absolute flex flex-col items-center gap-5 text-center" style={{ left: 360, top: 200, width: 1200 }}>
                   <div className="flex flex-col items-center gap-2">
@@ -402,7 +410,7 @@ export default function SameTrailHero() {
           {/* Analysis 섹션 콘텐츠 컬럼 — Analysis 워터마크 위로 세로 스크롤 (z-60, 투명 배경) */}
           <div className="pointer-events-none absolute inset-0 z-[60]">
             <div className="absolute left-1/2 top-1/2" style={stageStyle}>
-              <div ref={content7Ref} className="absolute inset-0" style={{ transform: `translateY(${C7_START}px)`, willChange: "transform" }}>
+              <div ref={content7Ref} className="absolute inset-0" style={{ transform: `translateY(${C7_START}px)`, opacity: 0, willChange: "transform, opacity" }}>
                 {/* 타이틀 */}
                 <div className="absolute flex -translate-x-1/2 flex-col items-center gap-5 text-center" style={{ left: 970, top: 200 }}>
                   <div className="flex flex-col items-center gap-2">
@@ -481,7 +489,7 @@ export default function SameTrailHero() {
           {/* experience 섹션 콘텐츠 컬럼 — 워터마크 위로 세로 스크롤 (z-80, 투명 배경) */}
           <div className="pointer-events-none absolute inset-0 z-[80]">
             <div className="absolute left-1/2 top-1/2" style={stageStyle}>
-              <div ref={content10Ref} className="absolute inset-0" style={{ transform: `translateY(${C10_START}px)`, willChange: "transform" }}>
+              <div ref={content10Ref} className="absolute inset-0" style={{ transform: `translateY(${C10_START}px)`, opacity: 0, willChange: "transform, opacity" }}>
                 {/* 타이틀 */}
                 <div className="absolute flex -translate-x-1/2 flex-col items-center gap-5 text-center" style={{ left: 970, top: 200, width: 1000 }}>
                   <div className="flex w-full flex-col items-center gap-2">

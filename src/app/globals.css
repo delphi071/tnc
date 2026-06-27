@@ -23,6 +23,11 @@ body {
   font-family: "Pretendard Variable", var(--font-geist-sans), system-ui, sans-serif;
 }
 
+/* 영문(en)일 때 PC/모바일 모두 본문 전체를 Montserrat 로 — 한국어는 Pretendard 유지 */
+html[lang="en"] body {
+  font-family: var(--font-montserrat), "Pretendard Variable", var(--font-geist-sans), system-ui, sans-serif;
+}
+
 /* 얇은 스크롤바 — Firefox */
 html {
   scrollbar-width: thin;

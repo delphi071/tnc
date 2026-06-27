@@ -75,7 +75,7 @@ function SecHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: strin
         <p className="text-[24px] font-bold leading-[1.3] tracking-[-0.624px] text-[#0ac200]">{eyebrow}</p>
         <p className="text-[36px] font-bold leading-[1.1] tracking-[-0.36px] text-black">{title}</p>
       </div>
-      <p className="text-[18px] leading-[1.3] tracking-[-0.18px] text-[#5a5b5d]">{subtitle}</p>
+      <p className="whitespace-pre-line text-[18px] leading-[1.3] tracking-[-0.18px] text-[#5a5b5d]">{subtitle}</p>
     </div>
   );
 }
