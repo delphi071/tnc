@@ -1,101 +1,75 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
-import { type RefObject, useEffect, useRef } from "react";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useT } from "@/i18n/useT";
 
-/** Figma "01. 우리의 길 > Core Value" (밝은 배경, 1920×1080).
- *  값 블록(아이콘+텍스트)이 3D 큐브로 회전하며 4개 값이 차례로 노출됨. */
+/** Figma "01. 우리의 길 > Core Value" (node 1712:9509, 밝은 배경).
+ *  4개 값이 2×2 그리드로 한 화면에 모두 보인다 (아이콘 위 / 텍스트 아래, 가운데 정렬).
+ *
+ *  Figma 는 세로로 펼쳐지는 시안이라 원본 세로 수치(아이콘 200 / 아이콘갭 100 / 행간격 300)를
+ *  그대로 쓰면 약 1220px 로 1080 스테이지를 넘긴다. 가로 수치(셀 600 / 텍스트 430)와 타이포는
+ *  Figma 그대로 두고, 세로만 한 화면에 들어오도록 압축했다. */
 const STAGE_W = 1920;
 const STAGE_H = 1080;
 
-/** 큐브 깊이 = 면 높이/2 (OurWayHero 의 회전 transform 과 공유) */
-export const CV_DEPTH = 140;
-const FACE_W = 800;
-const FACE_H = 280;
+/** 세로 수치는 "짧은 뷰포트에서도 헤더에 안 가리고 한 화면에 다 보이는 것"이 제약이다.
+ *  스테이지(1080)는 뷰포트 세로 중앙에 놓이므로, 뷰포트가 1080보다 짧으면 위아래가 잘린다.
+ *  블록 총높이 H 일 때 상단 여백 = (뷰포트 - H)/2 이고, 이게 헤더(최대 102px)보다 커야 한다.
+ *  → 뷰포트 940 기준 H ≤ 730 이어야 안전. 아래 수치는 그 예산에 맞춘 것. */
+const ICON = 120; // Figma 200
+const ICON_GAP = 24; // Figma 100
+const ROW_GAP = 32; // Figma 300
+const HEAD_GAP = 40; // 제목 → 그리드 (Figma 211)
+const CELL_W = 600; // Figma 그대로
+const TEXT_W = 430; // Figma 그대로
 
-/** 아이콘(애니메이션 GIF) 순서 (텍스트는 사전 coreValue[i]) — /public/our-way/*.gif */
 const ICONS = ["discovery", "connection", "sustainability", "trust"];
 
-export default function CoreValueScreen({
-  scale,
-  cubeRef,
-  activeFace = -1,
-}: {
-  scale: number;
-  cubeRef?: RefObject<HTMLDivElement | null>;
-  /** 정면으로 완전히 정착한 면(0~3). 바뀔 때 그 아이콘 GIF 를 처음부터 재생한다. -1=재생 트리거 없음 */
-  activeFace?: number;
-}) {
+export default function CoreValueScreen({ scale }: { scale: number }) {
   const values = useT().ourWay.coreValue;
   const { locale } = useLocale();
   const en = locale === "en";
 
-  // GIF 는 기본적으로 끊임없이 루프하므로, 면이 정면 정착했을 때 src 를 잠깐 비웠다 복원해
-  // 애니메이션을 "처음부터" 재생시킨다 (회전 중 절반만 보일 때 모션이 도는 문제 방지).
-  const imgRefs = useRef<(HTMLImageElement | null)[]>([]);
-  useEffect(() => {
-    if (activeFace < 0) return;
-    const img = imgRefs.current[activeFace];
-    if (!img) return;
-    const real = `/our-way/${ICONS[activeFace]}.gif`;
-    img.src = "";
-    const id = requestAnimationFrame(() => {
-      img.src = real;
-    });
-    return () => cancelAnimationFrame(id);
-  }, [activeFace]);
   return (
     <section className="relative h-screen w-full overflow-hidden bg-[#f0f0f0]">
       <div
         className="absolute left-1/2 top-1/2"
         style={{ width: STAGE_W, height: STAGE_H, transform: `translate(-50%, -50%) scale(${scale})` }}
       >
-        {/* 섹션 제목 (고정) */}
-        <p
-          className="absolute text-center font-bold text-[#0ac200]"
-          style={{ left: 0, right: 0, top: 270, fontSize: 24, lineHeight: 1.2, fontFamily: "var(--font-montserrat)" }}
-        >
-          Core Value
-        </p>
-
-        {/* 값 큐브 (스크롤 시 위로 회전) */}
+        {/* 제목 + 2×2 그리드를 하나의 블록으로 묶어 스테이지 세로 중앙에 배치.
+            절대 top 을 쓰면 짧은 뷰포트에서 제목이 헤더 뒤로 들어가므로 중앙 정렬로 둔다. */}
         <div
-          className="absolute left-1/2"
-          style={{ top: 610, width: FACE_W, height: FACE_H, transform: "translate(-50%, -50%)", perspective: 2000 }}
+          className="absolute left-1/2 top-1/2 flex flex-col items-center"
+          style={{ gap: HEAD_GAP, transform: "translate(-50%, -50%)" }}
         >
+          <p
+            className="text-center font-bold text-[#0ac200]"
+            style={{ fontSize: 24, lineHeight: 1.2, fontFamily: "var(--font-montserrat)" }}
+          >
+            Core Value
+          </p>
+
+          {/* 값 2×2 그리드 (4개 모두 한 화면에 노출) */}
           <div
-            ref={cubeRef}
-            style={{
-              position: "relative",
-              width: "100%",
-              height: "100%",
-              transformStyle: "preserve-3d",
-              transform: `translateZ(-${CV_DEPTH}px) rotateX(0deg)`,
-            }}
+            className="grid grid-cols-2"
+            style={{ width: CELL_W * 2, columnGap: 0, rowGap: ROW_GAP }}
           >
             {ICONS.map((icon, k) => {
               const v = values[k];
               return (
                 <div
                   key={icon}
-                  className="absolute inset-0 flex items-center gap-[100px]"
-                  style={{ transform: `rotateX(${-90 * k}deg) translateZ(${CV_DEPTH}px)`, backfaceVisibility: "hidden" }}
+                  className="flex flex-col items-center"
+                  style={{ width: CELL_W, gap: ICON_GAP }}
                 >
                   <img
-                    ref={(el) => {
-                      imgRefs.current[k] = el;
-                    }}
                     src={`/our-way/${icon}.gif`}
                     alt=""
-                    className="shrink-0"
-                    style={{ width: 260, height: 260 }}
+                    className="shrink-0 object-contain"
+                    style={{ width: ICON, height: ICON }}
                   />
-                  {/* 영문은 eyebrow 없이 영문 제목 + 인라인 sub(한 줄), 설명은 2줄로 줄바꿈 (Figma 기준) */}
-                  <div className="flex flex-col gap-6" style={{ width: en ? 660 : 430, whiteSpace: en ? "normal" : "nowrap" }}>
-                    <div className="flex flex-col gap-3">
+                  <div className="flex flex-col items-center gap-[18px] text-center" style={{ width: TEXT_W }}>
+                    <div className="flex flex-col items-center gap-[6px]">
                       {v.eyebrow && (
                         <p
                           className="font-semibold text-[#0ac200]"
@@ -104,19 +78,17 @@ export default function CoreValueScreen({
                           {v.eyebrow}
                         </p>
                       )}
-                      <div className="flex items-baseline gap-[14px] whitespace-nowrap">
-                        <p
-                          className="shrink-0 font-bold text-black"
-                          style={{ fontSize: 32, lineHeight: 1.3, letterSpacing: "-0.832px", fontFamily: en ? "var(--font-montserrat)" : undefined }}
-                        >
-                          {v.title}
-                        </p>
-                        <p className="text-[#5a5b5d]" style={{ fontSize: 18, lineHeight: 1.3, letterSpacing: "-0.36px" }}>
-                          {v.sub}
-                        </p>
-                      </div>
+                      <p
+                        className="font-bold text-black"
+                        style={{ fontSize: 32, lineHeight: 1.3, letterSpacing: "-0.832px", fontFamily: en ? "var(--font-montserrat)" : undefined }}
+                      >
+                        {v.title}
+                      </p>
+                      <p className="text-[#5a5b5d]" style={{ fontSize: 18, lineHeight: 1.3, letterSpacing: "-0.36px" }}>
+                        {v.sub}
+                      </p>
                     </div>
-                    <p className="text-black" style={{ fontSize: 18, lineHeight: 1.3, letterSpacing: "-0.36px", whiteSpace: en ? "pre-line" : undefined }}>
+                    <p className="text-black" style={{ fontSize: 18, lineHeight: 1.3, letterSpacing: "-0.36px" }}>
                       {v.desc}
                     </p>
                   </div>

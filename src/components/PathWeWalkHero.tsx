@@ -46,6 +46,9 @@ const SHOW_FULL = false;
 /** 푸터 서브메뉴 → 섹션 스크롤 진행도(0~1) */
 const SECTION_PROGRESS: Record<string, number> = {
   korea: 0.24,
+  // 헤더 지도 아이콘 → 코리아둘레길 섹션의 "완보 인증" 탭. 섹션 위치는 korea 와 동일하고
+  // 탭 선택은 KoriaDulegilSection 이 해시를 보고 처리한다.
+  certifications: 0.24,
   regional: 0.46,
   culture: 0.68,
   goods: 0.9,

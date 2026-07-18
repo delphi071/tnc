@@ -198,26 +198,20 @@ export default function Header({
 
         {/* 아이콘 (오른쪽 고정) */}
         <div className="flex shrink-0 items-center gap-5 px-6 xl:gap-[30px] xl:px-[50px]">
-          <a
-            href="https://www.instagram.com/koreatnc1"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Instagram"
-            className="transition-opacity hover:opacity-70"
-          >
+          <IconLink href="https://www.instagram.com/koreatnc1" external label={t.header.icons.instagram}>
             <img src={`/intro/ic-instagram${sfx}.svg`} alt="" className="size-[26px] xl:size-[30px]" />
-          </a>
-          <a
-            href="https://smartstore.naver.com/koreatnc"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Store"
-            className="transition-opacity hover:opacity-70"
-          >
+          </IconLink>
+          <IconLink href="https://smartstore.naver.com/koreatnc" external label={t.header.icons.store}>
             <img src={`/intro/ic-store${sfx}.svg`} alt="" className="size-[26px] xl:size-[30px]" />
-          </a>
-          {/* 지도(route) 아이콘 — 표시 전용(링크 없음) */}
-          <img src={`/intro/ic-route${sfx}.svg`} alt="" aria-hidden className="size-[26px] xl:size-[30px]" />
+          </IconLink>
+          {/* 지도(route) 아이콘 → 우리가 걷는 길 > 코리아둘레길 > 완보 인증 탭 */}
+          <IconLink
+            href="/the-path-we-walk#certifications"
+            label={t.header.icons.certifications}
+            onClick={(e) => handleSubLink(e, "/the-path-we-walk#certifications")}
+          >
+            <img src={`/intro/ic-route${sfx}.svg`} alt="" className="size-[26px] xl:size-[30px]" />
+          </IconLink>
           <span className={`h-[25px] w-px ${divider}`} />
           {/* 언어 토글 (한국어 ↔ 영어) */}
           <button
@@ -328,7 +322,7 @@ export default function Header({
             href="https://www.instagram.com/koreatnc1"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Instagram"
+            aria-label={t.header.icons.instagram}
             onClick={closeMenu}
             className="transition-opacity hover:opacity-70"
           >
@@ -338,12 +332,21 @@ export default function Header({
             href="https://smartstore.naver.com/koreatnc"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Store"
+            aria-label={t.header.icons.store}
             onClick={closeMenu}
             className="transition-opacity hover:opacity-70"
           >
             <img src={`/intro/ic-store${sfx}.svg`} alt="" className="size-[26px]" />
           </a>
+          {/* 지도(route) 아이콘 → 완보 인증 탭. 터치 기기라 툴팁 대신 aria-label 만 둔다. */}
+          <Link
+            href="/the-path-we-walk#certifications"
+            aria-label={t.header.icons.certifications}
+            onClick={(e) => handleSubLink(e, "/the-path-we-walk#certifications")}
+            className="transition-opacity hover:opacity-70"
+          >
+            <img src={`/intro/ic-route${sfx}.svg`} alt="" className="size-[26px]" />
+          </Link>
           {/* 구분선·글로브·KO/EN 모두 인스타/쇼핑 아이콘 색(#f0f0f0 dark / #9c9c9c light)에 맞춤 */}
           <span className="h-[25px] w-px" style={{ backgroundColor: light ? "#9c9c9c" : "#f0f0f0" }} />
           <button
@@ -369,5 +372,43 @@ export default function Header({
         </div>
       </div>
     </>
+  );
+}
+
+/** 우측 상단 아이콘 링크 — hover 시 아래에 설명 툴팁을 띄운다.
+ *  헤더가 다크/라이트 두 테마를 오가므로 툴팁은 양쪽에서 읽히도록 짙은 배경 + 흰 글씨로 고정한다.
+ *  CSS(group-hover)만 사용해 스크립트 없이 동작하고, aria-label 로 스크린리더에도 같은 설명을 준다. */
+function IconLink({
+  href,
+  label,
+  external,
+  onClick,
+  children,
+}: {
+  href: string;
+  label: string;
+  external?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
+  children: React.ReactNode;
+}) {
+  const tooltip = (
+    <span
+      role="tooltip"
+      className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-[#231f20] px-2.5 py-1.5 text-[12px] font-semibold text-white opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100"
+    >
+      {label}
+    </span>
+  );
+  const cls = "group relative flex items-center transition-opacity hover:opacity-70";
+  return external ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label} className={cls}>
+      {children}
+      {tooltip}
+    </a>
+  ) : (
+    <Link href={href} onClick={onClick} aria-label={label} className={cls}>
+      {children}
+      {tooltip}
+    </Link>
   );
 }

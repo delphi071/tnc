@@ -7,10 +7,7 @@ import { Fragment, useEffect, useRef } from "react";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { useT } from "@/i18n/useT";
 import { ROWS, ROWS_EN } from "./HistoryScreen";
-import { ROW1, ROW2, TEAMS, ROW1_EN, ROW2_EN, TEAMS_EN, ORG_LABELS } from "./OrgChartScreen";
-
-/** People 이사진(7인) — 모바일은 세로로 나열 */
-const BOARD = [...ROW1, ...ROW2];
+import { BOARD, COMMITTEE1, COMMITTEE2, TEAMS, BOARD_EN, COMMITTEE1_EN, COMMITTEE2_EN, TEAMS_EN, ORG_LABELS } from "./OrgChartScreen";
 
 /** 모바일 Vision 헤드라인 — 디자인상 4줄로 끊어서 표시(ko). en 은 사전 그대로. */
 const VISION_LINES_KO = ["걷는 길이 행복한", "이야기가 되는 곳,", "대한민국", "걷기 문화의 중심"];
@@ -76,7 +73,9 @@ export default function OurWayMobile({ onLightChange }: { onLightChange?: (light
   const visionLines = locale === "ko" ? VISION_LINES_KO : ow.vision.headline;
   // 조직도 한/영 분기 (텍스트는 OrgChartScreen 과 공유)
   const enOrg = locale === "en";
-  const board = enOrg ? [...ROW1_EN, ...ROW2_EN] : BOARD;
+  const board = enOrg ? BOARD_EN : BOARD;
+  // 운영위원회는 데스크톱에서 3인+2인 두 줄이지만 모바일은 세로 1열이라 합쳐서 나열
+  const committee = enOrg ? [...COMMITTEE1_EN, ...COMMITTEE2_EN] : [...COMMITTEE1, ...COMMITTEE2];
   const orgTeams = enOrg ? TEAMS_EN : TEAMS;
   const orgL = enOrg ? ORG_LABELS.en : ORG_LABELS.ko;
   const trackRef = useRef<HTMLDivElement>(null);
@@ -161,14 +160,17 @@ export default function OurWayMobile({ onLightChange }: { onLightChange?: (light
         onLightChange?.(light);
       }
 
-      // Core Value 큐브 — Core Value 가 드러난 뒤 단계별 회전(4면)
+      // Core Value — 드러난 뒤 내부 콘텐츠가 위로 세로 스크롤 (한 번에 하나씩 머물렀다 이동)
       const cube = cubeRef.current;
       if (cube && cubeStart >= 0) {
         const raw = Math.min(Math.max(g - cubeStart, 0), CUBE_ROTS); // 0~3
         const ci = Math.min(Math.floor(raw), CUBE_ROTS - 1);
         const cf = raw - ci;
         const ct = cf <= CUBE_HOLD ? 0 : smoothstep((cf - CUBE_HOLD) / (1 - CUBE_HOLD));
-        cube.style.transform = `translateZ(-${CUBE_DEPTH}px) rotateX(${(ci + ct) * 90}deg)`;
+        const cubeStep = ci + ct;
+
+        const itemHeight = 440; // height(360) + gap(80)
+        cube.style.transform = `translateY(${-cubeStep * itemHeight}px)`;
       }
 
       // History 타임라인 — 드러난 뒤 내부 콘텐츠가 위로 세로 스크롤
@@ -347,43 +349,32 @@ export default function OurWayMobile({ onLightChange }: { onLightChange?: (light
               </div>
             </div>
 
-            {/* card 5: Core Value (불투명, 밝은 배경) — Vision 이 벗겨지면 드러남.
-                4개 값(아이콘+텍스트)을 PC 처럼 3D 큐브(rotateX)로 회전 표시 (z 50) */}
-            <div data-card="core" className="absolute inset-0 bg-[#f0f0f0]" style={{ zIndex: 50, willChange: "transform" }}>
-              <p
-                className="absolute inset-x-0 top-[100px] text-center text-[24px] font-bold leading-[1.2] text-[#0ac200]"
-                style={{ fontFamily: "var(--font-montserrat)" }}
-              >
-                Core Value
-              </p>
-              <div className="absolute inset-0 flex items-center justify-center px-6">
-                <div style={{ perspective: 1500, width: "100%", maxWidth: 340, height: CUBE_FACE_H }}>
-                  <div
-                    ref={cubeRef}
-                    style={{
-                      position: "relative",
-                      width: "100%",
-                      height: "100%",
-                      transformStyle: "preserve-3d",
-                      transform: `translateZ(-${CUBE_DEPTH}px) rotateX(0deg)`,
-                    }}
-                  >
+            {/* card 5: Core Value (불투명, 밝은 배경) — Vision 이 벗겨지면 드러남. */}
+            <div data-card="core" className="absolute inset-0 overflow-hidden bg-[#f0f0f0]" style={{ zIndex: 50, willChange: "transform" }}>
+              <div className="absolute inset-0 flex flex-col items-center pt-[100px]">
+                {/* 인트로 */}
+                <div className="text-center">
+                  <p className="text-[24px] font-bold leading-[1.2] text-[#0ac200]" style={{ fontFamily: "var(--font-montserrat)" }}>
+                    Core Value
+                  </p>
+                </div>
+                {/* 1개씩 보이도록 차단하는 래퍼 */}
+                <div className="mt-8 overflow-hidden" style={{ width: "100%", height: 360 }}>
+                  <div ref={cubeRef} className="flex flex-col gap-[80px] px-6" style={{ position: "relative", width: "100%", willChange: "transform" }}>
                     {ow.coreValue.map((v, k) => (
-                      <div
-                        key={k}
-                        className="absolute inset-0 flex flex-col items-center justify-center gap-14 text-center"
-                        style={{ transform: `rotateX(${-90 * k}deg) translateZ(${CUBE_DEPTH}px)`, backfaceVisibility: "hidden" }}
-                      >
-                        <img src={`/our-way/${CV_ICONS[k]}.gif`} alt="" width={270} height={270} />
+                      <div key={k} className="flex flex-col items-center gap-6 text-center" style={{ height: 360 }}>
+                        <img src={`/intro/${CV_ICONS[k]}.png`} alt="" width={180} height={180} className="object-contain shrink-0" />
                         <div className="flex flex-col items-center gap-3">
-                          <div className="flex flex-col items-center gap-1.5">
-                            <p className="text-[14px] font-bold leading-none text-[#0ac200]" style={{ fontFamily: "var(--font-montserrat)" }}>
-                              {v.eyebrow}
-                            </p>
-                            <p className="text-[24px] font-bold leading-[1.2] tracking-[-0.24px] text-black">{v.title}</p>
-                            <p className="text-[14px] leading-[1.3] tracking-[-0.14px] text-[#5a5b5d]">{v.sub}</p>
+                          <div className="flex flex-col items-center gap-1">
+                            {v.eyebrow && (
+                              <p className="text-[12px] font-bold leading-none text-[#0ac200]" style={{ fontFamily: "var(--font-montserrat)" }}>
+                                {v.eyebrow}
+                              </p>
+                            )}
+                            <p className="text-[20px] font-bold leading-[1.2] tracking-[-0.2px] text-black">{v.title}</p>
+                            <p className="text-[12px] leading-[1.3] tracking-[-0.12px] text-[#5a5b5d]">{v.sub}</p>
                           </div>
-                          <p className="whitespace-pre-line text-[18px] leading-[1.3] tracking-[-0.18px] text-black">{v.desc}</p>
+                          <p className="whitespace-pre-line text-[14px] leading-[1.3] tracking-[-0.14px] text-black">{v.desc}</p>
                         </div>
                       </div>
                     ))}
@@ -479,11 +470,19 @@ export default function OurWayMobile({ onLightChange }: { onLightChange?: (light
                     </div>
                   </div>
 
-                  {/* 이사진 + 7인 + 안내 */}
+                  {/* 이사진(4인) + 운영위원회(5인) + 안내 */}
                   <div className="w-full">
                     <div className="rounded-full bg-[#0ac200] py-3 text-center text-[14px] font-extrabold text-white">{orgL.board}</div>
                     <div className="mt-3 flex flex-col gap-2">
                       {board.map((m) => (
+                        <div key={m.n} className="rounded-full border border-[#0ac200] py-3 text-center text-[14px] text-[#0ac200]">
+                          {m.n} {m.r}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-5 rounded-full bg-[#0ac200] py-3 text-center text-[14px] font-extrabold text-white">{orgL.committee}</div>
+                    <div className="mt-3 flex flex-col gap-2">
+                      {committee.map((m) => (
                         <div key={m.n} className="rounded-full border border-[#0ac200] py-3 text-center text-[14px] text-[#0ac200]">
                           {m.n} {m.r}
                         </div>

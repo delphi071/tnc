@@ -7,11 +7,12 @@ import { useEffect, useState } from "react";
 import { useT } from "@/i18n/useT";
 import SubscribeSection from "./SubscribeSection";
 import InquirySection from "./InquirySection";
+import { GalleryPanel, ListPanel } from "./BoardPanels";
 
 /** "05. 알리는 이야기" 밝은(#f0f0f0) 콘텐츠. 히어로 뒤 일반 스크롤로 등장.
- *  상단 탭으로 공지사항 / 소식받기 / 추가될 게시판 / 문의하기 패널 전환. */
+ *  상단 탭으로 공지사항 / 소식받기 / 활동현황 / 자료실 / 문의하기 패널 전환. */
 
-const TAB_KEYS = ["notices", "subscribe", "comingSoon", "contact"] as const;
+const TAB_KEYS = ["notices", "subscribe", "activities", "archives", "contact"] as const;
 type TabKey = (typeof TAB_KEYS)[number];
 
 type BoardItem = { title: string; body: string; date: string };
@@ -38,10 +39,15 @@ export default function NoticesSection() {
     date: t.notices.sampleDate,
   }));
 
-  /** "추가될 메뉴" — 추후 들어올 게시판 자리(placeholder) */
-  const placeholder: BoardItem[] = Array.from({ length: 5 }, () => ({
-    title: t.notices.placeholderTitle,
-    body: t.notices.placeholderBody,
+  /** 활동현황 갤러리 (Figma 9개) — 실제 데이터는 백엔드 연동 예정 */
+  const activities = Array.from({ length: 9 }, () => ({
+    title: t.notices.gallerySample,
+    date: t.notices.sampleDate,
+  }));
+
+  /** 자료실 리스트 (Figma 10줄) — 실제 데이터는 백엔드 연동 예정 */
+  const archives = Array.from({ length: 10 }, () => ({
+    title: t.notices.boardSample,
     date: t.notices.sampleDate,
   }));
 
@@ -72,7 +78,12 @@ export default function NoticesSection() {
             <BoardPanel heading={t.notices.noticesHeading} items={notices} hrefBase="/our-stories/notices" search={t.notices.search} />
           )}
           {tab === "subscribe" && <SubscribeSection />}
-          {tab === "comingSoon" && <BoardPanel heading={t.notices.comingSoonHeading} items={placeholder} search={t.notices.search} />}
+          {tab === "activities" && (
+            <GalleryPanel heading={t.notices.activitiesHeading} items={activities} hrefBase="/our-stories/activities" search={t.notices.search} />
+          )}
+          {tab === "archives" && (
+            <ListPanel heading={t.notices.archivesHeading} items={archives} hrefBase="/our-stories/archives" search={t.notices.search} />
+          )}
           {tab === "contact" && <InquirySection />}
         </div>
       </div>

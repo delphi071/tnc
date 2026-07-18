@@ -152,7 +152,12 @@ const ko = {
             { h: "이용자 중심의 소통", lines: ["코리아둘레길 안내사무국 운영을 통해 이용자 중심의 소통 체계를", "구축하고 있습니다. 접수된 문의 및 민원 사항을 체계적으로", "관리하고, 필요한 경우 관계기관 및 현장과 연계하여 신속한 대응이", "이루어질 수 있도록 지원하고 있으며, 이를 바탕으로 노선 및 운영", "개선에 반영하는 선순환 체계를 만들어가고 있습니다."] },
           ],
         },
-      ],
+              {
+          // 자료 준비 중 — 탭만 노출하고 본문/이미지는 비워 둔다
+          name: "완보 인증",
+          blocks: [],
+        },
+],
     },
     regional: {
       title: "지역길 조사 및 연구",
@@ -316,6 +321,8 @@ const ko = {
   header: {
     home: "한국의길과문화 홈",
     language: "언어 변경",
+    // 우측 상단 아이콘 3개의 hover 툴팁
+    icons: { instagram: "인스타그램", store: "스마트 스토어", certifications: "완보 인증" },
     nav: {
       ourWay: "우리의 길",
       sameTrail: "같은 길, 다른 시선",
@@ -332,7 +339,7 @@ const ko = {
       { h: "같은 길, 다른 시선", links: ["전문역량"] },
       { h: "우리가 걷는 길", links: ["코리아둘레길", "지역길 조사 및 계획", "걷기 문화 프로그램", "굿즈 개발 및 판매"] },
       { h: "함께 걷는 사람들", links: ["한국걷는길연합", "ATN", "WTN", "코리아둘레길 완보자 클럽"] },
-      { h: "알리는 이야기", links: ["공지사항", "소식받기", "문의하기"] },
+      { h: "알리는 이야기", links: ["공지사항", "소식받기", "활동현황", "자료실", "문의하기"] },
       { h: "마음잇기", links: ["후원하기", "연간기금 및 활동 실적내역"] },
     ],
     info: {
@@ -356,12 +363,17 @@ const ko = {
     tabs: {
       notices: "공지사항",
       subscribe: "소식받기",
-      comingSoon: "추가될 메뉴",
+      activities: "활동현황",
+      archives: "자료실",
       contact: "문의하기",
     },
     search: "검색어를 입력해주세요.",
     noticesHeading: ["한국과길과문화의", "새로운 소식을 확인해보세요."],
-    comingSoonHeading: ["추가될 게시판", "준비 중입니다."],
+    activitiesHeading: ["지금 진행 중인", "다양한 프로젝트를 확인해보세요."],
+    archivesHeading: ["한국의길과문화의", "모든 기록을 만나보세요."],
+    // 게시글 제목은 백엔드 연동 전 임시 표기 — 게시판 형태만 구분되면 된다
+    gallerySample: "갤러리형",
+    boardSample: "게시판형",
     sampleTitle: "코리아둘레길 지킴이 모집",
     sampleBody:
       "게시글의 본문 최대 두 줄까지 노출됩니다. 게시글의 본문 최대 두 줄까지 노출됩니다. 게시글의 본문 최대 두 줄까지 노출됩니다. 게시글의 본문 최대 두 줄까지 노출됩니다. 게시글의 본문 최대 두 줄까지 노출됩니다.",
@@ -589,7 +601,12 @@ const en: typeof ko = {
             { h: "User-Centered Communication", lines: ["We operate a structured, user-focused communication system. Feedback is managed systematically and, when needed, connected to relevant teams for prompt response—continuously informing improvements to routes and operations."] },
           ],
         },
-      ],
+              {
+          // 자료 준비 중 — 탭만 노출하고 본문/이미지는 비워 둔다
+          name: "Certifications",
+          blocks: [],
+        },
+],
     },
     regional: {
       title: "Trail Research & Planning",
@@ -740,6 +757,7 @@ const en: typeof ko = {
   header: {
     home: "Korean Trails & Culture Home",
     language: "Change language",
+    icons: { instagram: "Instagram", store: "Smart Store", certifications: "Certifications" },
     nav: {
       ourWay: "Our Path",
       sameTrail: "Same trail, New Vision",
@@ -756,7 +774,7 @@ const en: typeof ko = {
       { h: "Same trail, New Vision", links: ["Expertise"] },
       { h: "The Path we Walk", links: ["Korea Dulle-gil", "Regional Trail Research & Planning", "Walking Culture Programs", "Goods Development & Sales"] },
       { h: "Walking Together", links: ["Korea Trails Alliance", "ATN", "WTN", "Korea Dulle-gil Finishers Club"] },
-      { h: "Our Stories", links: ["Notices", "Subscribe", "Contact"] },
+      { h: "Our Stories", links: ["Notices", "Subscribe", "Activities", "Archives", "Contact"] },
       { h: "Walk with Us", links: ["Donate", "Annual Funds & Activity Report"] },
     ],
     info: {
@@ -781,12 +799,16 @@ const en: typeof ko = {
     tabs: {
       notices: "Announcements",
       subscribe: "Subscribe",
-      comingSoon: "추가될 메뉴",
+      activities: "Activities",
+      archives: "Archives",
       contact: "Contact us",
     },
     search: "Search",
     noticesHeading: ["Discover the latest from Korea Trails & Culture."],
-    comingSoonHeading: ["A new board", "is coming soon."],
+    activitiesHeading: ["Explore the activities of", "Korea Trails and Culture."],
+    archivesHeading: ["Access our collected", "resources and archives."],
+    gallerySample: "Gallery",
+    boardSample: "Board",
     sampleTitle: "Title of the content",
     sampleBody:
       "Displays up to two lines of the post text. Displays up to two lines of the post text. Displays up to two lines of the post text. Displays up to two lines of the post tex...",

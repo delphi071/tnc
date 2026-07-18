@@ -11,7 +11,9 @@ import SiteFooter from "./SiteFooter";
  *  목록 → 제목/날짜 → 본문 + 포스터 → 이전/다음 글 네비게이션.
  *  내용은 샘플(고정)이며, 실제 데이터는 백엔드에서 id로 연동 예정. */
 
-export default function NoticeDetail() {
+/** 활동현황·자료실 상세도 구성이 같아 이 컴포넌트를 공유한다.
+ *  다른 것은 "목록으로" 링크가 돌아갈 탭 해시뿐이다. */
+export default function NoticeDetail({ backHash = "notices" }: { backHash?: "notices" | "activities" | "archives" }) {
   const t = useT();
   const d = t.noticeDetail;
   const [scale, setScale] = useState(1);
@@ -33,9 +35,9 @@ export default function NoticeDetail() {
           <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 lg:px-[50px]">
             {/* 목록으로 */}
             <Link
-              href="/our-stories#notices"
+              href={`/our-stories#${backHash}`}
               className="flex w-fit items-center gap-1.5 py-2.5 text-[#9c9c9c] transition-colors hover:text-[#231f20]"
-              // 히어로가 아닌 공지 리스트 위치로 이동
+              // 히어로가 아닌 게시판 리스트 위치로 이동
               onClick={() => sessionStorage.setItem("os:notices", "1")}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="shrink-0">

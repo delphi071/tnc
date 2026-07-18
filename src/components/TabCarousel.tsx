@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocale } from "@/i18n/LocaleProvider";
 import VideoModal from "./VideoModal";
 
@@ -10,13 +10,16 @@ import VideoModal from "./VideoModal";
  *  탭 라벨(slide.tab)이 탭 버튼과 슬라이드 대제목으로 함께 쓰임. */
 export type CarouselSlide = {
   tab: string;
-  img: string;
+  /** 없으면 빈 카드(자료 준비 중 탭) */
+  img?: string;
   /** Tailwind object-position 클래스 (기본 object-center) */
   imgPos?: string;
   /** 영상 썸네일(어두운 오버레이 + 재생 버튼) 여부 */
   video?: boolean;
   /** 재생 시 임베드할 영상 URL (구글드라이브 .../preview 등). 없으면 클릭해도 동작 안 함 */
   videoUrl?: string;
+  /** 이미지 카드 위에 얹을 오버레이 (예: 코리아둘레길 지도 벡터) */
+  overlay?: React.ReactNode;
   /** 블록: 소제목(h)은 선택 */
   blocks: { h?: string; lines: string[] }[];
 };
@@ -24,8 +27,37 @@ export type CarouselSlide = {
 const SLIDE_W = 1100;
 const GAP = 460;
 
-export default function TabCarousel({ label, title, slides }: { label: string; title: string; slides: CarouselSlide[] }) {
+/** 탭 좌우 패딩 기본값 (Figma 대부분의 탭 줄) */
+const TAB_PX = 34;
+
+export default function TabCarousel({
+  label,
+  title,
+  slides,
+  tabPx = TAB_PX,
+  hashTabs,
+}: {
+  label: string;
+  title: string;
+  slides: CarouselSlide[];
+  /** 탭이 많아 한 줄(1100)을 넘칠 때 좁히는 좌우 패딩. Figma 코리아둘레길 영문 탭 줄은 20 */
+  tabPx?: number;
+  /** 해시 → 탭 인덱스. 헤더/푸터에서 특정 탭으로 바로 들어올 때 사용 (예: { certifications: 6 }) */
+  hashTabs?: Record<string, number>;
+}) {
   const [active, setActive] = useState(0);
+
+  // #해시로 진입하거나 같은 페이지에서 해시가 바뀌면 해당 탭을 연다
+  useEffect(() => {
+    if (!hashTabs) return;
+    const fromHash = () => {
+      const i = hashTabs[window.location.hash.slice(1)];
+      if (i != null) setActive(i);
+    };
+    fromHash();
+    window.addEventListener("hashchange", fromHash);
+    return () => window.removeEventListener("hashchange", fromHash);
+  }, [hashTabs]);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   // 영문 본문은 단락 통째라 컬럼 폭에서 자동 줄바꿈, 한국어는 사전 줄나눔(nowrap) 유지
   const en = useLocale().locale === "en";
@@ -50,8 +82,8 @@ export default function TabCarousel({ label, title, slides }: { label: string; t
               key={i}
               type="button"
               onClick={() => setActive(i)}
-              className="flex h-9 items-start justify-center px-[34px]"
-              style={{ borderBottom: "2px solid", borderColor: i === active ? "#000000" : "transparent", marginBottom: -2 }}
+              className="flex h-9 items-start justify-center"
+              style={{ paddingLeft: tabPx, paddingRight: tabPx, borderBottom: "2px solid", borderColor: i === active ? "#000000" : "transparent", marginBottom: -2 }}
             >
               <span
                 className="font-extrabold whitespace-nowrap transition-colors"
@@ -95,8 +127,12 @@ export default function TabCarousel({ label, title, slides }: { label: string; t
                 </div>
 
                 {/* 우측 이미지 카드 */}
-                <div className="relative shrink-0 overflow-hidden rounded-br-[60px] rounded-tl-[60px]" style={{ width: 680, height: 380 }}>
-                  <Image src={s.img} alt="" fill sizes="680px" className={`object-cover ${s.imgPos ?? "object-center"}`} />
+                <div
+                  className="relative shrink-0 overflow-hidden rounded-br-[60px] rounded-tl-[60px]"
+                  style={{ width: 680, height: 380, backgroundColor: s.img ? undefined : "#e4e4e4" }}
+                >
+                  {s.img && <Image src={s.img} alt="" fill sizes="680px" className={`object-cover ${s.imgPos ?? "object-center"}`} />}
+                  {s.overlay}
                   {s.video && (
                     <button
                       type="button"

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useT } from "@/i18n/useT";
 import VideoModal from "./VideoModal";
+import KoreaDulegilMap from "./KoreaDulegilMap";
 
 /** 우리가 걷는 길 — 모바일(lg 미만) 전용.
  *  Hero + 본문(아코디언). PC 의 가로 탭 캐러셀을 모바일에선 아코디언으로 — 한 번에 하나만 펼쳐짐.
@@ -14,7 +15,8 @@ import VideoModal from "./VideoModal";
 const MONT = { fontFamily: "var(--font-montserrat)" } as const;
 
 /** 푸터·햄버거 메뉴 서브링크(#해시) → 섹션 key 매핑 (섹션 id=해시) */
-const HASH_TO_KEY: Record<string, string> = { korea: "kdl", regional: "rr", culture: "cf", goods: "gd" };
+// certifications = 코리아둘레길 섹션의 "완보 인증" 탭 (모바일은 아코디언이라 kdl 섹션을 연다)
+const HASH_TO_KEY: Record<string, string> = { korea: "kdl", certifications: "kdl", regional: "rr", culture: "cf", goods: "gd" };
 
 export default function PathWeWalkMobile({ onLightChange }: { onLightChange?: (light: boolean) => void }) {
   const t = useT().thePathWeWalk;
@@ -68,8 +70,12 @@ export default function PathWeWalkMobile({ onLightChange }: { onLightChange?: (l
     videoUrl?: Record<number, string>;
     /** 탭 인덱스별 이미지 경로 오버라이드 (기본 규칙 /intro/{key}-{n}.jpg 와 다를 때) */
     imgSrc?: Record<number, string>;
+    /** 탭 인덱스별 이미지 위 오버레이 (예: 코리아둘레길 지도 벡터) */
+    overlay?: Record<number, React.ReactNode>;
+    /** 이미지가 없는 탭(자료 준비 중) — 빈 카드로 표시 */
+    noImg?: Record<number, boolean>;
   }[] = [
-    { key: "kdl", hash: "korea", title: t.koriaDulegil.title, tabs: t.koriaDulegil.tabs },
+    { key: "kdl", hash: "korea", title: t.koriaDulegil.title, tabs: t.koriaDulegil.tabs, imgSrc: { 0: "/intro/kdl-1-v2.jpg" }, overlay: { 0: <KoreaDulegilMap /> }, noImg: { 6: true } },
     { key: "rr", hash: "regional", title: t.regional.title, tabs: t.regional.tabs, imgPos: { 1: "object-bottom" } },
     { key: "cf", hash: "culture", title: t.culture.title, tabs: t.culture.tabs, imgPos: { 3: "object-bottom" }, video: { 0: true }, videoUrl: { 0: "https://drive.google.com/file/d/1F1bNgltTOQ7GNzB3-6Zntk7vMxJW_z3o/preview" }, imgSrc: { 4: "/intro/cf-5-v2.jpg" } },
     { key: "gd", hash: "goods", title: t.goods.title, tabs: t.goods.tabs },
@@ -148,13 +154,19 @@ export default function PathWeWalkMobile({ onLightChange }: { onLightChange?: (l
                       className={`min-h-0 overflow-hidden transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0"}`}
                     >
                       <div className="px-[18px] pb-8">
-                        <div className="relative overflow-hidden rounded-br-[40px] rounded-tl-[40px]">
-                          <img
-                            src={sec.imgSrc?.[i] ?? `/intro/${sec.key}-${i + 1}.jpg`}
-                            alt=""
-                            loading="lazy"
-                            className={`h-[200px] w-full object-cover ${sec.imgPos?.[i] ?? "object-center"}`}
-                          />
+                        <div
+                          className="relative overflow-hidden rounded-br-[40px] rounded-tl-[40px]"
+                          style={sec.noImg?.[i] ? { height: 200, backgroundColor: "#e4e4e4" } : undefined}
+                        >
+                          {!sec.noImg?.[i] && (
+                            <img
+                              src={sec.imgSrc?.[i] ?? `/intro/${sec.key}-${i + 1}.jpg`}
+                              alt=""
+                              loading="lazy"
+                              className={`h-[200px] w-full object-cover ${sec.imgPos?.[i] ?? "object-center"}`}
+                            />
+                          )}
+                          {sec.overlay?.[i]}
                           {sec.video?.[i] && (
                             <button
                               type="button"

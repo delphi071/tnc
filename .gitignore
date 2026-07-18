@@ -45,3 +45,6 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# Figma MCP 로컬 설정 (Figma 데스크톱 앱이 있는 작업자만 필요)
+.mcp.json

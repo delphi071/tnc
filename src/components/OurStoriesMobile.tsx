@@ -11,7 +11,7 @@ import { useT } from "@/i18n/useT";
  *  PC 컴포넌트(NoticesSection/SubscribeSection/InquirySection)의 데이터를 모바일 레이아웃으로 재구성. */
 
 const MONT = { fontFamily: "var(--font-montserrat)" } as const;
-const TABS = ["notices", "subscribe", "contact"] as const;
+const TABS = ["notices", "subscribe", "activities", "archives", "contact"] as const;
 type Tab = (typeof TABS)[number];
 const FIXED_DOMAINS = ["gmail.com", "naver.com", "daum.net", "kakao.com"];
 const SUB_IMGS = ["/intro/os-sub-1.jpg", "/intro/os-sub-2.jpg", "/intro/os-sub-3.jpg"];
@@ -57,6 +57,44 @@ function EmailField({ placeholder, direct }: { placeholder: string; direct: stri
           <path d="M1 1l4.5 4L10 1" stroke="#231f20" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
+    </div>
+  );
+}
+
+/** 검색창 — 공지사항/활동현황/자료실 공용 */
+function MobileSearch({ text }: { text: string }) {
+  return (
+    <div className="mt-6 flex h-[53px] items-center gap-2 rounded-full bg-white px-5">
+      <p className="flex-1 text-[16px] text-[#bdbdbd]">{text}</p>
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="shrink-0" aria-hidden>
+        <circle cx="11" cy="11" r="7" stroke="#231f20" strokeWidth="1.6" />
+        <path d="M16.5 16.5L21 21" stroke="#231f20" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+}
+
+/** 페이지네이션 — Figma: 이전=연회색 박스 / 다음=초록 박스 (좌상단·우하단 라운드) */
+function MobilePagination() {
+  return (
+    <div className="mt-8 flex items-center justify-center gap-5">
+      <button type="button" aria-label="이전" className="flex size-9 items-center justify-center rounded-br-[8px] rounded-tl-[8px] bg-[#d9d9d9] text-[#231f20]">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      <div className="flex items-center gap-4">
+        {["01", "02", "03", "04", "05"].map((p, i) => (
+          <span key={p} className="text-[14px] font-medium" style={{ ...MONT, color: i === 0 ? "#231f20" : "#bdbdbd" }}>
+            {p}
+          </span>
+        ))}
+      </div>
+      <button type="button" aria-label="다음" className="flex size-9 items-center justify-center rounded-br-[8px] rounded-tl-[8px] bg-[#0ac200] text-[#231f20]">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
     </div>
   );
 }
@@ -116,6 +154,9 @@ export default function OurStoriesMobile({ onLightChange }: { onLightChange?: (l
     body: t.notices.sampleBody,
     date: t.notices.sampleDate,
   }));
+  // PC(NoticesSection)와 동일한 개수·데이터 — 모바일은 갤러리를 2열로만 줄인다
+  const activities = Array.from({ length: 9 }, () => ({ title: t.notices.gallerySample, date: t.notices.sampleDate }));
+  const archives = Array.from({ length: 10 }, () => ({ title: t.notices.boardSample, date: t.notices.sampleDate }));
 
   return (
     <div className="lg:hidden">
@@ -142,15 +183,22 @@ export default function OurStoriesMobile({ onLightChange }: { onLightChange?: (l
 
       {/* ── 본문 (탭) ── */}
       <div ref={contentRef} className="bg-[#f0f0f0] pb-[120px] pt-[70px]">
-        {/* 탭 바 */}
-        <div className="flex justify-center gap-[14px]">
+        {/* 탭 바 — 탭 5개는 영문(Announcements 등)이 한 줄에 안 들어가므로 가로 스크롤 */}
+        <div className="flex snap-x gap-[14px] overflow-x-auto px-[18px] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {TABS.map((key) => {
             const active = key === tab;
             return (
-              <button key={key} type="button" onClick={() => setTab(key)} className="flex w-[72px] flex-col items-center">
+              <button
+                key={key}
+                type="button"
+                onClick={() => setTab(key)}
+                className="flex shrink-0 snap-start flex-col items-center px-1"
+              >
                 <span className={`mb-1 size-[5px] rounded-full ${active ? "bg-[#0ac200]" : "bg-transparent"}`} />
-                <span className={`text-[16px] font-bold leading-[1.3] tracking-[-0.4px] ${active ? "text-black" : "text-[#d9d9d9]"}`}>
-                  {t.notices.tabs[key === "contact" ? "contact" : key]}
+                <span
+                  className={`whitespace-nowrap text-[16px] font-bold leading-[1.3] tracking-[-0.4px] ${active ? "text-black" : "text-[#d9d9d9]"}`}
+                >
+                  {t.notices.tabs[key]}
                 </span>
               </button>
             );
@@ -161,14 +209,7 @@ export default function OurStoriesMobile({ onLightChange }: { onLightChange?: (l
         {tab === "notices" && (
           <div className="mt-[60px] px-[18px]">
             <Heading lines={t.notices.noticesHeading} />
-            {/* 검색 */}
-            <div className="mt-6 flex h-[53px] items-center gap-2 rounded-full bg-white px-5">
-              <p className="flex-1 text-[16px] text-[#bdbdbd]">{t.notices.search}</p>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="shrink-0" aria-hidden>
-                <circle cx="11" cy="11" r="7" stroke="#231f20" strokeWidth="1.6" />
-                <path d="M16.5 16.5L21 21" stroke="#231f20" strokeWidth="1.6" strokeLinecap="round" />
-              </svg>
-            </div>
+            <MobileSearch text={t.notices.search} />
             {/* 카드 목록 */}
             <div className="mt-8 flex flex-col">
               {notices.map((n, i) => (
@@ -189,26 +230,7 @@ export default function OurStoriesMobile({ onLightChange }: { onLightChange?: (l
                 </Link>
               ))}
             </div>
-            {/* 페이지네이션 — Figma: 이전=연회색 박스 / 다음=초록 박스 (좌상단·우하단 라운드) */}
-            <div className="mt-8 flex items-center justify-center gap-5">
-              <button type="button" aria-label="이전" className="flex size-9 items-center justify-center rounded-br-[8px] rounded-tl-[8px] bg-[#d9d9d9] text-[#231f20]">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-              <div className="flex items-center gap-4">
-                {["01", "02", "03", "04", "05"].map((p, i) => (
-                  <span key={p} className="text-[14px] font-medium" style={{ ...MONT, color: i === 0 ? "#231f20" : "#bdbdbd" }}>
-                    {p}
-                  </span>
-                ))}
-              </div>
-              <button type="button" aria-label="다음" className="flex size-9 items-center justify-center rounded-br-[8px] rounded-tl-[8px] bg-[#0ac200] text-[#231f20]">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-            </div>
+            <MobilePagination />
           </div>
         )}
 
@@ -292,6 +314,59 @@ export default function OurStoriesMobile({ onLightChange }: { onLightChange?: (l
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* ===== 활동현황 (갤러리형) ===== */}
+        {tab === "activities" && (
+          <div className="mt-[60px] px-[18px]">
+            <Heading lines={t.notices.activitiesHeading} />
+            <MobileSearch text={t.notices.search} />
+            <div className="mt-8 grid grid-cols-2 gap-x-[14px] gap-y-[26px]">
+              {activities.map((it, i) => (
+                <Link
+                  key={i}
+                  href={`/our-stories/activities/${i + 1}`}
+                  onClick={() => sessionStorage.setItem("os:notices", "1")}
+                  className="flex flex-col gap-3"
+                >
+                  <div className="flex aspect-square w-full items-center justify-center overflow-hidden bg-white">
+                    <img src="/intro/logo-dark.svg" alt="" className="h-7 w-auto opacity-90" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <p className="text-[16px] font-semibold leading-[1.3] tracking-[-0.32px] text-black">{it.title}</p>
+                    <p className="text-[13px] font-bold text-[#c6c6c6]" style={MONT}>
+                      {it.date}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <MobilePagination />
+          </div>
+        )}
+
+        {/* ===== 자료실 (게시판형) ===== */}
+        {tab === "archives" && (
+          <div className="mt-[60px] px-[18px]">
+            <Heading lines={t.notices.archivesHeading} />
+            <MobileSearch text={t.notices.search} />
+            <div className="mt-8 flex flex-col">
+              {archives.map((it, i) => (
+                <Link
+                  key={i}
+                  href={`/our-stories/archives/${i + 1}`}
+                  onClick={() => sessionStorage.setItem("os:notices", "1")}
+                  className="flex items-center gap-[18px] border-t border-[#c6c6c6] py-4"
+                >
+                  <span className="shrink-0 text-[13px] font-bold text-[#9c9c9c]" style={MONT}>
+                    {it.date}
+                  </span>
+                  <span className="text-[16px] font-semibold leading-[1.3] tracking-[-0.32px] text-black">{it.title}</span>
+                </Link>
+              ))}
+            </div>
+            <MobilePagination />
           </div>
         )}
 

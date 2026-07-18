@@ -49,7 +49,7 @@ export default function OurStoriesHero() {
   //  - 그 외(새로고침/일반 진입): 브라우저 스크롤 복원을 끄고 항상 맨 위(히어로)에서 시작
   useEffect(() => {
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
-    const NOTICE_HASHES = ["#notices", "#subscribe", "#contact"];
+    const NOTICE_HASHES = ["#notices", "#subscribe", "#activities", "#archives", "#contact"];
     // 레이아웃(240vh 트랙)이 자리잡은 뒤 공지 섹션으로 이동
     const goNotices = () =>
       requestAnimationFrame(() =>

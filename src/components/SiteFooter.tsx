@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale } from "@/i18n/LocaleProvider";
@@ -10,12 +11,44 @@ import { COL_HREFS, COL_SUB_HREFS } from "@/i18n/navLinks";
 
 /** Figma footer (1920×519, #231f20). 약도 다음 일반 스크롤로 등장. */
 const STAGE_W = 1920;
-export const FOOTER_H = 519;
+/** 링크 줄과 하단 정보 사이 간격 / 푸터 맨 아래 여백 (1920 스테이지 좌표) */
+const GAP_TO_INFO = 75;
+const PAD_BOTTOM = 88;
+
+/** 링크 줄 그리드 — 헤더와 같은 칸 폭을 쓰되, 스테이지 폭을 다 채우지 않고 가운데 정렬한다.
+ *  헤더는 오른쪽에 아이콘 영역(약 365)이 있어 메뉴 칸이 216 인데, 푸터엔 그게 없다.
+ *  같은 216 을 쓰면 1920 에서 364 가 남으므로 그걸 좌우로 반씩 나눠 가운데로 보이게 한다. */
+const LOGO_COL_W = 260; // 헤더 로고 칸과 동일
+const MENU_COL_W = 216; // 헤더 메뉴 칸과 동일
+const GRID_W = LOGO_COL_W + MENU_COL_W * 6; // 1556
 
 const SEP = "  |  ";
 
 export default function SiteFooter({ scale }: { scale: number }) {
   const t = useT();
+  // 스테이지는 1920 좌표로 조판한 뒤 scale 로 줄인다. transform 은 레이아웃 높이를 바꾸지 않으므로
+  // 원본 높이를 재서 footer 높이에 scale 을 곱해준다. 메뉴가 늘거나 언어가 바뀌어 줄 수가
+  // 달라져도 자동으로 맞으므로, 예전처럼 높이를 상수로 못 박아 두다 잘리는 일이 없다.
+  const stageRef = useRef<HTMLDivElement>(null);
+  // 메뉴 줄 아래 구분선은 화면 끝까지 그어야 해서 칸의 border 가 아니라 별도 요소로 그린다.
+  // 그 y 위치를 알려면 메뉴 줄의 실제 높이가 필요하다.
+  const rowRef = useRef<HTMLDivElement>(null);
+  const [rowH, setRowH] = useState(0);
+  // 초기값은 실측 전(SSR·첫 페인트) 높이가 0 이 되어 화면이 튀지 않게 하는 근사치일 뿐,
+  // 마운트 직후 실측값으로 교체된다.
+  const [stageH, setStageH] = useState(520);
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => {
+      setStageH(el.offsetHeight);
+      if (rowRef.current) setRowH(rowRef.current.offsetHeight);
+    });
+    ro.observe(el);
+    setStageH(el.offsetHeight);
+    if (rowRef.current) setRowH(rowRef.current.offsetHeight);
+    return () => ro.disconnect();
+  }, []);
   const { toggle, locale } = useLocale();
   const { cols, info, foundation, mobileInfo } = t.footer;
   const pathname = usePathname();
@@ -79,25 +112,35 @@ export default function SiteFooter({ scale }: { scale: number }) {
     </footer>
 
     {/* ── 데스크톱 푸터 (lg+) — 1920 스케일 스테이지 ── */}
-    <footer className="relative hidden w-full overflow-hidden bg-[#231f20] lg:block" style={{ height: FOOTER_H * scale }}>
-      <div className="absolute left-1/2 top-0" style={{ width: STAGE_W, height: FOOTER_H, transform: `translateX(-50%) scale(${scale})`, transformOrigin: "top center" }}>
-        {/* 상단: 로고 + 링크 6컬럼 */}
-        <div className="absolute left-0 top-0 flex w-full items-stretch" style={{ height: 293 }}>
-          <div className="flex w-[557px] shrink-0 flex-col items-end justify-center gap-5 border-b px-20" style={{ borderColor: "#5a5b5d" }}>
+    <footer className="relative hidden w-full overflow-hidden bg-[#231f20] lg:block" style={{ height: stageH * scale }}>
+      {/* 메뉴 줄 아래 구분선 — 스테이지(1920) 밖에 두어 넓은 해상도에서도 화면 끝까지 그어진다 */}
+      <div className="pointer-events-none absolute inset-x-0" style={{ top: rowH * scale, height: 1, backgroundColor: "#5a5b5d" }} />
+      <div
+        ref={stageRef}
+        className="absolute left-1/2 top-0"
+        style={{ width: STAGE_W, transform: `translateX(-50%) scale(${scale})`, transformOrigin: "top center", paddingBottom: PAD_BOTTOM }}
+      >
+        {/* 상단: 로고 + 링크 6컬럼 — 높이는 내용에 맞춰 늘어난다(고정값 두면 링크가 늘 때 잘림).
+            폭은 GRID_W(1556)로 고정하고 mx-auto 로 가운데 정렬 → 좌우에 182px 씩 남는다. */}
+        <div ref={rowRef} className="mx-auto flex items-stretch" style={{ width: GRID_W }}>
+          <div className="flex shrink-0 flex-col items-center justify-center gap-4 px-6" style={{ width: LOGO_COL_W }}>
             <img src="/intro/footer-bt.svg" alt="Beyond the Route" style={{ width: 191, height: 101.7 }} />
-            <p className="text-right font-semibold" style={{ fontSize: 12, color: "#c6c6c6", fontFamily: "var(--font-montserrat)" }}>
+            <p className="text-center font-semibold" style={{ fontSize: 12, color: "#c6c6c6", fontFamily: "var(--font-montserrat)" }}>
               {foundation}
             </p>
           </div>
           {cols.map((c, ci) => (
-            <div key={ci} className="flex flex-1 flex-col gap-5 border-b border-l px-5 pb-5 pt-[60px]" style={{ borderColor: "#5a5b5d" }}>
-              <Link href={COL_HREFS[ci]} className="font-extrabold transition-colors hover:text-white" style={{ fontSize: 18, color: "#9c9c9c", lineHeight: 1.3, letterSpacing: "-0.36px", width: "fit-content" }}>{c.h}</Link>
+            // min-w-0: flex 아이템 기본값(min-width:auto)이면 긴 링크가 컬럼 폭을 밀어내
+            // 컬럼마다 폭이 제각각이 된다. 0 으로 풀어야 6컬럼이 균등폭으로 나뉜다.
+            <div key={ci} className="flex shrink-0 flex-col gap-5 border-l px-5 pb-5 pt-[60px]" style={{ width: MENU_COL_W, borderColor: "#5a5b5d" }}>
+              <Link href={COL_HREFS[ci]} className="max-w-full font-extrabold transition-colors hover:text-white" style={{ fontSize: 18, color: "#9c9c9c", lineHeight: 1.3, letterSpacing: "-0.36px" }}>{c.h}</Link>
               <div className="flex flex-col gap-3">
                 {c.links.map((l, li) => {
                   const subHref = COL_SUB_HREFS[ci]?.[li];
-                  const style = { fontSize: 18, color: "#737373", lineHeight: 1.4, letterSpacing: "-0.9px", whiteSpace: "nowrap" as const };
+                  // nowrap 제거: 균등폭 안에서 긴 영문 라벨은 줄바꿈시킨다
+                  const style = { fontSize: 18, color: "#737373", lineHeight: 1.4, letterSpacing: "-0.9px" };
                   return subHref ? (
-                    <Link key={li} href={subHref} onClick={(e) => handleSubClick(e, subHref)} className="transition-colors hover:text-white" style={{ ...style, width: "fit-content" }}>{l}</Link>
+                    <Link key={li} href={subHref} onClick={(e) => handleSubClick(e, subHref)} className="max-w-full transition-colors hover:text-white" style={style}>{l}</Link>
                   ) : (
                     <p key={li} style={style}>{l}</p>
                   );
@@ -108,7 +151,7 @@ export default function SiteFooter({ scale }: { scale: number }) {
         </div>
 
         {/* 하단: 로고 + 정보 + 소셜 */}
-        <div className="absolute flex items-center gap-[77px]" style={{ left: 335, top: 368, width: 1357 }}>
+        <div className="mx-auto flex items-center gap-[77px]" style={{ marginTop: GAP_TO_INFO, width: GRID_W }}>
           <img src="/intro/logo.svg" alt="한국의길과문화" className="shrink-0" style={{ width: 143, height: 60 }} />
           <div className="flex flex-1 items-center justify-between">
             <div className="flex flex-col gap-2" style={{ fontSize: 14, color: "#737373" }}>

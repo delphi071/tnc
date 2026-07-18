@@ -13,26 +13,19 @@ import WalkingTogetherMobile from "./WalkingTogetherMobile";
 const STAGE_W = 1920;
 const STAGE_H = 1080;
 
-/** 스크롤 길이(핀 고정): 선 그리기 → 전경 peel → 단체 카드 4개 차례로 peel.
- *  트랙 종료 후 일반 스크롤로 푸터 등장. */
-const TRACK_VH = 1000;
-const LINE_END = 0.07;
-const PEEL_END = 0.17;
-const ORG1_START = 0.25;
-const ORG1_END = 0.37;
-const ORG2_START = 0.45;
-const ORG2_END = 0.57;
-const ORG3_START = 0.65;
-const ORG3_END = 0.77;
-const ORG4_START = 0.85;
-const ORG4_END = 0.95;
+/** 스크롤 길이(핀 고정): 선 그리기 → 전경 peel. 여기까지가 히어로.
+ *  단체 카드는 2×2 라 한 화면(1080)을 넘기므로 핀 고정 밖의 일반 스크롤 섹션으로 뺐다.
+ *  (예전엔 카드 1개씩 4번 peel 해서 트랙이 1000vh 였다) */
+const TRACK_VH = 250;
+const LINE_END = 0.35;
+const PEEL_END = 0.85;
 
 /** 단체 카드 4개 — 로고/링크 메타(웹사이트 순서: KTA·ATN·WTN·GKO). 텍스트는 사전. */
 const ORG_META = [
-  { logo: "/intro/wt-org-1.png", logoW: 332, href: "https://cafe.daum.net/koreantrails" },
-  { logo: "/intro/wt-org-3.png", logoW: 266, href: "https://www.facebook.com/asiatrailsnetwork" },
-  { logo: "/intro/wt-org-2.png", logoW: 240, href: "https://worldtrailsnetwork.org" },
-  { logo: "/intro/wt-org-4.png", logoW: 242, href: "https://cafe.naver.com/greatkodullers" },
+  { anchor: "kta", logo: "/intro/wt-org-1.png", logoW: 332, href: "https://cafe.daum.net/koreantrails" },
+  { anchor: "atn", logo: "/intro/wt-org-3.png", logoW: 266, href: "https://www.facebook.com/asiatrailsnetwork" },
+  { anchor: "wtn", logo: "/intro/wt-org-2.png", logoW: 240, href: "https://worldtrailsnetwork.org" },
+  { anchor: "gko", logo: "/intro/wt-org-4.png", logoW: 242, href: "https://cafe.naver.com/greatkodullers" },
 ];
 
 /** peel 단계에서 전경이 위로 올라가는 거리.
@@ -58,23 +51,22 @@ const STUB = "M751 370 V445";
 /** 테스트용: 선을 처음부터 끝까지 보이게 (튜닝 후 false) */
 const SHOW_FULL = false;
 
-/** 푸터 서브메뉴 → 섹션 스크롤 진행도(0~1) */
-const SECTION_PROGRESS: Record<string, number> = {
-  kta: 0.37,
-  atn: 0.57,
-  wtn: 0.77,
-  gko: 0.95,
-};
+/** 상단 메뉴·푸터 서브메뉴 해시 — 2×2 라 kta·atn 은 첫 줄, wtn·gko 는 둘째 줄에 있다.
+ *  각 카드에 붙인 앵커 id(org-kta 등)로 해당 줄까지 스크롤한다. */
+const ORG_HASHES = ["kta", "atn", "wtn", "gko"];
+
+/** 고정 헤더 높이(lg 80 / xl 102) — 밝은 섹션 진입 판정, 앵커 스크롤 보정에 함께 쓴다 */
+const HEADER_H = 102;
+/** 앵커로 이동했을 때 카드가 헤더에 딱 붙지 않도록 두는 여백 */
+const CARD_MARGIN = 40;
 
 const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);
 
 export default function WalkingTogetherHero() {
   const trackRef = useRef<HTMLDivElement>(null);
   const peelRef = useRef<HTMLDivElement>(null);
-  const org1Ref = useRef<HTMLDivElement>(null);
-  const org2Ref = useRef<HTMLDivElement>(null);
-  const org3Ref = useRef<HTMLDivElement>(null);
-  const org4Ref = useRef<HTMLDivElement>(null);
+  const orgSectionRef = useRef<HTMLDivElement>(null);
+  const orgInnerRef = useRef<HTMLDivElement>(null);
   const lineARef = useRef<SVGPathElement>(null);
   const lineBRef = useRef<SVGPathElement>(null);
   const headerLightRef = useRef(false);
@@ -82,6 +74,7 @@ export default function WalkingTogetherHero() {
   const hero = wt.hero;
   const orgCards: OrgCard[] = ORG_META.map((m, i) => ({ ...m, title: wt.orgs[i].title, lines: wt.orgs[i].lines }));
   const [scale, setScale] = useState(1);
+  const [orgH, setOrgH] = useState(0); // 카드 그리드 원본 높이(1920 좌표 기준, 스케일 전)
   const [headerLight, setHeaderLight] = useState(false);
   const [mobileHeaderLight, setMobileHeaderLight] = useState(false); // 모바일 카드(밝은 배경) 여부
 
@@ -93,9 +86,15 @@ export default function WalkingTogetherHero() {
       if (!track) return false;
       const total = track.offsetHeight - window.innerHeight;
       if (total <= 0) return false; // 트랙이 숨겨짐(모바일 lg 미만) → 모바일 카드스택이 처리
-      const p = SECTION_PROGRESS[window.location.hash.slice(1)];
-      if (p == null) return false;
-      window.scrollTo(0, track.offsetTop + p * total);
+      const hash = window.location.hash.slice(1);
+      if (!ORG_HASHES.includes(hash)) return false;
+      // 해당 단체 카드가 있는 줄로 이동 (kta·atn = 첫 줄, wtn·gko = 둘째 줄).
+      // 카드가 스케일된 래퍼 안에 있어도 getBoundingClientRect 는 변환 후 좌표를 준다.
+      const card = document.getElementById(`org-${hash}`);
+      const sec = orgSectionRef.current;
+      if (!card || !sec) return false;
+      const y = window.scrollY + card.getBoundingClientRect().top - HEADER_H - CARD_MARGIN;
+      window.scrollTo(0, Math.max(y, sec.offsetTop));
       return true;
     };
     requestAnimationFrame(() => {
@@ -105,7 +104,8 @@ export default function WalkingTogetherHero() {
     });
     window.addEventListener("hashchange", scrollToSection);
     return () => window.removeEventListener("hashchange", scrollToSection);
-  }, []);
+    // orgH 가 정해지기 전(0)에는 섹션 높이가 없어 카드 위치가 틀리므로, 측정 후 한 번 더 실행한다
+  }, [orgH]);
 
   // 화면 폭에 맞춰 스테이지 균일 축소 (1920 초과 시 1.0 유지 → 가운데 정렬)
   useEffect(() => {
@@ -113,6 +113,18 @@ export default function WalkingTogetherHero() {
     onResize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // 카드 그리드는 1920 좌표로 조판한 뒤 scale 로 줄인다. transform 은 레이아웃 높이를 바꾸지
+  // 않으므로(=부모가 원본 높이를 그대로 차지) 원본 높이를 재서 래퍼 높이에 scale 을 곱해준다.
+  // 텍스트 줄바꿈은 언어/폰트에 따라 달라지니 고정값 대신 ResizeObserver 로 관측.
+  useEffect(() => {
+    const el = orgInnerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setOrgH(el.offsetHeight));
+    ro.observe(el);
+    setOrgH(el.offsetHeight);
+    return () => ro.disconnect();
   }, []);
 
   // 스크롤 진행도(0→1): 선 그리기 → 전경 peel(위로 스크롤)
@@ -136,18 +148,9 @@ export default function WalkingTogetherHero() {
       const peelP = clamp01((progress - LINE_END) / (PEEL_END - LINE_END));
       if (peelRef.current) peelRef.current.style.transform = `translateY(${-PEEL_DIST * peelP}px)`;
 
-      // 3~6단계: 단체 카드 흰 패널 4개가 차례로 밑에서 올라와 덮음
-      const org1P = clamp01((progress - ORG1_START) / (ORG1_END - ORG1_START));
-      const org2P = clamp01((progress - ORG2_START) / (ORG2_END - ORG2_START));
-      const org3P = clamp01((progress - ORG3_START) / (ORG3_END - ORG3_START));
-      const org4P = clamp01((progress - ORG4_START) / (ORG4_END - ORG4_START));
-      if (org1Ref.current) org1Ref.current.style.transform = `translateY(${(1 - org1P) * 100}%)`;
-      if (org2Ref.current) org2Ref.current.style.transform = `translateY(${(1 - org2P) * 100}%)`;
-      if (org3Ref.current) org3Ref.current.style.transform = `translateY(${(1 - org3P) * 100}%)`;
-      if (org4Ref.current) org4Ref.current.style.transform = `translateY(${(1 - org4P) * 100}%)`;
-
-      // 첫 밝은 패널이 상단(헤더)까지 덮으면 헤더를 라이트 테마로 전환 (이후 계속 유지)
-      const wantLight = org1P >= 0.9;
+      // 밝은 카드 섹션이 헤더 높이까지 올라오면 헤더를 라이트 테마로 전환
+      const secTop = orgSectionRef.current?.getBoundingClientRect().top ?? Infinity;
+      const wantLight = secTop <= HEADER_H;
       if (headerLightRef.current !== wantLight) {
         headerLightRef.current = wantLight;
         setHeaderLight(wantLight);
@@ -256,37 +259,31 @@ export default function WalkingTogetherHero() {
             </div>
           </div>
 
-          {/* 좌우 섹션 네비 (스테이지 밖, 고정 크기) — 덮는 카드 패널(z≥20) 아래에 깔림 */}
+          {/* 좌우 섹션 네비 (스테이지 밖, 고정 크기) */}
           {/* 좌측 라벨 (이전 섹션: 우리가 걷는 길) */}
           <SectionNavLabel side="left" lines={["THE ROUTES", "WE BUILD"]} href="/the-path-we-walk" />
           {/* 우측 라벨 (다음 섹션: 알리는 이야기) */}
           <SectionNavLabel side="right" lines={["OUR STORIES"]} href="/our-stories" />
-
-          {/* 단체 카드 흰 패널 4개 — 차례로 밑에서 올라와 덮음 (z-20~50) */}
-          <div ref={org1Ref} className="absolute inset-0 z-20 bg-[#f0f0f0]" style={{ transform: "translateY(100%)", willChange: "transform" }}>
-            <div className="absolute left-1/2 top-1/2" style={{ width: STAGE_W, height: STAGE_H, transform: `translate(-50%, -50%) scale(${scale})` }}>
-              <OrgCardSection {...orgCards[0]} />
-            </div>
-          </div>
-          <div ref={org2Ref} className="absolute inset-0 z-30 bg-[#f0f0f0]" style={{ transform: "translateY(100%)", willChange: "transform" }}>
-            <div className="absolute left-1/2 top-1/2" style={{ width: STAGE_W, height: STAGE_H, transform: `translate(-50%, -50%) scale(${scale})` }}>
-              <OrgCardSection {...orgCards[1]} />
-            </div>
-          </div>
-          <div ref={org3Ref} className="absolute inset-0 z-40 bg-[#f0f0f0]" style={{ transform: "translateY(100%)", willChange: "transform" }}>
-            <div className="absolute left-1/2 top-1/2" style={{ width: STAGE_W, height: STAGE_H, transform: `translate(-50%, -50%) scale(${scale})` }}>
-              <OrgCardSection {...orgCards[2]} />
-            </div>
-          </div>
-          <div ref={org4Ref} className="absolute inset-0 z-50 bg-[#f0f0f0]" style={{ transform: "translateY(100%)", willChange: "transform" }}>
-            <div className="absolute left-1/2 top-1/2" style={{ width: STAGE_W, height: STAGE_H, transform: `translate(-50%, -50%) scale(${scale})` }}>
-              <OrgCardSection {...orgCards[3]} />
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* 트랙 종료 후 일반 스크롤로 등장하는 푸터 */}
+      {/* 단체 카드 2×2 — 핀 고정 밖의 일반 스크롤 섹션 (한 화면을 넘겨 아래로 스크롤됨).
+          scale 은 transform 이라 레이아웃 높이를 바꾸지 않으므로 래퍼에 측정 높이×scale 을 준다. */}
+      <div
+        ref={orgSectionRef}
+        className="relative hidden overflow-hidden bg-[#f0f0f0] lg:block"
+        style={{ height: orgH ? orgH * scale : undefined }}
+      >
+        <div
+          ref={orgInnerRef}
+          className="absolute left-1/2 top-0"
+          style={{ width: STAGE_W, transform: `translateX(-50%) scale(${scale})`, transformOrigin: "top center" }}
+        >
+          <OrgCardSection cards={orgCards} />
+        </div>
+      </div>
+
+      {/* 일반 스크롤로 등장하는 푸터 */}
       <SiteFooter scale={scale} />
     </>
   );
