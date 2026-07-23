@@ -14,11 +14,13 @@ const VISION_LINES_KO = ["걷는 길이 행복한", "이야기가 되는 곳,", 
 
 /** History 타임라인: 특정 연도 다음에 끼우는 이미지 (PC hist-*.jpg 재사용) */
 const HIST_IMG_AFTER: Record<string, string> = {
-  "2023": "hist-2024",
+  "2024": "hist-2024",
   "2020": "hist-namhae",
   "2019": "hist-0418",
   "2016": "hist-0824",
-  "2012": "hist-1529",
+  "2014": "hist-1529",
+  "2013": "hist-0410",
+  "2011": "hist-1025",
 };
 /** 특정 이미지 보정 클래스. hist-namhae 는 왼쪽 가장자리에 검은 띠가 박혀 있고
  *  가로를 꽉 채워(object-position 무효) → 오른쪽 기준으로 살짝 확대해 왼쪽으로 밀어 검은 띠를 잘라냄. */
@@ -33,12 +35,15 @@ const HIST_IMG_POS: Record<string, string> = {
  *  이후 Vision · Core Value(큐브) · History · People · Location 을 단계적으로 확장한다.
  *  문구는 PC 와 동일한 사전(ourWay.*)을 그대로 사용. */
 
-/** 스크롤 트랙 길이(vh) — 핀 고정 구간 = TRACK_VH − 100. 카드(섹션)가 늘면 같이 키운다. */
-const TRACK_VH = 1700;
+/** 스크롤 트랙 길이(vh) — 핀 고정 구간 = TRACK_VH − 100. 카드(섹션)가 늘면 같이 키운다.
+ *  연혁(History) 콘텐츠가 크게 늘어 HIST_W 를 키운 만큼, 다른 카드 구간의 스크롤 속도가
+ *  유지되도록 트랙도 비례해 확장했다(1700→1940, 추가 가중치 3 × 80vh/가중치). */
+const TRACK_VH = 1940;
 /** 진행도 분기(0→1): [0~M_COVER] 카드 스택이 hero 를 덮음 / [M_COVER~1] 카드 peel + 큐브 + 내부 스크롤 */
 const M_COVER = 0.05;
-/** 내부 세로 스크롤(타임라인/조직도)이 차지하는 가중치(peel 1단계 = 가중치 1 기준) */
-const HIST_W = 5;
+/** 내부 세로 스크롤(타임라인/조직도)이 차지하는 가중치(peel 1단계 = 가중치 1 기준).
+ *  연혁이 크게 늘어(약 1.6배) 읽기 속도가 유지되도록 5→8 로 확장. */
+const HIST_W = 8;
 const PEOPLE_W = 4;
 /** 카드 단계당 머무는(dwell) 비율 — 각 카드가 잠시 멈춘 뒤 위로 벗겨진다 */
 const CARD_HOLD = 0.45;
@@ -417,6 +422,7 @@ export default function OurWayMobile({ onLightChange }: { onLightChange?: (light
                             const enFont = locale === "en" ? { fontFamily: "var(--font-montserrat)" } : undefined;
                             return (
                               <p key={j} className="leading-[1.3]">
+                                {e.m && <span className="mr-2 text-[15px] font-bold tracking-[-0.15px] text-black" style={enFont}>{e.m}</span>}
                                 <span className="text-[15px] font-bold tracking-[-0.15px] text-black" style={enFont}>{e.t}</span>
                                 {e.s && <span className="ml-2 text-[14px] tracking-[-0.14px] text-[#5a5b5d]" style={enFont}>{e.s}</span>}
                               </p>

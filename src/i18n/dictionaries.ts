@@ -281,39 +281,88 @@ const ko = {
     orgs: [
       {
         title: "한국걷는길연합",
-        lines: [
-          "한국걷는길연합(KTA)은 한국의 도보 여행길을 운영하고 관리하는 단체들의 모임으로,",
-          "도보여행을 통해 자연의 소중함을 알리고, 지역문화를 재발견하여 지속 가능한 지역관광 활성화와",
-          "공동체 발전을 목표로 활동하는 단체입니다.",
-          "사단법인 한국의문화를 포함한 20개에 이르는 걷기 길 단체가 모여",
-          "지속가능한 걷기 문화를 만들어 나가고 있습니다.",
+        intro:
+          "전국의 걷기여행길 운영·관리 단체들이 상호 교류하고 협력하며, 걷기길의 지속가능한 운영과 올바른 걷기문화 확산, 지역관광 활성화를 도모하기 위해 구성된 민간 협력 네트워크",
+        overview: [
+          "전국 걷기여행길 운영·관리 단체 및 관련 기관 대상",
+          "사단법인 한국의길과문화를 비롯한 20여 개 단체 참여",
         ],
-      },
-      {
-        title: "아시아 트레일즈 네트워크(ATN)",
-        lines: [
-          "아시아 각국의 트레일을 연결하는 지역 기반 국제 네트워크로, 국가 간 교류와 공동 프로그램을 통해",
-          "아시아 트레일의 다양성과 연결성을 강화하는 다양한 사업을 진행하고 있습니다.",
-          "사단법인 한국의길과문화는 ATN과 함께 한국의 길을 아시아 맥락 속에서 해석하고,",
-          "한국의 길을 아시아와 잇는 역할을 수행하고 있습니다.",
+        keyActivities: [
+          "전국 걷기길 운영단체 간 교류 및 협력",
+          "걷기길 운영·관리 사례와 현장정보 공유",
+          "공동 걷기행사 및 홍보사업 추진",
+          "안전하고 지속가능한 걷기길 운영방안 논의",
+          "걷기여행 관련 정책 제안 및 관계기관 협력",
+        ],
+        together: [
+          "코리아둘레길과 경기둘레길 등 장거리 걷기길 운영 경험 공유",
+          "전국 걷기길 운영단체와의 교류 및 공동사업 참여",
+          "지역 걷기길의 지속가능한 성장을 위한 협력 기반 확대",
         ],
       },
       {
         title: "월드 트레일즈 네트워크(WTN)",
-        lines: [
-          "전 세계의 트레일과 걷기길을 연결하는 글로벌 협력 네트워크입니다.",
-          "각국의 운영 주체들이 교류하며 트레일 보전과 지속가능한 이용, 걷기 관광의 가치를 함께 만들어가고 있습니다.",
-          "한국의길과문화는 WTN과의 협력을 통해 한국의 길을 세계와 연결하고, 그 경험과 콘텐츠를 확장하고 있습니다.",
-          "길을 매개로 사람과 자연, 지역을 잇는 글로벌 흐름을 함께 만들어가고 있습니다.",
+        intro:
+          "세계 각국의 트레일 운영기관과 전문가들이 경험과 지식을 공유하며, 트레일의 자연환경과 문화적 가치를 보전하고 안전하고 지속가능한 이용과 지역사회 연계 발전을 도모하기 위해 구성된 글로벌 협력 네트워크",
+        overview: [
+          "세계 각국의 트레일 운영기관, 전문가, 활동가 및 관계기관 대상",
+          "세계 트레일 운영·관리, 보전, 국제교류 및 공동협력",
+        ],
+        keyActivities: [
+          "세계 트레일 운영기관 및 전문가 교류",
+          "월드 트레일즈 콘퍼런스 개최 및 참여",
+          "트레일 보전과 지속가능한 이용방안 논의",
+          "운영·관리 우수사례와 전문정보 공유",
+          "이용자 안전과 지역사회 참여방안 모색",
+          "국가 간 공동사업 및 국제 홍보 추진",
+        ],
+        together: [
+          "코리아둘레길 등 한국의 주요 걷기길과 걷기문화 홍보",
+          "국제 콘퍼런스와 교류 프로그램 참여",
+          "해외 트레일 정책과 관리기법의 국내 공유",
+          "한국 걷기길과 세계 트레일 네트워크 간 협력 확대",
+        ],
+      },
+      {
+        title: "아시아 트레일즈 네트워크(ATN)",
+        intro:
+          "아시아 각국의 트레일 운영기관과 관계자들이 국가 간 운영 경험과 전문지식을 공유하고, 자연환경 보전과 지역사회 발전, 문화교류를 바탕으로 아시아 트레일의 지속가능한 발전을 추진하기 위해 구성된 국제 협력 네트워크",
+        overview: [
+          "아시아 각국의 트레일 운영기관, 관계기관, 전문가 및 활동가 대상",
+          "아시아 지역 트레일 운영·관리 및 국제교류",
+        ],
+        keyActivities: [
+          "아시아 트레일 운영기관 및 관계자 교류",
+          "국제 콘퍼런스·포럼 및 세미나 개최",
+          "트레일 운영·관리 우수사례와 전문정보 공유",
+          "공동 걷기행사 및 국제교류 프로그램 추진",
+          "자연환경 보전과 지역사회 연계방안 논의",
+          "아시아 트레일 공동 홍보 및 협력사업 확대",
+        ],
+        together: [
+          "코리아둘레길 등 한국의 주요 걷기길과 운영 경험 소개",
+          "국내외 트레일 운영기관 및 전문가와의 협력관계 구축",
+          "해외 우수 운영사례의 국내 공유 및 적용",
+          "한국의 걷기문화와 지역 걷기길의 아시아 교류 확대",
         ],
       },
       {
         title: "GKO(코리아둘레길 완보자클럽)",
-        lines: [
-          "코리아둘레길(해파랑길, 남파랑길, 서해랑길, DMZ평화의길) 중 1개 이상을 완주한 사람들이 모인 코리아둘레길 완보자 클럽은",
-          "지속 가능한 걷기 여행 문화 확산을 목적으로 2024년 5월 발족한 모임입니다.",
-          "4500km 전 구간 완주자(그랜드슬램)를 포함한 회원들이 정보를 교류하며, 단순한 걷기 모임을 넘어",
-          "코리아둘레길 관련 행사 및 홍보 활동을 주도하고 있습니다.",
+        intro:
+          "코리아둘레길을 완주한 경험이 있는 회원들이 모여 상호 친목을 도모하고, 코리아둘레길의 매력과 문화 홍보, 걷기 관련 정보를 교류하며, 나아가 사회공헌 활동을 실천할 목적으로 결성된 클럽",
+        overview: [
+          "코리아둘레길 4개 길 중 1개 이상을 완보한 사람 대상",
+          "네이버 코리아둘레길 완보자클럽 카페를 통해 신청하고 소정의 신청서를 제출하면 완보 여부 확인 후 가입 승인",
+          "완보자 클럽 가입자는 연 6만원의 회비 납부",
+        ],
+        keyActivities: [
+          "정기 걷기 모임 개최, 클린워킹 등 환경정화 활동",
+          "국내외 트레킹 코스, 장비, 건강관리 등 걷기 관련된 정보 교류",
+          "걷기여행자들을 위한 멘토링 및 경험 공유",
+        ],
+        together: [
+          "매년 개최 예정인 코리아둘레길 완보자 클럽 행사 초대",
+          "우수 회원은 한국의길과문화 참여사업 초청 및 특별 강사 초빙",
         ],
       },
     ],
@@ -338,7 +387,7 @@ const ko = {
       { h: "우리의 길", links: ["설립목적", "비전 및 핵심가치", "주요 연혁", "사람들", "오시는 길"] },
       { h: "같은 길, 다른 시선", links: ["전문역량"] },
       { h: "우리가 걷는 길", links: ["코리아둘레길", "지역길 조사 및 계획", "걷기 문화 프로그램", "굿즈 개발 및 판매"] },
-      { h: "함께 걷는 사람들", links: ["한국걷는길연합", "ATN", "WTN", "코리아둘레길 완보자 클럽"] },
+      { h: "함께 걷는 사람들", links: ["한국걷는길연합", "WTN", "ATN", "코리아둘레길 완보자 클럽"] },
       { h: "알리는 이야기", links: ["공지사항", "소식받기", "활동현황", "자료실", "문의하기"] },
       { h: "마음잇기", links: ["후원하기", "연간기금 및 활동 실적내역"] },
     ],
@@ -729,27 +778,89 @@ const en: typeof ko = {
     learnMore: "Learn More",
     orgs: [
       {
-        title: "Korean Trail Association (KTA)",
-        lines: [
-          "Korean Trail Association (KTA) is a network of organizations dedicated to the operation and management of walking trails across Korea. Through walking, KTA helps people connect with nature, rediscover local culture, and promotes sustainable tourism and community development. Together with around 20 trail organizations—including the Korean Trails and Culture Foundation (KTNC)—it is building a sustainable walking culture.",
+        title: "Korea Walking Trails Federation",
+        intro:
+          "A civilian network of nationwide walking trail operators working together to promote sustainable trail management, walking culture, and regional tourism.",
+        overview: [
+          "For nationwide walking trail operators and related organizations",
+          "Over 20 organizations participating, including Korea Trails & Culture",
+        ],
+        keyActivities: [
+          "Exchange and cooperation among trail operators",
+          "Sharing trail management cases and field insights",
+          "Joint walking events and promotional campaigns",
+          "Discussing safe and sustainable trail operations",
+          "Policy proposals and institutional cooperation",
+        ],
+        together: [
+          "Sharing long-distance trail operation experiences",
+          "Exchange and joint projects with trail operators",
+          "Expanding cooperation for sustainable regional growth",
+        ],
+      },
+      {
+        title: "World Trails Network (WTN)",
+        intro:
+          "A global network of trail organizations and experts sharing knowledge to preserve natural and cultural values while promoting safe, sustainable use and community development.",
+        overview: [
+          "For trail organizations, experts, and stakeholders worldwide",
+          "Global trail management, conservation, and cooperation",
+        ],
+        keyActivities: [
+          "Exchange among global trail organizations and experts",
+          "Hosting and attending World Trails Conferences",
+          "Discussing trail conservation and sustainable use",
+          "Sharing best practices and professional insights",
+          "Exploring user safety and community engagement",
+          "International joint projects and global promotion",
+        ],
+        together: [
+          "Promoting Korea's major walking trails and culture",
+          "Participating in international conferences and programs",
+          "Sharing overseas trail policies and techniques domestically",
+          "Expanding cooperation between Korean and global trails",
         ],
       },
       {
         title: "Asia Trails Network (ATN)",
-        lines: [
-          "A regional network connecting trails across Asia, fostering exchange and collaboration between countries while strengthening the diversity and connectivity of Asian trails. In partnership with ATN, the Korea Trails & Culture Foundation positions Korea's trails within a broader Asian context—connecting them to the region through shared programs and initiatives.",
+        intro:
+          "An international network promoting sustainable trail development across Asia through shared expertise, environmental conservation, community development, and cultural exchange.",
+        overview: [
+          "For Asian trail organizations, institutions, experts, and practitioners",
+          "Asian trail management and international exchange",
+        ],
+        keyActivities: [
+          "Asian Trail Organizations and Stakeholders Exchange",
+          "Hosting conferences, forums, and seminars",
+          "Sharing best practices and professional knowledge",
+          "Joint walking events and exchange programs",
+          "Discussing conservation and community engagement",
+          "Expanding joint promotion and cooperation in Asia",
+        ],
+        together: [
+          "Introducing Korea's major trails and operation experiences",
+          "Building partnerships with domestic and international experts",
+          "Sharing and applying overseas best practices domestically",
+          "Expanding Asian exchange of Korean walking culture",
         ],
       },
       {
-        title: "The World Trails Network (WTN)",
-        lines: [
-          "The World Trails Network (WTN) is a global collaborative network that connects trails and walking routes around the world. It brings together trail organizations from different countries to share knowledge and advance the conservation, sustainable use, and value of walking tourism. Through its partnership with WTN, Korea Trails and Culture Foundation connects Korea's trails to the world—expanding its experiences and content on a global scale. Together, we are shaping a global movement that links people, nature, and communities through trails.",
+        title: "GKO (Korea Trail Completers Club)",
+        intro:
+          "A club for members who have completed the Korea Trail, fostering camaraderie, promoting trail culture, exchanging walking information, and practicing social contribution.",
+        overview: [
+          "For those who completed at least 1 of 4 Korea Trail routes",
+          "Apply via the Naver Korea Trail Completers Club cafe; approval granted after completion verification",
+          "Annual membership fee of KRW 60,000",
         ],
-      },
-      {
-        title: "Great Kodullers Club (GKO)",
-        lines: [
-          "GKO (Korea Dulle-gil Completion Club) is a community of individuals who have completed at least one of the Korea Dulle-gil trails—Haeparang Trail, Namparang Trail, Seohaerang Trail, or the DMZ Peace Trail. Established in May 2024, the club aims to promote a sustainable walking travel culture. Its members—including those who have achieved the 4,500 km “Grand Slam” by completing the entire network—actively share information and go beyond simple walking activities to lead events and promotional activities related to the Korea Dulle-gil.",
+        keyActivities: [
+          "Regular walking meetups and clean walking activities",
+          "Sharing info on trekking routes, gear, and health",
+          "Mentoring and experience sharing for hikers",
+        ],
+        together: [
+          "Invitation to annual Korea Trail Completers events",
+          "Outstanding members invited: guest speakers & project participants",
         ],
       },
     ],
@@ -773,7 +884,7 @@ const en: typeof ko = {
       { h: "Our Path", links: ["Mission", "Vision & Core Values", "History", "People", "Directions"] },
       { h: "Same trail, New Vision", links: ["Expertise"] },
       { h: "The Path we Walk", links: ["Korea Dulle-gil", "Regional Trail Research & Planning", "Walking Culture Programs", "Goods Development & Sales"] },
-      { h: "Walking Together", links: ["Korea Trails Alliance", "ATN", "WTN", "Korea Dulle-gil Finishers Club"] },
+      { h: "Walking Together", links: ["Korea Trails Alliance", "WTN", "ATN", "Korea Dulle-gil Finishers Club"] },
       { h: "Our Stories", links: ["Notices", "Subscribe", "Activities", "Archives", "Contact"] },
       { h: "Walk with Us", links: ["Donate", "Annual Funds & Activity Report"] },
     ],

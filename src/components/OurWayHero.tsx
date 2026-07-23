@@ -18,22 +18,24 @@ import OurWayMobile from "./OurWayMobile";
 const STAGE_W = 1920;
 const STAGE_H = 1084;
 
-/** 스크롤 길이: 10단계 (핀 고정) + 이후 footer 일반 스크롤 */
-const TRACK_VH = 1597;
+/** 스크롤 길이: 10단계 (핀 고정) + 이후 footer 일반 스크롤.
+ *  연혁(History) 콘텐츠가 크게 늘어(2010 y=5360) 스크롤 구간도 그만큼 연장했다.
+ *  History 선형 스크롤(P6→P7)만 콘텐츠 증가 비율로 늘리고, 나머지 구간의 절대 길이는 보존. */
+const TRACK_VH = 1786;
 /** 진행도 분기 (0→1):
  *  [0~P1] 선 / [P1~P2] Mission 덮음 / [P2~P3] Mission 걷혀 Vision
  *  [P3~P4] Vision 걷혀 Core Value / [P4~P5] Core Value 머묾 / [P5~P6] Core Value 걷혀 History
  *  [P6~P7] 연혁 스크롤 / [P7~P8] History 걷혀 조직도 / [P8~P9] 조직도 스크롤(사무처·3팀)
  *  [P9~1] 조직도 걷혀(peel) 약도 드러남. (이후 트랙 종료 → footer 일반 스크롤) */
-const P1 = 0.0967;
-const P2 = 0.1936;
-const P3 = 0.2905;
-const P4 = 0.3765;
-const P5 = 0.4299; // Core Value 는 2×2 정지 화면이라 잠깐 머물기만 한다(약 80vh)
-const P6 = 0.5052;
-const P7 = 0.7204;
-const P8 = 0.7956;
-const P9 = 0.9140;
+const P1 = 0.0266; // 선(글자) 그리기 — walk-with-us 와 동일하게 약 45vh 로 단축
+const P2 = 0.1134;
+const P3 = 0.2002;
+const P4 = 0.2772;
+const P5 = 0.3250; // Core Value 는 2×2 정지 화면이라 잠깐 머물기만 한다(약 80vh)
+const P6 = 0.3924;
+const P7 = 0.7165; // History 선형 스크롤 종료 — 늘어난 연혁에 맞춰 구간 확장(약 578vh)
+const P8 = 0.7839;
+const P9 = 0.9230; // 조직도(People) 선형 스크롤 종료 — 늘어난 조직도(ORG_H 1966)에 맞춰 확장
 /** 선의 세로 획 x좌표 (디자인 스테이지 좌표 기준, Figma 측정값) */
 const LEFT_X = 966; // Beyond 의 d
 const RIGHT_X = 901; // the 의 h (오른쪽으로 1px 보정)
@@ -45,10 +47,10 @@ const SHOW_FULL = false;
 // 각 섹션이 "정착"하는 위상 경계(translateY 0, 컨텐츠가 설계 위치)에 맞춘다.
 // mission=P2, vision=P3, history=P6(연혁 시작), people=P8(조직도 시작), location=P9.
 const SECTION_PROGRESS: Record<string, number> = {
-  mission: 0.2169,
-  vision: 0.3253,
-  history: 0.4458,
-  people: 0.7711,
+  mission: 0.1343,
+  vision: 0.2313,
+  history: 0.3392,
+  people: 0.7619,
   location: 1, // phase10 끝(조직도 완전히 걷힘) — 이전 섹션 잔상 없이 약도만
 };
 
@@ -363,7 +365,7 @@ export default function OurWayHero() {
         <div
           ref={orgRef}
           className="pointer-events-none absolute inset-0 z-[13]"
-          style={{ opacity: 0, transform: "translateY(100%)", willChange: "transform, opacity", boxShadow: "0 26px 50px -10px rgba(0,0,0,0.28)" }}
+          style={{ opacity: 0, transform: "translateY(100%)", willChange: "transform, opacity" }}
         >
           <OrgChartScreen scale={scale} contentRef={orgContentRef} />
         </div>
@@ -380,7 +382,7 @@ export default function OurWayHero() {
         <div
           ref={coreRef}
           className="pointer-events-none absolute inset-0 z-[14]"
-          style={{ opacity: 0, transform: "translateY(0%)", willChange: "transform, opacity", boxShadow: "0 26px 50px -10px rgba(0,0,0,0.28)" }}
+          style={{ opacity: 0, transform: "translateY(0%)", willChange: "transform, opacity" }}
         >
           <CoreValueScreen scale={scale} />
         </div>

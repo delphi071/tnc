@@ -18,7 +18,7 @@ export const COL_SUB_HREFS: Record<number, string[]> = {
   0: ["/our-way#mission", "/our-way#vision", "/our-way#history", "/our-way#people", "/our-way#location"],
   1: ["/same-trail#expertise"],
   2: ["/the-path-we-walk#korea", "/the-path-we-walk#regional", "/the-path-we-walk#culture", "/the-path-we-walk#goods"],
-  3: ["/walking-together#kta", "/walking-together#atn", "/walking-together#wtn", "/walking-together#gko"],
+  3: ["/walking-together#kta", "/walking-together#wtn", "/walking-together#atn", "/walking-together#gko"],
   4: ["/our-stories#notices", "/our-stories#subscribe", "/our-stories#activities", "/our-stories#archives", "/our-stories#contact"],
   5: ["/walk-with-us#donation", "/walk-with-us#annual"],
 };

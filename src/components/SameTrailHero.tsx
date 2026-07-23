@@ -23,14 +23,14 @@ const STAGE_H = 1080;
  *  [CONTENT4_END~CONTENT7_END] Analysis 콘텐츠 세로 스크롤
  *  [CONTENT7_END]            experience(워터마크+콘텐츠)가 즉시 대치(컷)
  *  [CONTENT7_END~CONTENT10_END] experience 콘텐츠 세로 스크롤 */
-const TRACK_VH = 1550;
-const LINE_END = 0.06;
-const PEEL1_END = 0.12;
-const PANEL2_END = 0.18;
-const PANEL3_END = 0.24;
-const CONTENT4_END = 0.45; // Plan 콘텐츠 끝 → Analysis 즉시 대치
-const CONTENT7_END = 0.72; // Analysis 콘텐츠 끝 → experience 즉시 대치
-const CONTENT10_END = 0.98;
+const TRACK_VH = 1508;
+const LINE_END = 0.0318; // 선(글자) 그리기 — walk-with-us 와 동일하게 약 45vh 로 단축
+const PEEL1_END = 0.0936;
+const PANEL2_END = 0.1554;
+const PANEL3_END = 0.2172;
+const CONTENT4_END = 0.4335; // Plan 콘텐츠 끝 → Analysis 즉시 대치
+const CONTENT7_END = 0.7115; // Analysis 콘텐츠 끝 → experience 즉시 대치
+const CONTENT10_END = 0.9793;
 
 /** peel 단계에서 전경이 위로 올라가는 거리 (Figma 측정값) */
 const PEEL_DIST = 612;
@@ -61,7 +61,7 @@ const SHOW_FULL = false;
 /** 푸터·메뉴 서브메뉴 → 섹션 스크롤 진행도(0~1)
  *  expertise = "기획에서 체험까지 …전문 법인" 인트로 패널이 완전히 올라온 지점(PANEL2_END). */
 const SECTION_PROGRESS: Record<string, number> = {
-  expertise: 0.18,
+  expertise: 0.1554,
   plan: 0.25, // Plan 대치 직후(제목 보임)
   analysis: 0.46, // Analysis 대치 직후(제목 보임)
   experience: 0.73, // experience 대치 직후(제목 보임)

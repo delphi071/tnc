@@ -11,7 +11,7 @@ import Header from "./Header";
 const SLIDES = [
   // 1번 배경: 길이 화면 우측(가로 ~70%)에 있어 모바일 세로 크롭에서 잘림 →
   //   모바일에서만 object-position 을 오른쪽으로 옮겨(사진이 왼쪽으로 이동) 길이 보이게. 데스크톱은 중앙 유지.
-  { bg: "/intro/bg-1-v2.jpg", title: "Beyond the Route", scrim: "bg-black/10", href: "/our-way", objectClass: "object-[65%_center] sm:object-center" },
+  { bg: "/intro/bg-1-v3.jpg", title: "Beyond the Route", scrim: "bg-black/55", href: "/our-way", objectClass: "object-[65%_center] sm:object-center" },
   { bg: "/intro/bg-2.jpg", title: "Same trail New Vision", scrim: "bg-black/40", href: "/same-trail", objectClass: "object-center" },
   { bg: "/intro/bg-3-v2.jpg", title: "The Path with Walk", scrim: "bg-black/20", href: "/the-path-we-walk", objectClass: "object-center" },
 ];

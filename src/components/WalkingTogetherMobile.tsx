@@ -6,74 +6,65 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { useT } from "@/i18n/useT";
 
-/** 함께 걷는 사람들 — 모바일(lg 미만) 전용. 카드 스택 peel.
- *  Hero → 단체 카드 4개(KTA → WTN → ATN → GKO)가 차례로 덮고 벗겨짐.
+/** 함께 걷는 사람들 — 모바일(lg 미만) 전용.
+ *  Hero(한 화면) 아래로 단체(KTA → WTN → ATN → GKO)를 하나씩 세로로 스크롤.
+ *  내용이 많아(소개·개요·KEY ACTIVITIES·WALKING TOGETHER) 카드 peel 대신 일반 스크롤로 둔다.
  *  문구는 PC 사전(walkingTogether.*), 로고/링크는 PC 와 동일. */
 
-const TRACK_VH = 520;
-const M_COVER = 0.13;
-const CARD_HOLD = 0.45;
-
-const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);
-const smoothstep = (x: number) => x * x * (3 - 2 * x);
 const MONT = { fontFamily: "var(--font-montserrat)" } as const;
+const HEADER_H = 64; // 모바일 고정 헤더 높이(해시 스크롤 보정)
 
-/** 푸터·햄버거 메뉴 서브링크(#해시) → 카드스택 스크롤 진행도(0~1).
- *  모바일 카드 표시 순서(KTA→WTN→ATN→GKO)에 맞춰 각 카드가 드러나는 지점. */
-const SECTION_PROGRESS: Record<string, number> = {
-  kta: 0.14,
-  wtn: 0.42,
-  atn: 0.71,
-  gko: 0.99,
-};
+/** 자세히 보기 외부링크 아이콘 */
+function LinkOut() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M7 17 17 7M9 7h8v8" />
+    </svg>
+  );
+}
+
+function ActivityBlock({ label, items }: { label: string; items: string[] }) {
+  return (
+    <div>
+      <p className="font-bold text-[#0ac200]" style={{ ...MONT, fontSize: 13, letterSpacing: "0.5px" }}>
+        {label}
+      </p>
+      <div className="mt-3 flex flex-col gap-2">
+        {items.map((it, i) => (
+          <div key={i} className="flex items-start gap-2">
+            <span className="shrink-0 leading-[1.35] text-[#0ac200]" style={{ fontSize: 15 }}>•</span>
+            <span className="leading-[1.35] text-[#3d3d3d]" style={{ fontSize: 15 }}>{it}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function WalkingTogetherMobile({ onLightChange }: { onLightChange?: (light: boolean) => void }) {
   const wt = useT().walkingTogether;
-  const trackRef = useRef<HTMLDivElement>(null);
-  const heroFgRef = useRef<HTMLDivElement>(null);
-  const stackRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
   const lightRef = useRef(false);
 
-  // 단체 카드 (Figma 모바일 순서: KTA → WTN → ATN → GKO). org 데이터는 PC 사전, 로고/링크는 PC 와 동일.
+  // 단체 (Figma 순서: KTA → WTN → ATN → GKO). 사전 orgs 와 로고/링크가 인덱스로 짝지어진다.
   const CARDS = [
-    { ...wt.orgs[0], logo: "/intro/wt-org-1.png", href: "https://cafe.daum.net/koreantrails" },
-    { ...wt.orgs[2], logo: "/intro/wt-org-2.png", href: "https://worldtrailsnetwork.org" },
-    { ...wt.orgs[1], logo: "/intro/wt-org-3.png", href: "https://www.facebook.com/asiatrailsnetwork" },
-    { ...wt.orgs[3], logo: "/intro/wt-org-4.png", href: "https://cafe.naver.com/greatkodullers" },
+    { ...wt.orgs[0], anchor: "kta", logo: "/intro/wt-org-1.png", href: "https://cafe.daum.net/koreantrails" },
+    { ...wt.orgs[1], anchor: "wtn", logo: "/intro/wt-org-2.png", href: "https://worldtrailsnetwork.org" },
+    { ...wt.orgs[2], anchor: "atn", logo: "/intro/wt-org-3.png", href: "https://www.facebook.com/asiatrailsnetwork" },
+    { ...wt.orgs[3], anchor: "gko", logo: "/intro/wt-org-4.png", href: "https://cafe.naver.com/greatkodullers" },
   ];
 
+  // 헤더 테마: 히어로(어두운 배경)를 지나 밝은 단체 섹션이 헤더 밑에 오면 라이트로 전환
   useEffect(() => {
     let raf = 0;
     const apply = () => {
       raf = 0;
-      const el = trackRef.current;
-      if (!el) return;
-      const total = el.offsetHeight - window.innerHeight;
-      const scrolled = Math.min(Math.max(-el.getBoundingClientRect().top, 0), Math.max(total, 1));
-      const progress = total > 0 ? scrolled / total : 0;
-
-      const coverP = clamp01(progress / M_COVER);
-      const peelP = clamp01((progress - M_COVER) / (1 - M_COVER));
-
-      if (heroFgRef.current) heroFgRef.current.style.transform = `translateY(${-coverP * 100}%)`;
-      const stack = stackRef.current;
-      if (!stack) return;
-      stack.style.transform = `translateY(${(1 - coverP) * 100}%)`;
-
-      const cards = stack.querySelectorAll<HTMLElement>("[data-card]");
-      const nTrans = cards.length - 1;
-      const seg = peelP * nTrans;
-      cards.forEach((card, k) => {
-        let ty = 0;
-        if (k < nTrans) {
-          const local = clamp01(seg - k);
-          const eased = local <= CARD_HOLD ? 0 : smoothstep((local - CARD_HOLD) / (1 - CARD_HOLD));
-          ty = -eased * 110;
-        }
-        card.style.transform = `translateY(${ty}%)`;
-      });
-
-      const light = coverP >= 0.9; // 카드(밝은 배경)가 헤더를 덮으면 라이트 테마
+      const hero = heroRef.current;
+      if (!hero || hero.offsetParent === null) return; // 데스크톱(lg+)에선 모바일 숨김 → 무시
+      // 헤더(로고) 뒤에 어두운 히어로가 걸쳐 있으면 흰 로고, 지나가면 어두운 로고.
+      // KTA(한국걷는길연합)는 히어로 바로 아래라 앵커 진입 시 히어로 하단이 헤더 영역(≈64)에 걸쳐 있어
+      // 흰 로고가 맞고, 스크롤로 그 경계가 헤더 중앙(≈32)을 지나면 어두운 로고로 전환된다.
+      const light = hero.getBoundingClientRect().bottom <= 32;
       if (lightRef.current !== light) {
         lightRef.current = light;
         onLightChange?.(light);
@@ -92,18 +83,16 @@ export default function WalkingTogetherMobile({ onLightChange }: { onLightChange
     };
   }, [onLightChange]);
 
-  // 푸터·햄버거 메뉴 섹션(#해시) 링크 → 해당 단체 카드 위치로 스크롤.
-  // 진입 1회 + 같은 페이지 hashchange. (데스크톱에선 트랙이 숨겨져 no-op)
+  // 푸터·햄버거 메뉴 섹션(#해시) → 해당 단체 섹션으로 스크롤. 진입 1회 + hashchange.
   useEffect(() => {
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     const scrollToHash = () => {
-      const el = trackRef.current;
-      if (!el) return;
-      const total = el.offsetHeight - window.innerHeight;
-      if (total <= 0) return; // 트랙 숨김(데스크톱 lg+) → WalkingTogetherHero가 처리
-      const p = SECTION_PROGRESS[window.location.hash.slice(1)];
-      if (p == null) return;
-      window.scrollTo(0, el.offsetTop + p * total);
+      const hash = window.location.hash.slice(1);
+      if (!hash) return;
+      const el = document.getElementById(`m-org-${hash}`);
+      if (!el || el.offsetParent === null) return; // 데스크톱(lg+)에선 모바일 숨김 → Hero 가 처리
+      const y = window.scrollY + el.getBoundingClientRect().top - HEADER_H;
+      window.scrollTo(0, Math.max(y, 0));
     };
     requestAnimationFrame(scrollToHash);
     window.addEventListener("hashchange", scrollToHash);
@@ -112,63 +101,80 @@ export default function WalkingTogetherMobile({ onLightChange }: { onLightChange
 
   return (
     <div className="lg:hidden">
-      <div ref={trackRef} className="relative" style={{ height: `${TRACK_VH}vh` }}>
-        <div className="sticky top-0 h-[100svh] w-full overflow-hidden bg-black">
-          {/* 배경 (고정) */}
-          <Image src="/intro/wt-hero.jpg" alt="함께 걷는 사람들" fill priority sizes="100vw" className="object-cover object-bottom" />
-          <div className="pointer-events-none absolute inset-0 bg-black/50" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-[30%] to-black/60 to-[97%]" />
-
-          {/* Hero 텍스트 (위로 걷힘) */}
-          <div ref={heroFgRef} className="absolute inset-0 z-10 px-[30px] pt-[155px]" style={{ willChange: "transform" }}>
-            <h1 className="text-[50px] font-extrabold leading-[1.2] text-[#0ac200]" style={MONT}>
-              <span className="block">Walking</span>
-              <span className="block">Together</span>
-            </h1>
-            <div className="mt-[39px] flex flex-col gap-6 text-white">
-              <p className="text-[24px] font-extrabold leading-[0.9] tracking-[-1.2px]">{wt.hero.title}</p>
-              <div className="text-[16px] leading-[1.45] tracking-[-0.64px]">
-                {wt.hero.lines.map((line, i) => (
-                  <p key={i}>{line}</p>
-                ))}
-              </div>
+      {/* Hero (한 화면) */}
+      <section ref={heroRef} className="relative h-[100svh] w-full overflow-hidden bg-black">
+        <Image src="/intro/wt-hero.jpg" alt="함께 걷는 사람들" fill priority sizes="100vw" className="object-cover object-bottom" />
+        <div className="pointer-events-none absolute inset-0 bg-black/50" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-[30%] to-black/60 to-[97%]" />
+        <div className="absolute inset-0 z-10 px-[30px] pt-[155px]">
+          <h1 className="text-[50px] font-extrabold leading-[1.2] text-[#0ac200]" style={MONT}>
+            <span className="block">Walking</span>
+            <span className="block">Together</span>
+          </h1>
+          <div className="mt-[39px] flex flex-col gap-6 text-white">
+            <p className="text-[24px] font-extrabold leading-[0.9] tracking-[-1.2px]">{wt.hero.title}</p>
+            <div className="text-[16px] leading-[1.45] tracking-[-0.64px]">
+              {wt.hero.lines.map((line, i) => (
+                <p key={i}>{line}</p>
+              ))}
             </div>
           </div>
-
-          {/* 단체 카드 스택 — 밑에서 올라와 덮고, 차례로 peel */}
-          <div ref={stackRef} className="absolute inset-0 z-20" style={{ transform: "translateY(100%)", willChange: "transform" }}>
-            {CARDS.map((c, i) => (
-              <div
-                key={i}
-                data-card
-                className="absolute inset-0 bg-[#f0f0f0]"
-                style={{ zIndex: 100 - i * 10, willChange: "transform" }}
-              >
-                <div className="flex h-full flex-col items-center px-[18px] pb-[40px] pt-[120px]">
-                  {/* 로고 */}
-                  <div className="flex h-[180px] items-center justify-center">
-                    <img src={c.logo} alt={c.title} className="max-h-[180px] w-auto object-contain" />
-                  </div>
-                  {/* 제목 + 설명 + 버튼 */}
-                  <div className="mt-10 flex w-full max-w-[354px] flex-col gap-20">
-                    <div className="flex flex-col gap-8">
-                      <p className="text-[30px] font-bold leading-[1.2] tracking-[-0.78px] text-black">{c.title}</p>
-                      <p className="text-[16px] leading-[1.5] tracking-[-0.16px] text-[#5a5b5d]">{c.lines.join(" ")}</p>
-                    </div>
-                    <a
-                      href={c.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex h-[60px] w-full items-center justify-center rounded-br-[20px] rounded-tl-[20px] bg-[#0ac200] text-[16px] font-bold tracking-[-0.8px] text-black transition-opacity hover:opacity-90"
-                    >
-                      {wt.learnMore}
-                    </a>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
+      </section>
+
+      {/* 단체 — 하나씩 세로 스크롤 */}
+      <div className="bg-[#f0f0f0]">
+        {CARDS.map((c, i) => (
+          <section
+            key={i}
+            id={`m-org-${c.anchor}`}
+            className="scroll-mt-[70px] px-[24px] py-[70px]"
+            style={{ borderTop: i === 0 ? undefined : "1px solid #e2e2e2" }}
+          >
+            {/* 로고 */}
+            <div className="flex h-[140px] items-center">
+              <img src={c.logo} alt={c.title} className="max-h-[140px] w-auto max-w-[200px] object-contain" />
+            </div>
+
+            {/* 제목 + 자세히 보기 */}
+            <div className="mt-6 flex items-baseline justify-between gap-3">
+              <h2 className="font-bold leading-[1.25] tracking-[-0.5px] text-black" style={{ fontSize: 24 }}>
+                {c.title}
+              </h2>
+              <a
+                href={c.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex shrink-0 items-center gap-1 font-semibold text-[#0ac200]"
+                style={{ fontSize: 14 }}
+              >
+                {wt.learnMore}
+                <LinkOut />
+              </a>
+            </div>
+
+            {/* 소개 */}
+            <p className="mt-4 text-[#3d3d3d]" style={{ fontSize: 16, lineHeight: 1.6, letterSpacing: "-0.16px" }}>
+              {c.intro}
+            </p>
+
+            {/* 개요 불릿 */}
+            <div className="mt-5 flex flex-col gap-2.5">
+              {c.overview.map((it, j) => (
+                <div key={j} className="flex items-start gap-2.5">
+                  <span className="mt-[5px] shrink-0 rounded-[1px] bg-[#0ac200]" style={{ width: 4, height: 15 }} />
+                  <span className="leading-[1.4] text-[#5a5b5d]" style={{ fontSize: 15 }}>{it}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* KEY ACTIVITIES / WALKING TOGETHER */}
+            <div className="mt-8 flex flex-col gap-7">
+              <ActivityBlock label="KEY ACTIVITIES" items={c.keyActivities} />
+              <ActivityBlock label="WALKING TOGETHER" items={c.together} />
+            </div>
+          </section>
+        ))}
       </div>
     </div>
   );

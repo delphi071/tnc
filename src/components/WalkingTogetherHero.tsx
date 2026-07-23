@@ -16,16 +16,16 @@ const STAGE_H = 1080;
 /** 스크롤 길이(핀 고정): 선 그리기 → 전경 peel. 여기까지가 히어로.
  *  단체 카드는 2×2 라 한 화면(1080)을 넘기므로 핀 고정 밖의 일반 스크롤 섹션으로 뺐다.
  *  (예전엔 카드 1개씩 4번 peel 해서 트랙이 1000vh 였다) */
-const TRACK_VH = 250;
-const LINE_END = 0.35;
-const PEEL_END = 0.85;
+const TRACK_VH = 242;
+const LINE_END = 0.3155; // 선(글자) 그리기 — walk-with-us 와 동일하게 약 45vh 로 단축
+const PEEL_END = 0.8437;
 
-/** 단체 카드 4개 — 로고/링크 메타(웹사이트 순서: KTA·ATN·WTN·GKO). 텍스트는 사전. */
+/** 단체 4개 — 로고/링크 메타(Figma 표시 순서: KTA·WTN·ATN·GKO). 텍스트는 사전(orgs) 동일 순서. */
 const ORG_META = [
-  { anchor: "kta", logo: "/intro/wt-org-1.png", logoW: 332, href: "https://cafe.daum.net/koreantrails" },
-  { anchor: "atn", logo: "/intro/wt-org-3.png", logoW: 266, href: "https://www.facebook.com/asiatrailsnetwork" },
-  { anchor: "wtn", logo: "/intro/wt-org-2.png", logoW: 240, href: "https://worldtrailsnetwork.org" },
-  { anchor: "gko", logo: "/intro/wt-org-4.png", logoW: 242, href: "https://cafe.naver.com/greatkodullers" },
+  { anchor: "kta", logo: "/intro/wt-org-1.png", href: "https://cafe.daum.net/koreantrails" },
+  { anchor: "wtn", logo: "/intro/wt-org-2.png", href: "https://worldtrailsnetwork.org" },
+  { anchor: "atn", logo: "/intro/wt-org-3.png", href: "https://www.facebook.com/asiatrailsnetwork" },
+  { anchor: "gko", logo: "/intro/wt-org-4.png", href: "https://cafe.naver.com/greatkodullers" },
 ];
 
 /** peel 단계에서 전경이 위로 올라가는 거리.
@@ -51,14 +51,11 @@ const STUB = "M751 370 V445";
 /** 테스트용: 선을 처음부터 끝까지 보이게 (튜닝 후 false) */
 const SHOW_FULL = false;
 
-/** 상단 메뉴·푸터 서브메뉴 해시 — 2×2 라 kta·atn 은 첫 줄, wtn·gko 는 둘째 줄에 있다.
- *  각 카드에 붙인 앵커 id(org-kta 등)로 해당 줄까지 스크롤한다. */
-const ORG_HASHES = ["kta", "atn", "wtn", "gko"];
+/** 상단 메뉴·푸터 서브메뉴 해시 — 각 단체에 붙인 앵커 id(org-kta 등)로 해당 단체까지 스크롤한다. */
+const ORG_HASHES = ["kta", "wtn", "atn", "gko"];
 
-/** 고정 헤더 높이(lg 80 / xl 102) — 밝은 섹션 진입 판정, 앵커 스크롤 보정에 함께 쓴다 */
+/** 고정 헤더 높이(lg 80 / xl 102) — 밝은 섹션 진입 판정에 쓴다 */
 const HEADER_H = 102;
-/** 앵커로 이동했을 때 카드가 헤더에 딱 붙지 않도록 두는 여백 */
-const CARD_MARGIN = 40;
 
 const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);
 
@@ -72,7 +69,7 @@ export default function WalkingTogetherHero() {
   const headerLightRef = useRef(false);
   const wt = useT().walkingTogether;
   const hero = wt.hero;
-  const orgCards: OrgCard[] = ORG_META.map((m, i) => ({ ...m, title: wt.orgs[i].title, lines: wt.orgs[i].lines }));
+  const orgCards: OrgCard[] = ORG_META.map((m, i) => ({ ...m, ...wt.orgs[i] }));
   const [scale, setScale] = useState(1);
   const [orgH, setOrgH] = useState(0); // 카드 그리드 원본 높이(1920 좌표 기준, 스케일 전)
   const [headerLight, setHeaderLight] = useState(false);
@@ -93,7 +90,9 @@ export default function WalkingTogetherHero() {
       const card = document.getElementById(`org-${hash}`);
       const sec = orgSectionRef.current;
       if (!card || !sec) return false;
-      const y = window.scrollY + card.getBoundingClientRect().top - HEADER_H - CARD_MARGIN;
+      // 각 단체 섹션은 1080 높이에 콘텐츠가 세로 중앙 정렬 → 섹션 top 을 뷰포트 최상단에 맞추면
+      // 어느 단체든 첫 번째(KTA)와 같은 높이에 콘텐츠가 온다(헤더/여백 보정 불필요).
+      const y = window.scrollY + card.getBoundingClientRect().top;
       window.scrollTo(0, Math.max(y, sec.offsetTop));
       return true;
     };
@@ -148,9 +147,10 @@ export default function WalkingTogetherHero() {
       const peelP = clamp01((progress - LINE_END) / (PEEL_END - LINE_END));
       if (peelRef.current) peelRef.current.style.transform = `translateY(${-PEEL_DIST * peelP}px)`;
 
-      // 밝은 카드 섹션이 헤더 높이까지 올라오면 헤더를 라이트 테마로 전환
-      const secTop = orgSectionRef.current?.getBoundingClientRect().top ?? Infinity;
-      const wantLight = secTop <= HEADER_H;
+      // 밝은 단체 섹션이 헤더 높이까지 올라오면 헤더를 라이트 테마로 전환.
+      // 모바일(lg 미만)에선 이 섹션이 display:none(offsetParent null) → 모바일 컴포넌트가 헤더 테마를 담당한다.
+      const sec = orgSectionRef.current;
+      const wantLight = !!sec && sec.offsetParent !== null && sec.getBoundingClientRect().top <= HEADER_H;
       if (headerLightRef.current !== wantLight) {
         headerLightRef.current = wantLight;
         setHeaderLight(wantLight);
@@ -267,7 +267,7 @@ export default function WalkingTogetherHero() {
         </div>
       </div>
 
-      {/* 단체 카드 2×2 — 핀 고정 밖의 일반 스크롤 섹션 (한 화면을 넘겨 아래로 스크롤됨).
+      {/* 단체 소개 — 핀 고정 밖의 일반 스크롤 섹션. 단체를 하나씩 세로로 내려가며 본다.
           scale 은 transform 이라 레이아웃 높이를 바꾸지 않으므로 래퍼에 측정 높이×scale 을 준다. */}
       <div
         ref={orgSectionRef}

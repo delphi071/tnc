@@ -18,15 +18,15 @@ const STAGE_H = 1080;
 
 /** 스크롤 길이(핀 고정): 선 그리기 → 흰 패널 4개 차례로 peel (사이사이 hold=탭 조작).
  *  트랙 종료 후 일반 스크롤로 푸터 등장. */
-const TRACK_VH = 1400;
-const LINE_END = 0.1;
-const PANEL1_END = 0.24;
-const PANEL2_START = 0.32;
-const PANEL2_END = 0.46;
-const PANEL3_START = 0.54;
-const PANEL3_END = 0.68;
-const PANEL4_START = 0.76;
-const PANEL4_END = 0.9;
+const TRACK_VH = 1315;
+const LINE_END = 0.0369; // 선(글자) 그리기 — walk-with-us 와 동일하게 약 45vh 로 단축
+const PANEL1_END = 0.1867;
+const PANEL2_START = 0.2723;
+const PANEL2_END = 0.4221;
+const PANEL3_START = 0.5077;
+const PANEL3_END = 0.6574;
+const PANEL4_START = 0.7430;
+const PANEL4_END = 0.8928;
 
 /** 헤드라인 (계단식) */
 const HEADLINE = [
@@ -45,13 +45,13 @@ const SHOW_FULL = false;
 
 /** 푸터 서브메뉴 → 섹션 스크롤 진행도(0~1) */
 const SECTION_PROGRESS: Record<string, number> = {
-  korea: 0.24,
+  korea: 0.1867,
   // 헤더 지도 아이콘 → 코리아둘레길 섹션의 "완보 인증" 탭. 섹션 위치는 korea 와 동일하고
   // 탭 선택은 KoriaDulegilSection 이 해시를 보고 처리한다.
-  certifications: 0.24,
-  regional: 0.46,
-  culture: 0.68,
-  goods: 0.9,
+  certifications: 0.1867,
+  regional: 0.4221,
+  culture: 0.6574,
+  goods: 0.8928,
 };
 
 const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);

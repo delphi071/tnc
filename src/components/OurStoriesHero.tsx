@@ -13,8 +13,9 @@ import OurStoriesMobile from "./OurStoriesMobile";
 const STAGE_W = 1920;
 const STAGE_H = 1080;
 
-/** 선이 그려지는 스크롤 길이(핀 고정). 이후 peel 섹션은 추후 확장 */
-const TRACK_VH = 240;
+/** 선이 그려지는 스크롤 길이(핀 고정) — 선이 트랙 전체에 걸쳐 그려지므로,
+ *  walk-with-us 와 동일하게 그리기 구간(=total=TRACK−100)을 약 45vh 로 단축(240→145). */
+const TRACK_VH = 145;
 
 /** 헤드라인 — "Stories"의 'i'는 초록 선(stem)+점(dot)이 대신하므로 "Our Stor es"(공백)으로 표기 */
 const HEADLINE = [{ t: "Our Stor es", left: 661, top: 450 }];
