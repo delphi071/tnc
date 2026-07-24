@@ -86,13 +86,13 @@ export const ORG_LABELS = {
     chair: "이사장", chairName: "홍성운",
     auditor: "감사", auditorName: "전영길 회계사",
     board: "이사진", committee: "운영위원회", secretariat: "사무처",
-    note: "이사회는 (사)한국의길과문화의 사업과 운영에 관한 사항을 심의, 의결합니다.",
+    note: "이사회는 (사)한국의길과문화의 사업과\n운영에 관한 사항을 심의, 의결합니다.",
   },
   en: {
     chair: "Chairperson", chairName: "Seong-un Hong",
     auditor: "Auditor", auditorName: "Yeong-gil Jeon, CPA",
     board: "Board of Directors", committee: "Executive Committee", secretariat: "Secretariat",
-    note: "The Board of Directors deliberates and resolves matters regarding the projects and operations of Korea Trails & Culture.",
+    note: "The Board of Directors deliberates and\nresolves matters regarding the projects\nand operations of Korea Trails & Culture.",
   },
 } as const;
 
@@ -184,7 +184,7 @@ export default function OrgChartScreen({
             {board.map((m) => (
               <MemberPill key={m.n} n={m.n} r={m.r} />
             ))}
-            <p className="mt-[20px] text-center text-black" style={{ fontSize: 18, lineHeight: 1.5, letterSpacing: "-0.72px" }}>
+            <p className="mt-[20px] whitespace-pre-line text-center text-black" style={{ fontSize: 18, lineHeight: 1.5, letterSpacing: "-0.72px" }}>
               {L.note}
             </p>
           </div>
