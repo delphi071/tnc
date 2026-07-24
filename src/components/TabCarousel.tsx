@@ -20,6 +20,8 @@ export type CarouselSlide = {
   videoUrl?: string;
   /** 이미지 카드 위에 얹을 오버레이 (예: 코리아둘레길 지도 벡터) */
   overlay?: React.ReactNode;
+  /** 대제목 오른쪽에 놓을 CTA 버튼 (예: 완보 인증 탭의 Certify) */
+  cta?: React.ReactNode;
   /** 블록: 소제목(h)은 선택 */
   blocks: { h?: string; lines: string[] }[];
 };
@@ -105,9 +107,13 @@ export default function TabCarousel({
               <div key={i} className="flex shrink-0 items-center justify-between" style={{ width: SLIDE_W }}>
                 {/* 좌측 텍스트 */}
                 <div className="flex flex-col justify-between" style={{ width: 405, height: 380 }}>
-                  <p className="font-bold text-black" style={{ fontSize: 24, lineHeight: 1.3, letterSpacing: "-0.72px", maxWidth: 320 }}>
-                    {s.tab}
-                  </p>
+                  {/* 대제목 (+ CTA 가 있으면 같은 줄 오른쪽 끝에) */}
+                  <div className="flex w-full items-center justify-between gap-4">
+                    <p className="font-bold text-black" style={{ fontSize: 24, lineHeight: 1.3, letterSpacing: "-0.72px", maxWidth: 320 }}>
+                      {s.tab}
+                    </p>
+                    {s.cta}
+                  </div>
                   <div className="flex flex-col gap-5">
                     {s.blocks.map((b, bi) => (
                       <div key={bi} className="flex flex-col gap-3">

@@ -109,6 +109,8 @@ const ko = {
     sectionLabel: "우리가 걷는 길",
     koriaDulegil: {
       title: "코리아둘레길",
+      /** "완보인증" 탭 제목 옆 CTA 버튼 라벨 */
+      certifyCta: "완보인증",
       tabs: [
         {
           name: "코리아둘레길",
@@ -153,9 +155,11 @@ const ko = {
           ],
         },
               {
-          // 자료 준비 중 — 탭만 노출하고 본문/이미지는 비워 둔다
-          name: "완보 인증",
-          blocks: [],
+          name: "완보인증",
+          blocks: [
+            { h: "완보인증 관리", lines: ["코리아둘레길 완보인증은 동·서·남해안과 DMZ 접경지역을", "잇는 전 구간을 끈기와 열정으로 걸어낸 도보여행자에게 수여하는", "공식 인증입니다. (사)한국의길과문화는 공정한 데이터 검증을 통해", "완보자의 명예를 기리고 대한민국을 품에 안은", "위대한 성취를 기념합니다."] },
+            { h: "명예의 전당", lines: ["공식 플랫폼 두루누비와 데이터 연동을 통해 도보여행자의", "코스 매칭률과 완주 여부를 투명하고 공정하게 심사하며,", "코리아둘레길의 상징적인 시·종점이자 만남의 광장인 부산 오륙도", "해맞이공원(관광안내소)에 공식 ‘명예의 전당 완보자 명패’를", "제작·설치하는 업무를 담당하고 있습니다."] },
+          ],
         },
 ],
     },
@@ -607,6 +611,7 @@ const en: typeof ko = {
     sectionLabel: "The Path We Walk",
     koriaDulegil: {
       title: "Korea Dulle-gil",
+      certifyCta: "Certify",
       tabs: [
         {
           name: "Korea Dulle-gil",
@@ -651,9 +656,11 @@ const en: typeof ko = {
           ],
         },
               {
-          // 자료 준비 중 — 탭만 노출하고 본문/이미지는 비워 둔다
-          name: "Certifications",
-          blocks: [],
+          name: "Claim Completion",
+          blocks: [
+            { h: "Certification Management", lines: ["The Korea Trail Completion Certification is an official recognition awarded to hikers who walk the entire route connecting the East, West, South coasts and the DMZ border area with perseverance and passion."] },
+            { h: "Hall of Fame", lines: ["We verify course matching rates and completion status transparently through data integration with the official Durunubi platform, and manage the production and installation of official name plaques at Busan Oryukdo Sunrise Park."] },
+          ],
         },
 ],
     },

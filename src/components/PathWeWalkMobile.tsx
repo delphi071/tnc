@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useT } from "@/i18n/useT";
 import VideoModal from "./VideoModal";
 import KoreaDulegilMap from "./KoreaDulegilMap";
+import CertifyButton from "./CertifyButton";
 
 /** 우리가 걷는 길 — 모바일(lg 미만) 전용.
  *  Hero + 본문(아코디언). PC 의 가로 탭 캐러셀을 모바일에선 아코디언으로 — 한 번에 하나만 펼쳐짐.
@@ -74,8 +75,10 @@ export default function PathWeWalkMobile({ onLightChange }: { onLightChange?: (l
     overlay?: Record<number, React.ReactNode>;
     /** 이미지가 없는 탭(자료 준비 중) — 빈 카드로 표시 */
     noImg?: Record<number, boolean>;
+    /** 탭 인덱스별 CTA 버튼 (본문 위에 배치) */
+    cta?: Record<number, React.ReactNode>;
   }[] = [
-    { key: "kdl", hash: "korea", title: t.koriaDulegil.title, tabs: t.koriaDulegil.tabs, imgSrc: { 0: "/intro/kdl-1-v2.jpg" }, overlay: { 0: <KoreaDulegilMap /> }, noImg: { 6: true } },
+    { key: "kdl", hash: "korea", title: t.koriaDulegil.title, tabs: t.koriaDulegil.tabs, imgSrc: { 0: "/intro/kdl-1-v2.jpg" }, overlay: { 0: <KoreaDulegilMap /> }, cta: { 6: <CertifyButton label={t.koriaDulegil.certifyCta} /> } },
     { key: "rr", hash: "regional", title: t.regional.title, tabs: t.regional.tabs, imgPos: { 1: "object-bottom" } },
     { key: "cf", hash: "culture", title: t.culture.title, tabs: t.culture.tabs, imgPos: { 3: "object-bottom" }, video: { 0: true }, videoUrl: { 0: "https://drive.google.com/file/d/1F1bNgltTOQ7GNzB3-6Zntk7vMxJW_z3o/preview" }, imgSrc: { 4: "/intro/cf-5-v2.jpg" } },
     { key: "gd", hash: "goods", title: t.goods.title, tabs: t.goods.tabs },
@@ -185,6 +188,8 @@ export default function PathWeWalkMobile({ onLightChange }: { onLightChange?: (l
                           )}
                         </div>
                         <div className="mt-6 flex flex-col gap-5">
+                          {/* CTA — PC 는 대제목 옆이지만 모바일 제목은 아코디언 버튼 안이라 본문 위에 둔다 */}
+                          {sec.cta?.[i] && <div className="flex justify-end">{sec.cta[i]}</div>}
                           {tab.blocks.map((b, bi) => (
                             <div key={bi} className="flex flex-col gap-2">
                               {b.h && <p className="text-[15px] font-bold leading-[1.3] tracking-[-0.45px] text-black">{b.h}</p>}
