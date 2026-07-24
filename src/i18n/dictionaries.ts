@@ -110,7 +110,7 @@ const ko = {
     koriaDulegil: {
       title: "코리아둘레길",
       /** "완보인증" 탭 제목 옆 CTA 버튼 라벨 */
-      certifyCta: "완보인증",
+      certifyCta: "완보 인증",
       tabs: [
         {
           name: "코리아둘레길",
